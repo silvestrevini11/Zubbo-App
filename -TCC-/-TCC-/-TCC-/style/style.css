@@ -1,0 +1,162 @@
+.Titulo{
+display: flex; 
+justify-content: center; 
+align-items: center; 
+margin-top: 35px;  
+text-shadow: 2px 1px 3px orange; 
+}
+.Nome-Titulo{
+    color: rgb(255, 123, 0);
+}
+.Tela{
+    display: grid;
+    background-color: black;
+}
+.buttons{
+    margin-top: 143%;
+    margin-left: 78px;
+}
+body{
+    background-color: black;
+}
+
+
+
+/* From Uiverse.io by cssbuttons-io */ 
+button {
+ position: relative;
+ border: none;
+ background: transparent;
+ padding: 0;
+ cursor: pointer;
+ outline-offset: 4px;
+ transition: filter 250ms;
+ user-select: none;
+ touch-action: manipulation;
+}
+
+.shadow {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ border-radius: 12px;
+ background: hsl(0deg 0% 0% / 0.25);
+ will-change: transform;
+ transform: translateY(2px);
+ transition: transform
+    600ms
+    cubic-bezier(.3, .7, .4, 1);
+}
+
+.edge {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ border-radius: 12px;
+ background: linear-gradient(
+    to left,
+    hsla(0, 0%, 40%, 0.293) 0%,
+    hsl(0, 0%, 33%) 8%,
+    hsl(0, 0%, 32%) 92%,
+    hsl(0, 0%, 76%) 100%
+  );
+}
+
+
+
+
+.front {
+ display: block;
+ position: relative;
+ padding: 12px 27px;
+ border-radius: 12px;
+ font-size: 1.1rem;
+ color: rgb(0, 0, 0);
+ background: hsl(18, 14%, 86%);
+ will-change: transform;
+ transform: translateY(-4px);
+ transition: transform
+    600ms
+    cubic-bezier(.3, .7, .4, 1);
+}
+.front2 {
+ display: block;
+ position: relative;
+ padding: 12px 27px;
+ border-radius: 12px;
+ font-size: 1.1rem;
+ color: rgb(255, 255, 255);
+background: hsl(21, 100%, 47%);
+ will-change: transform;
+ transform: translateY(-4px);
+ transition: transform
+    600ms
+    cubic-bezier(.3, .7, .4, 1);
+}
+
+
+
+.edge2 {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ border-radius: 12px;
+ background: linear-gradient(
+    to left,
+    hsla(21, 100%, 50%, 0.293) 0%,
+    hsl(27, 100%, 32%) 8%,
+    hsl(32, 100%, 32%) 92%,
+    hsl(21, 100%, 49%) 100%
+  );
+}
+
+
+button:hover {
+ filter: brightness(110%);
+}
+
+button:hover .front {
+ transform: translateY(-6px);
+ transition: transform
+    250ms
+    cubic-bezier(.3, .7, .4, 1.5);
+}
+
+button:active .front {
+ transform: translateY(-2px);
+ transition: transform 34ms;
+}
+
+button:hover .front2 {
+ transform: translateY(-6px);
+ transition: transform
+    250ms
+    cubic-bezier(.3, .7, .4, 1.5);
+}
+
+button:active .front2 {
+ transform: translateY(-2px);
+ transition: transform 34ms;
+}
+
+button:hover .shadow {
+ transform: translateY(4px);
+ transition: transform
+    250ms
+    cubic-bezier(.3, .7, .4, 1.5);
+}
+
+button:active .shadow {
+ transform: translateY(1px);
+ transition: transform 34ms;
+}
+
+button:focus:not(:focus-visible) {
+ outline: none;
+}

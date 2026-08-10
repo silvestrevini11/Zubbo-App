@@ -1,25 +1,125 @@
+body {
+    margin: 0;
+    width: 100%;
+    min-height: 100vh;
+}
+.field {
+    width: 85%;
+    margin: 0 auto;
+}
+
+.field label {
+    display: block;
+    font-size: 3rem;
+    margin-top: 3px;
+}
+
+.field input {
+    width: 100%;
+    height: 180px;
+    box-sizing: border-box;
+    padding: 0 20px;
+    font-size: 3.6rem;
+    border-radius: 10px;
+}
 .Titulo{
-display: flex; 
-justify-content: center; 
-align-items: center; 
-margin-top: 35px;  
-text-shadow: 2px 1px 3px orange; 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.Titulo-log{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10%;
+}
+.Titulo-cad{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10%;
+}
+.cad-sub{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 65%;
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-top: 5%;
+}
+.log-sub{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    width: 65%;
+    margin-left: 20%;
+    margin-right: 20%;
+    margin-top: 5%;
+}
+h1{
+    font-size: 75px;
+}
+h2{
+    font-size: 50px;
 }
 .Nome-Titulo{
     color: rgb(255, 123, 0);
 }
-.Tela{
-    display: grid;
-    background-color: black;
+.login-nome{
+    color: white;
 }
-.buttons{
-    margin-top: 143%;
-    margin-left: 78px;
+.cad-nome{
+    color: white;
 }
-body{
-    background-color: black;
+.Tela {
+    width: 100%;
+    height: 100vh;
+
+    position: relative;
+    overflow: hidden;
+
+    background-image: url('../imagem/back1.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
+.buttons {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+.buttons{
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 300px;
+    gap: 70px;
+    padding-bottom: 20px;
+}
+.but{
+    padding-top: 50px;
+    padding-bottom: 50px;
+    bottom: 30px;
+    left: 0;
+
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+.logo{
+    flex: 1;
+}
 
 
 /* From Uiverse.io by cssbuttons-io */ 
@@ -34,7 +134,6 @@ button {
  user-select: none;
  touch-action: manipulation;
 }
-
 .shadow {
  position: absolute;
  top: 0;
@@ -49,7 +148,6 @@ button {
     600ms
     cubic-bezier(.3, .7, .4, 1);
 }
-
 .edge {
  position: absolute;
  top: 0;
@@ -65,16 +163,12 @@ button {
     hsl(0, 0%, 76%) 100%
   );
 }
-
-
-
-
 .front {
  display: block;
  position: relative;
- padding: 12px 27px;
+ padding: 56px 108px;
  border-radius: 12px;
- font-size: 1.1rem;
+ font-size: 3rem;
  color: rgb(0, 0, 0);
  background: hsl(18, 14%, 86%);
  will-change: transform;
@@ -86,9 +180,9 @@ button {
 .front2 {
  display: block;
  position: relative;
- padding: 12px 27px;
+ padding: 56px 108px;
  border-radius: 12px;
- font-size: 1.1rem;
+ font-size: 3rem;
  color: rgb(255, 255, 255);
 background: hsl(21, 100%, 47%);
  will-change: transform;
@@ -97,9 +191,6 @@ background: hsl(21, 100%, 47%);
     600ms
     cubic-bezier(.3, .7, .4, 1);
 }
-
-
-
 .edge2 {
  position: absolute;
  top: 0;
@@ -111,8 +202,8 @@ background: hsl(21, 100%, 47%);
     to left,
     hsla(21, 100%, 50%, 0.293) 0%,
     hsl(27, 100%, 32%) 8%,
-    hsl(32, 100%, 32%) 92%,
-    hsl(21, 100%, 49%) 100%
+    hsl(32, 100%, 28%) 92%,
+    hsl(21, 100%, 23%) 100%
   );
 }
 

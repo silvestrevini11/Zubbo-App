@@ -6,7 +6,7 @@ id_user int primary key auto_increment,
 nome_user varchar(50) not null,
 email_user varchar(70) not null,
 tel_user varchar(20) not null,
-idade_user int not null
+datanasc_user date not null
 );
 
 create table Conversa(
@@ -29,7 +29,7 @@ create table Participantes_Conversa(
 id_user int,
 id_conversa int,
 
- UNIQUE(id_user, id_conversa), /*define as duas FK como chave primaria composta, porque a combinação entre as duas FK nunca pode se repetir entao o mesmo usuario nao pode estar duas vezes na conversa*/
+ primary key(id_user, id_conversa), /*define as duas FK como chave primaria composta, porque a combinação entre as duas FK nunca pode se repetir entao o mesmo usuario nao pode estar duas vezes na conversa*/
  constraint userFK foreign key (id_user) references Usuario(id_user),
  constraint conversaFK foreign key (id_conversa) references Conversa(id_conversa)
 );
@@ -45,9 +45,9 @@ constraint id_criadorFK foreign key (id_criador) references Usuario(id_user)
 );
 
 CREATE TABLE ParticipantesEquipe (
-    id_partEquipe INT PRIMARY KEY AUTO_INCREMENT,
-    id_user INT,
-    id_equipe INT,
+    id_partEquipe int primary key auto_increment,
+    id_user int,
+    id_equipe int,
 
     constraint id_usuarioFK foreign key(id_user) references Usuario(id_user),
     constraint id_equipeFK foreign key (id_equipe) references Equipe(id_equipe),
@@ -57,7 +57,7 @@ CREATE TABLE ParticipantesEquipe (
 
 create table Esporte(
 id_esporte int primary key auto_increment,
-nome_esporte enum('Futsal','Volei','Futebol','Handebol')
+nome_esporte varchar(35) not null
 );
 create table evento (
     id_evento int primary key auto_increment,
@@ -67,22 +67,9 @@ create table evento (
     id_esporte int not null,
     id_criador int not null,
 
-    constraint fk_evento_esporte foreign key (id_esporte)
-    references esporte(id_esporte),
+    constraint fk_evento_esporte foreign key (id_esporte) references esporte(id_esporte),
 
-    constraint fk_evento_usuario foreign key (id_criador)
-    references usuario(id_user)
-);
-
-create table clube (
-    id_clube int primary key auto_increment,
-    nome_clube varchar(100) not null,
-    tel_clube varchar(15),
-    endereco_clube varchar(150) not null,
-    id_esporte int not null,
-
-    constraint fk_clube_esporte foreign key (id_esporte)
-    references esporte(id_esporte)
+    constraint fk_evento_usuario foreign key (id_criador) references usuario(id_user)
 );
 
 create table equipesevento (
@@ -91,11 +78,8 @@ create table equipesevento (
 
     primary key (id_evento, id_equipe),
 
-    constraint fk_equipesevento_evento foreign key (id_evento)
-    references evento(id_evento),
-
-    constraint fk_equipesevento_equipe foreign key (id_equipe)
-    references equipe(id_equipe)
+    constraint fk_equipesevento_evento foreign key (id_evento) references evento(id_evento),
+    constraint fk_equipesevento_equipe foreign key (id_equipe) references equipe(id_equipe)
 );
 
 create table lista_evento (
@@ -104,11 +88,35 @@ create table lista_evento (
 
     primary key (id_user, id_evento),
 
-    constraint fk_listaevento_usuario foreign key (id_user)
-    references Usuario(id_user),
+    constraint fk_listaevento_usuario foreign key (id_user) references Usuario(id_user),
 
-    constraint fk_listaevento_evento foreign key (id_evento)
-    references evento(id_evento)
+    constraint fk_listaevento_evento foreign key (id_evento) references evento(id_evento)
 );
+create table voto_sugestao (
+    id_sugestao int not null,
+    id_user int not null,
+
+    primary key (id_sugestao, id_user),
+
+    constraint fk_voto_sugestao foreign key (id_sugestao)
+    references sugestao_esporte(id_sugestao),
+
+    constraint fk_voto_usuario foreign key (id_user)
+    references usuario(id_user)
+);
+
+create table sugestao_esporte (
+    cod_sugestao int primary key auto_increment,
+    nome_esporte varchar(50) not null,
+    id_user int not null,
+    status_sugestao enum('pendente', 'aprovada', 'rejeitada') not null default 'pendente',
+
+    constraint fk_sugestao_usuario foreign key (id_user)
+    references usuario(id_user)
+);
+
+
 alter table Mensagem
 	add constraint id_conversaFK foreign key (id_conversa) references Conversa(id_conversa); 
+alter table Usuario
+	add password_user varchar(35);

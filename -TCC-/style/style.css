@@ -2,6 +2,69 @@
    RESET
 ================================ */
 
+
+ .dropdown-cad {
+            width: 250px;
+            position: relative;
+        }
+
+        .dropdown-button-cad {
+            width: 100%;
+            height: 35px;
+            background: white;
+            border: 1px solid #999;
+            border-radius: 3px;
+            text-align: left;
+            padding: 0 10px;
+            cursor: pointer;
+        }
+
+        .lista-cad {
+            display: none;
+            position: absolute;
+            top: 40px;
+            width: 100%;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px #aaa;
+            z-index: 10;
+        }
+
+        .lista-cad.aberta {
+            display: block;
+        }
+
+        .opcao-cad {
+    width: 100%;
+
+    padding: 14px 18px;
+
+    background: #ffffff;
+
+    color: #333333;
+
+    font-size: 14px;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: 0.15s ease;
+}
+
+
+.opcao-cad:hover {
+    background: #f0f2ff;
+}
+
+.opcao-cad.selecionada {
+    background: #ef4b25;
+
+    color: #ffffff;
+
+    font-weight: 600;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -432,5 +495,524 @@ a {
     .under-init {
         font-size: 15px;
         padding-left: 52px;
+    }
+}
+
+/* =====================================================
+   TELA DE CADASTRO
+===================================================== */
+
+.Tela-cad {
+    width: 100%;
+    max-width: 428px;
+
+    min-height: 100vh;
+
+    margin: 0 auto;
+
+    padding: 34px 34px 45px;
+
+    background: #ffffff;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    border-radius: 0 0 42px 42px;
+
+    overflow: visible;
+}
+
+
+/* =====================================================
+   LOGO
+===================================================== */
+
+.logo-cad {
+    display: block;
+
+    width: 102px;
+    height: 102px;
+
+    margin: 0 auto;
+
+    object-fit: contain;
+
+    background: #000000;
+
+    border-radius: 50%;
+}
+
+
+/* =====================================================
+   TÍTULO
+===================================================== */
+
+.title-cad {
+    width: 100%;
+
+    margin: 18px 0 0;
+
+    padding: 0;
+
+    color: #050505;
+
+    font-size: 31px;
+    font-weight: 800;
+
+    line-height: 1.1;
+
+    text-align: center;
+}
+
+
+/* =====================================================
+   SUBTÍTULO LARANJA
+===================================================== */
+
+.desc-cad {
+    width: 100%;
+
+    margin: 10px 0 28px;
+
+    color: #ef4b25;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    line-height: 1.25;
+
+    text-align: center;
+}
+
+
+/* =====================================================
+   CAMPOS
+===================================================== */
+
+.field-cad {
+    width: 100%;
+
+    margin: 0 0 10px;
+
+    padding: 0;
+}
+
+
+.field-cad input {
+    display: block;
+
+    width: 100%;
+    height: 44px;
+
+    margin: 0;
+
+    padding: 0 20px;
+
+    border: none;
+    outline: none;
+
+    border-radius: 12px;
+
+    background: #f0f2ff;
+
+    color: #222222;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    box-shadow: none;
+
+    appearance: none;
+
+    transition: 0.2s;
+}
+
+
+.field-cad input::placeholder {
+    color: #a7a9b1;
+
+    opacity: 1;
+
+    font-size: 16px;
+}
+
+
+.field-cad input:focus {
+    background: #e9ecfc;
+
+    box-shadow: 0 0 0 2px rgba(239, 75, 37, 0.15);
+}
+
+
+/* =====================================================
+   TEXTO EXPLICATIVO
+===================================================== */
+
+.par-cad {
+    width: 100%;
+
+    margin: -2px 0 10px;
+
+    padding: 0 10px;
+
+    color: #99999d;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    line-height: 1.25;
+
+    text-align: left;
+}
+
+
+/* =====================================================
+   TÍTULOS "DATA..." E "DEFICIÊNCIA..."
+===================================================== */
+
+.sub-title-cad {
+    width: 100%;
+
+    margin: 27px 0 10px;
+
+    padding: 0 7px;
+
+    color: #080808;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    text-align: left;
+}
+
+
+/* =====================================================
+   DATA
+===================================================== */
+
+.field-cad input[type="date"] {
+    color: #a7a9b1;
+
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+.field-cad input[type="date"]::-webkit-datetime-edit {
+    color: #a7a9b1;
+}
+
+
+.field-cad input[type="date"]::-webkit-datetime-edit-text {
+    color: #a7a9b1;
+}
+
+
+.field-cad input[type="date"]::-webkit-datetime-edit-day-field,
+.field-cad input[type="date"]::-webkit-datetime-edit-month-field,
+.field-cad input[type="date"]::-webkit-datetime-edit-year-field {
+    color: #a7a9b1;
+}
+
+
+/* =====================================================
+   DROPDOWN
+===================================================== */
+
+.dropdown-cad {
+    position: relative;
+
+    width: 100%;
+
+    margin: 0;
+}
+
+
+.dropdown-button-cad {
+    display: block;
+
+    width: 100%;
+    height: 44px;
+
+    padding: 0 20px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #f0f2ff;
+
+    color: #a7a9b1;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+.dropdown-button-cad:hover {
+    background: #e9ecfc;
+}
+
+
+/* =====================================================
+   LISTA DROPDOWN
+===================================================== */
+
+.lista-cad {
+    display: none;
+
+    position: absolute;
+
+    top: 50px;
+    left: 0;
+
+    width: 100%;
+
+    background: #ffffff;
+
+    border-radius: 12px;
+
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+
+    overflow: hidden;
+
+    z-index: 100;
+}
+
+
+.lista-cad.aberta {
+    display: block;
+}
+
+
+.opcao-cad {
+    width: 100%;
+
+    padding: 14px 18px;
+
+    background: #ffffff;
+
+    color: #333333;
+
+    font-size: 14px;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+.opcao-cad:hover {
+    background: #f0f2ff;
+}
+
+
+.opcao-cad.selecionada {
+    background: #ef4b25;
+
+    color: #ffffff;
+}
+
+
+/* =====================================================
+   SEGURANÇA
+===================================================== */
+
+.seguranca-cad {
+    width: 100%;
+
+    min-height: 35px;
+
+    margin: 12px 0 10px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color: #99999d;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    text-align: left;
+}
+
+
+.seguranca-icone {
+    width: 27px;
+    height: 27px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 6px;
+
+    background: #ef4b25;
+
+    color: #ffffff;
+
+    font-size: 17px;
+    font-weight: 900;
+}
+
+
+/* =====================================================
+   BOTÃO
+===================================================== */
+
+.btn-cad {
+    display: block;
+
+    width: 100%;
+    height: 58px;
+
+    margin: 0;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background: #ef4b25;
+
+    color: #ffffff;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 12px 25px rgba(65, 92, 210, 0.25);
+
+    transition: 0.2s ease;
+}
+
+
+.btn-cad:hover {
+    background: #df421d;
+
+    transform: translateY(-1px);
+}
+
+
+.btn-cad:active {
+    transform: scale(0.98);
+}
+
+
+/* =====================================================
+   ENTRAR
+===================================================== */
+
+.enter-cad {
+    width: 100%;
+
+    margin: 18px 0 0;
+
+    padding: 0;
+
+    color: #080808;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    line-height: 1.3;
+
+    text-align: center;
+}
+
+
+.enter-cad a {
+    color: #ef4b25;
+
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+
+.enter-cad a:hover {
+    text-decoration: underline;
+}
+
+
+/* =====================================================
+   RESPONSIVIDADE
+===================================================== */
+
+@media (max-width: 430px) {
+
+    .Tela-cad {
+        width: 100%;
+
+        padding-left: 34px;
+        padding-right: 34px;
+    }
+}
+
+
+/* =====================================================
+   CELULARES PEQUENOS
+===================================================== */
+
+@media (max-width: 360px) {
+
+    .Tela-cad {
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+
+    .logo-cad {
+        width: 100px;
+        height: 100px;
+    }
+
+    .title-cad {
+        font-size: 30px;
+    }
+
+    .desc-cad {
+        font-size: 15px;
+    }
+
+    .sub-title-cad {
+        font-size: 19px;
+    }
+
+    .field-cad input,
+    .dropdown-button-cad {
+        height: 44px;
+    }
+
+    .btn-cad {
+        height: 58px;
+
+        font-size: 20px;
     }
 }

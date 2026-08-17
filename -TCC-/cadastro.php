@@ -21,7 +21,7 @@ include __DIR__.'/includes/head.php';
     <p class="par-cad">Usaremos para recuperação de conta e notificações</p>
 
     <div class="field-cad">
-        <input type="tel" placeholder="Telefone" name="telefone" required>
+        <input type="tel" placeholder="Telefone" inputmode="numeric" name="telefone" maxlength="15" pattern="[0-9]*" required>
     </div>
 
     <p class="par-cad">Usaremos para login e contato</p>

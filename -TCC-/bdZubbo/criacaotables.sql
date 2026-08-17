@@ -89,20 +89,16 @@ create table lista_evento (
     primary key (id_user, id_evento),
 
     constraint fk_listaevento_usuario foreign key (id_user) references Usuario(id_user),
-
     constraint fk_listaevento_evento foreign key (id_evento) references evento(id_evento)
 );
 create table voto_sugestao (
-    id_sugestao int not null,
+    cod_sugestao int not null,
     id_user int not null,
 
-    primary key (id_sugestao, id_user),
+    primary key (cod_sugestao, id_user),
 
-    constraint fk_voto_sugestao foreign key (id_sugestao)
-    references sugestao_esporte(id_sugestao),
-
-    constraint fk_voto_usuario foreign key (id_user)
-    references usuario(id_user)
+    constraint fk_voto_sugestao foreign key (cod_sugestao) references sugestao_esporte(cod_sugestao),
+    constraint fk_voto_usuario foreign key (id_user) references usuario(id_user)
 );
 
 create table sugestao_esporte (
@@ -111,10 +107,8 @@ create table sugestao_esporte (
     id_user int not null,
     status_sugestao enum('pendente', 'aprovada', 'rejeitada') not null default 'pendente',
 
-    constraint fk_sugestao_usuario foreign key (id_user)
-    references usuario(id_user)
+    constraint fk_sugestao_usuario foreign key (id_user) references usuario(id_user)
 );
-
 
 alter table Mensagem
 	add constraint id_conversaFK foreign key (id_conversa) references Conversa(id_conversa); 

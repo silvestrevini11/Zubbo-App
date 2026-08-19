@@ -1,12 +1,13 @@
 create database app_zubbo;
 use app_zubbo;
 
-create table Usuario(
-id_user int primary key auto_increment,
-nome_user varchar(50) not null,
-email_user varchar(70) not null,
-tel_user varchar(20) not null,
-idade_user int not null
+CREATE TABLE Usuario(
+    id_user INT PRIMARY KEY AUTO_INCREMENT,
+    nome_user VARCHAR(50) NOT NULL,
+    email_user VARCHAR(70) NOT NULL UNIQUE,
+    tel_user VARCHAR(20) NOT NULL,
+    senha_user VARCHAR(255) NOT NULL,
+    date_user DATE NOT NULL
 );
 
 create table Conversa(

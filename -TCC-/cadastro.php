@@ -10,6 +10,7 @@ include __DIR__.'/includes/head.php';
 
     <p class="desc-cad">Junta-se à comunidade e viva o esporte</p>
 
+    <form class="Cadastro-tabela" action="insert-user.php" method="post">
     <div class="field-cad">
         <input type="text" placeholder="Nome Completo" name="name-txt" required>
     </div>
@@ -21,18 +22,22 @@ include __DIR__.'/includes/head.php';
     <p class="par-cad">Usaremos para recuperação de conta e notificações</p>
 
     <div class="field-cad">
-        <input type="tel" placeholder="Telefone" inputmode="numeric" name="telefone" maxlength="15" pattern="[0-9]*" required>
+        <input type="tel" placeholder="Telefone" inputmode="numeric" name="telefone-tel" maxlength="15" pattern="[0-9]*" required>
     </div>
 
     <p class="par-cad">Usaremos para login e contato</p>
 
     <div class="field-cad">
-        <input type="password" placeholder="Senha" name="Senha-pass" required>
+        <input type="password" placeholder="Senha" name="Senha-pass" id="senha" required>
     </div>
 
     <div class="field-cad">
-        <input type="password" placeholder="Confirmar Senha" name="Senha-pass-confirma" required>
+        <input type="password" placeholder="Confirmar Senha" name="confirmar-senha" id="confirmar-senha" required>
     </div>
+
+    <p id="erro-senha" style="display: none;">
+        As senhas não coincidem.
+    </p>
 
     <h2 class="sub-title-cad">Data de nascimento</h2>
 
@@ -64,7 +69,9 @@ include __DIR__.'/includes/head.php';
         <span>Suas informações estão seguras com a gente</span>
     </div>
 
-    <button class="btn-cad">Criar conta</button>
+    <button class="btn-cad" type="submit">Criar conta</button>
+    </form>
+    
 
     <h3 class="enter-cad">
         Já tem uma conta?
@@ -197,6 +204,32 @@ include __DIR__.'/includes/head.php';
         }
 
     });
+</script>
+
+<script>
+    const formulario = document.querySelector(".Cadastro-tabela");
+const senha = document.getElementById("senha");
+const confirmarSenha = document.getElementById("confirmar-senha");
+const erroSenha = document.getElementById("erro-senha");
+
+formulario.addEventListener("submit", function(event) {
+
+    if (senha.value !== confirmarSenha.value) {
+
+        event.preventDefault();
+
+        erroSenha.style.display = "block";
+        erroSenha.textContent = "As senhas não coincidem.";
+
+        confirmarSenha.focus();
+
+    } else {
+
+        erroSenha.style.display = "none";
+
+    }
+
+});
 </script>
 
 <?php

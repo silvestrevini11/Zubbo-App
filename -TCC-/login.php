@@ -10,7 +10,7 @@ include 'includes/head.php';
 
     <p class="login-subtitle">Que bom te ver de novo!</p>
 
-    <form action="" method="POST">
+    <form action="Painel-inicial.php" method="POST">
 
         <input 
             type="email" 

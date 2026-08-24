@@ -2146,3 +2146,490 @@ section {
 
     border-radius: 50%;
 }
+
+/* =====================================================
+   PERFIL
+===================================================== */
+
+section {
+    background: #ffffff;
+}
+
+
+/* =====================================================
+   BOTÕES DO TOPO
+===================================================== */
+
+.perfil-config,
+.perfil-editar {
+    position: absolute;
+
+    top: 22px;
+
+    width: 42px;
+    height: 42px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #f2f2f2;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.perfil-config {
+    left: 20px;
+}
+
+.perfil-editar {
+    right: 20px;
+}
+
+.perfil-config:hover,
+.perfil-editar:hover {
+    background: #e5e5e5;
+}
+
+.perfil-config:active,
+.perfil-editar:active {
+    transform: scale(0.9);
+}
+
+.perfil-config::before {
+    content: "⚙";
+    font-size: 21px;
+    color: #222222;
+}
+
+.perfil-editar::before {
+    content: "✎";
+    font-size: 21px;
+    color: #222222;
+}
+
+/* =====================================================
+   FOTO
+===================================================== */
+
+.perfil-pic-label {
+    display: block;
+
+    width: 110px;
+    height: 110px;
+
+    margin: 18px auto 0;
+
+    border-radius: 50%;
+
+    overflow: hidden;
+
+    border: 3px solid #FF5A00;
+
+    background: #eeeeee;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.perfil-pic-label:hover {
+    transform: scale(1.03);
+}
+
+.perfil-pic {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    border-radius: 50%;
+}
+
+
+/* =====================================================
+   NOME
+===================================================== */
+
+.perfil-nome {
+    margin: 12px 20px 0;
+
+    text-align: center;
+
+    color: #111111;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    line-height: 1.2;
+}
+
+
+/* =====================================================
+   EMAIL / USERNAME
+===================================================== */
+
+.perfil-email {
+    margin: 5px 20px 0;
+
+    text-align: center;
+
+    color: #666666;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+/* =====================================================
+   NÍVEL
+===================================================== */
+
+.perfil-nivel {
+    display: flex;
+
+    justify-content: center;
+
+    margin-top: 10px;
+}
+
+.perfil-nivel-nome {
+    margin: 0;
+
+    padding: 6px 13px;
+
+    border-radius: 8px;
+
+    background: #FF5A00;
+
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    box-shadow: 0 3px 8px rgba(255, 90, 0, 0.20);
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.perfil-status {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    width: calc(100% - 40px);
+
+    margin: 27px auto 0;
+
+    padding: 0;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+.perfil-eventos,
+.perfil-amigos,
+.perfil-seguindo {
+    min-width: 0;
+
+    padding: 0 8px 18px;
+
+    text-align: center;
+
+    border-right: 1px solid #dddddd;
+}
+
+.perfil-seguindo {
+    border-right: none;
+}
+
+.perfil-name {
+    margin: 0 0 6px;
+
+    color: #222222;
+
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.perfil-eventos-num,
+.perfil-amigos-num,
+.perfil-seguindo-num {
+    margin: 0;
+
+    color: #111111;
+
+    font-size: 21px;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   SOBRE MIM
+===================================================== */
+
+.perfil-sobre {
+    width: calc(100% - 40px);
+
+    margin: 22px auto 0;
+
+    padding: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 12px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.perfil-sobremim {
+    margin: 0 0 12px;
+
+    color: #111111;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.perfil-sobremim-texto {
+    margin: 0;
+
+    color: #444444;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+
+/* =====================================================
+   MEUS ESPORTES
+===================================================== */
+
+.perfil-esportes {
+    width: calc(100% - 40px);
+
+    margin: 25px auto 0;
+}
+
+.perfil-esportes > h2 {
+    margin: 0 0 15px;
+
+    color: #111111;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+/* LISTA */
+
+.esportes-lista {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 12px;
+
+    width: 100%;
+}
+
+
+/* =====================================================
+   CARD DE ESPORTE
+===================================================== */
+
+.esporte-card {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 0;
+
+    text-align: center;
+}
+
+.esporte-card::before {
+    content: "";
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    margin-bottom: 6px;
+
+    border-radius: 50%;
+
+    font-size: 20px;
+}
+
+.esporte-card span {
+    display: block;
+
+    color: #222222;
+
+    font-size: 11px;
+    font-weight: 500;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   CORES DOS ESPORTES
+===================================================== */
+
+.esporte-futebol::before {
+    content: "⚽";
+
+    background: #ff4b1f;
+}
+
+.esporte-basquete::before {
+    content: "🏀";
+
+    background: #8e44ad;
+}
+
+.esporte-volei::before {
+    content: "🏐";
+
+    background: #f39c12;
+}
+
+.esporte-tenis::before {
+    content: "🎾";
+
+    background: #27ae60;
+}
+
+.esporte-futesal::before {
+    content: "⚽";
+
+    background: #e74c3c;
+}
+
+.esporte-handebol::before {
+    content: "🤾";
+
+    background: #3498db;
+}
+
+.esporte-outro::before {
+    content: "★";
+
+    background: #777777;
+
+    color: #ffffff;
+}
+
+
+/* =====================================================
+   EVENTOS ORGANIZADOS
+===================================================== */
+
+.perfil-organiza-eventos {
+    width: calc(100% - 40px);
+
+    margin: 28px auto 0;
+}
+
+.perfil-organiza-eventos > h2 {
+    display: inline-block;
+
+    margin: 0;
+
+    color: #111111;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.perfil-organiza-eventos > p {
+    float: right;
+
+    margin: 2px 0 0;
+
+    color: #FF5A00;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   ÁREA DOS EVENTOS
+===================================================== */
+
+.perfil-eventos-idos {
+    clear: both;
+
+    min-height: 80px;
+
+    margin-top: 14px;
+
+    padding: 18px;
+
+    background: #f8f8f8;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 14px;
+}
+
+
+/* =====================================================
+   RESPONSIVIDADE
+===================================================== */
+
+@media (max-width: 360px) {
+
+    .perfil-pic-label {
+        width: 100px;
+        height: 100px;
+    }
+
+    .perfil-nome {
+        font-size: 22px;
+    }
+
+    .perfil-status {
+        width: calc(100% - 30px);
+    }
+
+    .perfil-sobre,
+    .perfil-esportes,
+    .perfil-organiza-eventos {
+        width: calc(100% - 30px);
+    }
+
+    .esportes-lista {
+        gap: 8px;
+    }
+
+    .esporte-card::before {
+        width: 38px;
+        height: 38px;
+    }
+
+    .esporte-card span {
+        font-size: 10px;
+    }
+}

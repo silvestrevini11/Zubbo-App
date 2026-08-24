@@ -1,15 +1,15 @@
 <?php
 
-if(!isset($_SERVER['REQUEST_METHOD'])==="POST"){
-    header('Location:form-usuario.php');
-    die();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: form-usuario.php');
+    exit;
 }
 // if(empty($_POST['name']),empty($_POST['name']))
 include __DIR__.'/../../../config/database.php'; 
 $nome=$_POST['name-txt'];
 $email=$_POST['email-txt'];
 $telefone=$_POST['telefone-tel'];
-$senha=$_POST['Senha-pass'];
+$senha = password_hash($_POST['Senha-pass'], PASSWORD_DEFAULT);
 $data=$_POST['data-nasc'];
 //variaveis statment para preparar a
 $stmt=$conn->prepare('insert into Usuario (nome_user, email_user, tel_user, senha_user, date_user)values(?,?,?,?,?)');

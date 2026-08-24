@@ -1,6 +1,17 @@
-<?php 
+<?php
+
+session_start();
+
 include __DIR__ .'/../includes/head.php';
 include __DIR__.'/../../../config/database.php';
+
+if (!isset($_SESSION['usuario'])) {
+    header('Location: ../login/login.php');
+    exit;
+}
+
+$nomeUsuario = $_SESSION['usuario']['nome'];
+
 ?>
 <section style="padding-bottom: 80px;
 }">
@@ -9,7 +20,7 @@ include __DIR__.'/../../../config/database.php';
 
 <a href="../notificacoes/notificacoes.php"><img class="painel-notificacao" src="../../../public/imagem/Sino.png" alt=""></a>
 
-<h1 class="painel-saudacoes">Olá <strong id="painel-nome" class="painel-saudacoes-cor"></strong> </h1>
+<h1 class="painel-saudacoes">Olá <strong class="painel-saudacoes-cor"><?= htmlspecialchars($nomeUsuario) ?></strong></h1>
 
 <h4 class="painel-sub-saudacoes">Pronto para <strong class="painel-sub-saudacoes-cor">jogar</strong> hoje</h4>
 </div>

@@ -13,8 +13,7 @@ if (!isset($_SESSION['usuario'])) {
 $nomeUsuario = $_SESSION['usuario']['nome'];
 
 ?>
-<section style="padding-bottom: 80px;
-}">
+<section style="padding-bottom: 80px;">
 
 <div class="painel-top">
 

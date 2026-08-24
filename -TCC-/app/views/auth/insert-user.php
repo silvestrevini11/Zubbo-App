@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: form-usuario.php');
     exit;
@@ -20,5 +22,12 @@ $stmt->bindParam(4,$senha);
 $stmt->bindParam(5,$data);
 $stmt->execute();
 
-header('Location: login.php');
+$id_user = $conn->lastInsertId();
+
+$_SESSION['usuario'] = [
+    'id' => $id_user,
+    'nome' => $nome
+];
+
+header('Location: escolher-esportes.php');
 ?>

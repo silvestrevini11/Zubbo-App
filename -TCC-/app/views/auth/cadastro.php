@@ -4,6 +4,10 @@ include __DIR__.'/../includes/head.php';
 
 <section class="Tela-cad">
 
+    <button class="btn-voltar" onclick="history.back()">
+    ←  
+    </button>
+
     <img class="logo-cad" src="/../-TCC-/public/imagem/LogooZ.png" alt="">
 
     <h1 class="title-cad">Criar Conta</h1>

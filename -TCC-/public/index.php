@@ -1,4 +1,10 @@
 <?php
+session_start();
+
+if (isset($_SESSION['usuario'])) {
+    header("Location: ../app/views/painel/painel-inicial.php");
+    exit;
+}
 include __DIR__.'/../app/views/includes/head.php';
 ?>
 <section class="Tela-init">

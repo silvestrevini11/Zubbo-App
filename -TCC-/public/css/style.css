@@ -10,8 +10,8 @@
     max-width: 450px;
     height: 72px;
 
-    background: #111318;
-    border-top: 1px solid #292c33;
+    background: hsl(220, 7%, 91%);
+    border-top: 1px solid #727272;
 
     display: flex;
     align-items: center;
@@ -31,7 +31,7 @@
 
     gap: 4px;
 
-    color: #8b8d94;
+    color: #000000;
     text-decoration: none;
 
     font-size: 11px;
@@ -69,7 +69,7 @@
 
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 
-    border: 5px solid #111318;
+    border: 5px solid #5e5955;
 }
 
 .nav-add span {

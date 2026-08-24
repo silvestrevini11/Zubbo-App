@@ -75,7 +75,7 @@ inputFoto.addEventListener('change', function () {
 </script>
 
 <h1 class="perfil-nome"></h1>
-<h3 class="perfil-email"></h2>
+<h3 class="perfil-email"></h3>
 
 <div class="perfil-nivel">
     <p class="perfil-nivel-nome"></p>
@@ -83,21 +83,21 @@ inputFoto.addEventListener('change', function () {
 
 <div class="perfil-status">
     <div class="perfil-eventos">
-        <h3 class="perfil-name">Eventos</h2>
+        <h3 class="perfil-name">Eventos</h3>
         <h2 class="perfil-eventos-num"></h2>
     </div>
     <div class="perfil-amigos">
-        <h3 class="perfil-name">Amigos</h2>
+        <h3 class="perfil-name">Amigos</h3>
         <h2 class="perfil-amigos-num"></h2>
     </div>
     <div class="perfil-seguindo">
-        <h3 class="perfil-name">Seguindo</h2>
+        <h3 class="perfil-name">Seguindo</h3>
         <h2 class="perfil-seguindo-num"></h2>
     </div>
 </div>
 
 <div class="perfil-sobre">
-    <h2 class="perfil-sobremim">Sobre Mim</h1>
+    <h2 class="perfil-sobremim">Sobre Mim</h2>
 
     <p class="perfil-sobremim-texto"></p>
 </div>

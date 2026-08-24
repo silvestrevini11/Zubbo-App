@@ -5,6 +5,10 @@ include __DIR__.'/../includes/head.php';
 
 <main class="login-container">
 
+<button class="btn-voltar" onclick="history.back()">
+    ←
+</button>
+
     <img src="../../../public/imagem/LogooZ.png" alt="Logo Zubbo" class="login-logo">
 
     <h1>Entrar</h1>

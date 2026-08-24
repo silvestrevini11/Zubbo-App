@@ -11,7 +11,7 @@ include __DIR__.'/../includes/head.php';
 
     <p class="login-subtitle">Que bom te ver de novo!</p>
 
-    <form action="../painel/Painel-inicial.php" method="POST">
+    <form action="processa-login.php" method="POST">
 
         <input 
             type="email" 

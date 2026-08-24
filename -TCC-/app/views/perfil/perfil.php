@@ -24,7 +24,55 @@ $esportes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <button onclick="window.location.href='./perfil-configuracoes.php';" class="perfil-config"></button>
 <button onclick="window.location.href='./perfil-editar.php';" class="perfil-editar"></button>
 
-<img class="perfil-pic" src="" alt="">
+<?php
+    $stmtFoto = $conn->prepare("
+    SELECT foto_user
+    FROM Usuario
+    WHERE id_user = ?
+");
+
+$stmtFoto->execute([$id_user]);
+
+$usuarioFoto = $stmtFoto->fetch(PDO::FETCH_ASSOC);
+
+$fotoPerfil = !empty($usuarioFoto['foto_user'])
+    ? '/-TCC-/' . $usuarioFoto['foto_user']
+    : '/-TCC-/public/imagem/blank.png';
+?>
+
+<form action="upload-foto.php" method="POST" enctype="multipart/form-data">
+
+    <label for="fotoPerfil" class="perfil-pic-label">
+
+        <img
+            class="perfil-pic"
+            src="<?= htmlspecialchars($fotoPerfil) ?>"
+            alt="Foto de perfil"
+        >
+
+    </label>
+
+    <input
+        type="file"
+        id="fotoPerfil"
+        name="fotoPerfil"
+        accept="image/png, image/jpeg, image/webp"
+        hidden
+    >
+
+</form>
+
+<script>
+const inputFoto = document.getElementById('fotoPerfil');
+
+inputFoto.addEventListener('change', function () {
+
+    if (this.files.length > 0) {
+        this.form.submit();
+    }
+
+});
+</script>
 
 <h1 class="perfil-nome"></h1>
 <h3 class="perfil-email"></h2>

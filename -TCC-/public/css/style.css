@@ -2879,3 +2879,192 @@ section {
 .esporte-nome{
     margin-top: 5px;
 }
+
+/* ========================================
+   TELA DE CONFIGURAÇÕES E TEMA
+======================================== */
+
+.configuracoes {
+    width: 100%;
+    max-width: 428px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    padding: 25px 20px 30px;
+    background: #ffffff;
+    color: #222222;
+}
+
+.configuracoes-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 30px;
+}
+
+.configuracoes-voltar {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 50%;
+    background: #f2f2f2;
+    color: #222222;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.configuracoes-legenda {
+    margin: 0 0 2px;
+    color: #ff7a00;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .11em;
+}
+
+.configuracoes-cabecalho h1,
+.configuracoes-grupo h2 {
+    margin: 0;
+}
+
+.configuracoes-cabecalho h1 { font-size: 25px; }
+.configuracoes-grupo { margin-top: 28px; }
+.configuracoes-grupo h2 { margin: 0 0 10px; font-size: 16px; }
+
+.configuracoes-item {
+    display: flex;
+    width: 100%;
+    min-height: 74px;
+    align-items: center;
+    gap: 13px;
+    padding: 12px 14px;
+    border: 1px solid #e8e8e8;
+    border-radius: 14px;
+    background: #ffffff;
+}
+
+.configuracoes-grupo form + .configuracoes-botao { margin-top: 8px; }
+.configuracoes-grupo form { margin: 0 0 8px; }
+
+.configuracoes-icone {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    place-items: center;
+    border-radius: 11px;
+    background: #fff1e6;
+    color: #ff7a00;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.configuracoes-item-texto { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; text-align: left; }
+.configuracoes-item-texto strong { font-size: 14px; }
+.configuracoes-item-texto span { color: #777777; font-size: 12px; line-height: 1.35; }
+.configuracoes-seta { color: #999999; font-size: 27px; }
+
+.configuracoes-botao { cursor: pointer; font-family: inherit; text-align: left; }
+.configuracoes-botao:hover { border-color: #ff7a00; }
+.configuracoes-perigo .configuracoes-icone { background: #fff0f0; color: #d93b3b; }
+.configuracoes-perigo strong { color: #c93434; }
+.configuracoes-versao { margin: 38px 0 0; color: #999999; font-size: 12px; text-align: center; }
+.configuracoes-versao span { color: inherit; }
+.configuracoes-erro { margin: -12px 0 12px; padding: 10px 12px; border-radius: 10px; background: #fff0f0; color: #b42318; font-size: 13px; }
+
+.tema-interruptor { position: relative; width: 48px; height: 28px; flex: 0 0 48px; cursor: pointer; }
+.tema-interruptor input { position: absolute; opacity: 0; }
+.tema-interruptor span { display: block; width: 100%; height: 100%; border-radius: 20px; background: #c9c9c9; transition: .2s ease; }
+.tema-interruptor span::after { position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; content: ''; transition: .2s ease; }
+.tema-interruptor input:checked + span { background: #ff7a00; }
+.tema-interruptor input:checked + span::after { transform: translateX(20px); }
+.tema-interruptor input:focus-visible + span { outline: 3px solid rgba(255, 122, 0, .3); outline-offset: 2px; }
+
+.modal-excluir { width: min(360px, calc(100% - 32px)); margin: auto; padding: 0; border: 0; border-radius: 18px; color: #222222; background: #ffffff; box-shadow: 0 20px 50px rgba(0,0,0,.24); }
+.modal-excluir::backdrop { background: rgba(0,0,0,.48); }
+.modal-excluir-conteudo { padding: 24px; }
+.modal-excluir h2 { margin: 0; font-size: 21px; }
+.modal-excluir p { margin: 10px 0 18px; color: #666666; font-size: 14px; line-height: 1.45; }
+.modal-excluir label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 700; }
+.modal-excluir input { width: 100%; height: 44px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 10px; color: inherit; font: inherit; }
+.modal-excluir-acoes { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.modal-excluir-acoes button { min-height: 40px; padding: 0 13px; border: 0; border-radius: 9px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.modal-cancelar { background: #eeeeee; color: #333333; }
+.modal-confirmar { background: #d93b3b; color: #ffffff; }
+
+/* A preferência é aplicada no elemento html e afeta todas as telas existentes. */
+html.tema-escuro body,
+html.tema-escuro section,
+html.tema-escuro .configuracoes,
+html.tema-escuro .painel-top,
+html.tema-escuro .painel-search,
+html.tema-escuro .painel-esportes,
+html.tema-escuro .esportes-container,
+html.tema-escuro .under-bar,
+html.tema-escuro .bottom-nav,
+html.tema-escuro .pesquisa-search,
+html.tema-escuro .resultado-perfil,
+html.tema-escuro .modal-excluir { background: #171717; color: #f4f4f4; }
+
+html.tema-escuro .configuracoes-item,
+html.tema-escuro .perfil-sobre,
+html.tema-escuro .painel-esportes button,
+html.tema-escuro .painel-filtro,
+html.tema-escuro .pesquisa-filtro { border-color: #393939; background: #222222; color: #f4f4f4; }
+
+html.tema-escuro .configuracoes-voltar,
+html.tema-escuro .perfil-config,
+html.tema-escuro .perfil-editar,
+html.tema-escuro .painel-busca,
+html.tema-escuro .pesquisa-busca,
+html.tema-escuro .modal-excluir input { background: #2a2a2a; color: #f4f4f4; border-color: #444444; }
+
+html.tema-escuro .configuracoes-item-texto span,
+html.tema-escuro .configuracoes-versao,
+html.tema-escuro .perfil-email,
+html.tema-escuro .painel-sub-saudacoes,
+html.tema-escuro .under-bar a { color: #bdbdbd; }
+
+html.tema-escuro .configuracoes h1,
+html.tema-escuro .configuracoes h2,
+html.tema-escuro .configuracoes strong,
+html.tema-escuro .perfil-nome,
+html.tema-escuro .perfil-name,
+html.tema-escuro .perfil-eventos-num,
+html.tema-escuro .perfil-amigos-num,
+html.tema-escuro .perfil-sobremim,
+html.tema-escuro .perfil-sobremim-texto,
+html.tema-escuro .painel-saudacoes,
+html.tema-escuro .resultado-perfil,
+html.tema-escuro .resultado-perfil-info strong { color: #f4f4f4; }
+
+/* Textos das telas mais antigas usam cores definidas por classe. Esta regra
+   garante contraste quando a preferência escura estiver ativa. */
+html.tema-escuro body :is(h1, h2, h3, h4, h5, h6, p, span, label, a, button, strong) {
+    color: #f4f4f4;
+}
+
+html.tema-escuro body :is(input, select, textarea) {
+    color: #f4f4f4;
+    background-color: #2a2a2a;
+    border-color: #444444;
+}
+
+html.tema-escuro body :is(input, textarea)::placeholder {
+    color: #bdbdbd;
+}
+
+/* Mantém a identidade visual e as ações de atenção com suas cores próprias. */
+html.tema-escuro .painel-saudacoes-cor,
+html.tema-escuro .painel-sub-saudacoes-cor,
+html.tema-escuro .texto-rosa,
+html.tema-escuro .cor-rosa,
+html.tema-escuro .pink,
+html.tema-escuro .configuracoes-legenda,
+html.tema-escuro .configuracoes-icone,
+html.tema-escuro .configuracoes-perigo strong {
+    color: #ff7a00 !important;
+}
+
+html.tema-escuro .configuracoes-perigo strong {
+    color: #ff6b6b !important;
+}

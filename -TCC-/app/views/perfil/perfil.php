@@ -5,6 +5,17 @@ session_start();
 
 $id_user = $_SESSION['usuario']['id'];
 
+$stmtUsuario = $conn->prepare("
+    SELECT nome_user, email_user
+    FROM Usuario
+    WHERE id_user = ?
+");
+
+$stmtUsuario->execute([$id_user]);
+
+$usuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
+
+
 $stmt = $conn->prepare("
     SELECT e.nome_esporte
     FROM Esporte e
@@ -74,25 +85,27 @@ inputFoto.addEventListener('change', function () {
 });
 </script>
 
-<h1 class="perfil-nome"></h1>
-<h3 class="perfil-email"></h3>
+<h1 class="perfil-nome">
+    <?= htmlspecialchars($usuario['nome_user']) ?>
+</h1>
+
+<h3 class="perfil-email">
+    <?= htmlspecialchars($usuario['email_user']) ?>
+</h3>
+
 
 <div class="perfil-nivel">
-    <p class="perfil-nivel-nome"></p>
+    <p class="perfil-nivel-nome">Nivel-Inciante</p>
 </div>
 
 <div class="perfil-status">
     <div class="perfil-eventos">
         <h3 class="perfil-name">Eventos</h3>
-        <h2 class="perfil-eventos-num"></h2>
+        <h2 class="perfil-eventos-num">0</h2>
     </div>
     <div class="perfil-amigos">
         <h3 class="perfil-name">Amigos</h3>
-        <h2 class="perfil-amigos-num"></h2>
-    </div>
-    <div class="perfil-seguindo">
-        <h3 class="perfil-name">Seguindo</h3>
-        <h2 class="perfil-seguindo-num"></h2>
+        <h2 class="perfil-amigos-num">0</h2>
     </div>
 </div>
 

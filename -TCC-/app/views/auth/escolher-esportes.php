@@ -1,3 +1,4 @@
+
 <?php
 
 session_start();
@@ -30,23 +31,50 @@ include __DIR__ . '/../includes/head.php';
 
         <div class="esportes-grid">
 
-            <?php foreach ($esportes as $esporte): ?>
+ <?php
+$imagensEsportes = [
+    'Basquete' => 'basquete.png',
+    'Futebol'  => 'futebol.png',
+    'Futsal'   => 'futsal.png',
+    'Handebol' => 'handebol.png',
+    'Vôlei'    => 'volei.png',
+    'Corrida'  => 'corrida.png',
+];
+?>
 
-                <label class="esporte-card">
+<?php foreach ($esportes as $esporte): ?>
 
-                    <input
-                        type="checkbox"
-                        name="esportes[]"
-                        value="<?= $esporte['id_esporte'] ?>"
-                    >
+    <?php
+        $nome = $esporte['nome_esporte'];
+        $imagem = $imagensEsportes[$nome] ?? null;
+    ?>
 
-                    <span>
-                        <?= htmlspecialchars($esporte['nome_esporte']) ?>
-                    </span>
+    <label class="esporte-card">
 
-                </label>
+        <input
+            type="checkbox"
+            name="esportes[]"
+            value="<?= $esporte['id_esporte'] ?>"
+        >
 
-            <?php endforeach; ?>
+        <?php if ($imagem): ?>
+            <span class="esporte-emoji">
+                <img class="esporte-img"
+                    src="/-tcc-/public/imagem/<?= htmlspecialchars($imagem) ?>"
+                    alt="<?= htmlspecialchars($nome) ?>"
+                >
+            </span>
+        <?php endif; ?>
+
+        <span class="esporte-nome">
+            <?= htmlspecialchars($nome) ?>
+        </span>
+
+    </label>
+
+<?php endforeach; ?>
+
+
 
         </div>
 
@@ -59,3 +87,4 @@ include __DIR__ . '/../includes/head.php';
 </main>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
+

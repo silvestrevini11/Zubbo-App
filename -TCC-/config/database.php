@@ -12,5 +12,6 @@ try{
 $conn=new PDO('mysql:host='.$host.';port='.$port.';dbname='.$database,$user,$password);
 $conn->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
 }catch(PDOException $e){
-    echo 'ERRO: '.$e->getMessage();
+    http_response_code(500);
+    exit('Não foi possível conectar ao banco de dados. Verifique se o MySQL está iniciado.');
 }

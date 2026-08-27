@@ -53,7 +53,6 @@
     margin: 0 auto;
 
     background: hsl(220, 7%, 91%);
-    border-top: 1px solid #727272;
 
     display: flex;
     align-items: center;
@@ -90,7 +89,8 @@
 }
 
 .nav-icon {
-    font-size: 21px;
+    height: 30px;
+    width: 30px;
     transition: transform 0.15s ease;
 }
 
@@ -123,8 +123,8 @@
 /* BOTÃO + */
 
 .nav-add {
-    width: 54px;
-    height: 54px;
+    width: 60px;
+    height: 60px;
 
     background: #ff4b1f;
     color: white;
@@ -144,7 +144,7 @@
 
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 
-    border: 5px solid #5e5955;
+    border: 5px solid #ff4b1f;
 
     transition:
         transform 0.15s ease,
@@ -1618,6 +1618,27 @@ section {
     transition: all 0.2s ease;
 }
 
+.sport-container {
+    width: 172px;
+    height: 95px;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+    background: #fafafa;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.sport-container img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+
 /* Categoria selecionada */
 
 .painel-esporte-todos {
@@ -1743,11 +1764,6 @@ section {
    BARRA INFERIOR
 ======================================== */
 
-/*
-   Caso o seu under-bar.php utilize essas
-   classes, este estilo deixa a barra clara.
-*/
-
 .under-bar {
     background: #ffffff;
     border-top: 1px solid #EEEEEE;
@@ -1863,7 +1879,8 @@ section {
 }
 
 
-/* GRID */
+/* GRID ai ai
+ */
 
 .esportes-grid {
     width: 100%;
@@ -1885,9 +1902,9 @@ section {
 
     min-width: 0;
 
-    min-height: 70px;
+    min-height: 75px;
 
-    padding: 15px;
+    padding: 5px;
 
     display: flex;
     align-items: center;
@@ -2321,53 +2338,40 @@ section {
 
 .perfil-status {
     display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
+    grid-template-columns: repeat(2, 1fr);
     width: calc(100% - 40px);
-
     margin: 27px auto 0;
-
     padding: 0;
-
     border-bottom: 1px solid #eeeeee;
 }
 
 .perfil-eventos,
-.perfil-amigos,
-.perfil-seguindo {
+.perfil-amigos {
     min-width: 0;
-
     padding: 0 8px 18px;
-
     text-align: center;
-
     border-right: 1px solid #dddddd;
 }
 
-.perfil-seguindo {
+.perfil-amigos {
     border-right: none;
 }
 
 .perfil-name {
     margin: 0 0 6px;
-
     color: #222222;
-
     font-size: 12px;
     font-weight: 500;
 }
 
 .perfil-eventos-num,
-.perfil-amigos-num,
-.perfil-seguindo-num {
+.perfil-amigos-num {
     margin: 0;
-
     color: #111111;
-
     font-size: 21px;
     font-weight: 700;
 }
+
 
 
 /* =====================================================
@@ -2864,4 +2868,14 @@ section {
     border: 2px solid #000000;
 
     flex-shrink: 0;
+}
+
+.esporte-img{
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+.esporte-nome{
+    margin-top: 5px;
 }

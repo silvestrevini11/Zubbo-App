@@ -29,8 +29,8 @@ INSERT INTO Esporte (nome_esporte) VALUES
 ('Futebol'),
 ('Basquete'),
 ('Vôlei'),
-('Tênis'),
-('Futesal'),
+('Futsal'),
+('Corrida'),
 ('Handebol');
 
 ALTER TABLE Usuario

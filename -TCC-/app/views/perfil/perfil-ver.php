@@ -114,6 +114,33 @@ inputFoto.addEventListener('change', function () {
     </div>
 </div>
 
+<div class="perfil-acoes">
+
+    <form action="adicionar-amigo.php" method="POST">
+        <input
+            type="hidden"
+            name="id_amigo"
+            value="<?= $id_user ?>"
+        >
+
+        <button
+            type="submit"
+            class="btn-adicionar-amigo"
+        >
+            + Adicionar amigo
+        </button>
+    </form>
+
+    <button
+        type="button"
+        class="btn-conversar"
+        onclick="window.location.href='../chats/chats-conversas.php?id=<?= $id_user ?>'"
+    >
+        Conversar
+    </button>
+
+</div>
+
 <div class="perfil-sobre">
     <h2 class="perfil-sobremim">Sobre Mim</h2>
 

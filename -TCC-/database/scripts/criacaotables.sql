@@ -1,128 +1,283 @@
-create database app_zubbo;
-use app_zubbo;
+CREATE DATABASE app_zubbo;
+USE app_zubbo;
 
-create table Usuario(
-id_user int primary key auto_increment,
-nome_user varchar(50) not null,
-email_user varchar(70) not null,
-tel_user char(20) not null,
-datanasc_user date not null
+-- =====================================================
+-- 1. TABELAS PRINCIPAIS / INDEPENDENTES
+-- =====================================================
+
+CREATE TABLE Usuario (
+    id_user INT PRIMARY KEY AUTO_INCREMENT,
+    nome_user VARCHAR(50) NOT NULL,
+    email_user VARCHAR(70) NOT NULL UNIQUE,
+    tel_user VARCHAR(20) NOT NULL,
+    senha_user VARCHAR(255) NOT NULL,
+    date_user DATE NOT NULL
 );
 
-create table Conversa(
-id_conversa int primary key auto_increment,
-nome_conversa varchar(30) not null,
-tipo_conversa enum('chat direto','grupo','comunidade') not null /*limita os valores possíveis.*/
+
+CREATE TABLE Esporte (
+    id_esporte INT PRIMARY KEY AUTO_INCREMENT,
+    nome_esporte VARCHAR(50) NOT NULL
 );
 
-create table Mensagem(
-id_mensagem int primary key auto_increment,
-texto_mensagem varchar(1000),
-date_mensagem datetime,
-id_user int,
-id_conversa int,
 
-constraint id_userFK foreign key (id_user) references Usuario(id_user)
+CREATE TABLE LocalEsp (
+    id_local INT PRIMARY KEY AUTO_INCREMENT,
+    nome_local VARCHAR(60) NOT NULL,
+    endereco_local VARCHAR(120) NOT NULL,
+    tipo_local ENUM(
+        'quadra',
+        'poliesportivo',
+        'clube',
+        'ginásio'
+    ) NOT NULL DEFAULT 'poliesportivo'
 );
 
-create table Participantes_Conversa(
-id_user int,
-id_conversa int,
 
- primary key(id_user, id_conversa), /*define as duas FK como chave primaria composta, porque a combinação entre as duas FK nunca pode se repetir entao o mesmo usuario nao pode estar duas vezes na conversa*/
- constraint userFK foreign key (id_user) references Usuario(id_user),
- constraint conversaFK foreign key (id_conversa) references Conversa(id_conversa)
+-- =====================================================
+-- 2. ESPORTES DOS USUÁRIOS
+-- =====================================================
+
+CREATE TABLE Usuario_Esporte (
+    id_user INT NOT NULL,
+    id_esporte INT NOT NULL,
+
+    PRIMARY KEY (id_user, id_esporte),
+
+    CONSTRAINT fk_usuarioesporte_usuario
+        FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user),
+
+    CONSTRAINT fk_usuarioesporte_esporte
+        FOREIGN KEY (id_esporte)
+        REFERENCES Esporte(id_esporte)
 );
 
-create table Equipe(
-id_equipe int primary key auto_increment,
-nome_equipe varchar(30) not null,
-id_esporte int,
-id_criador int,
 
-constraint id_esporteFK foreign key (id_esporte) references Esporte(id_esporte),
-constraint id_criadorFK foreign key (id_criador) references Usuario(id_user)
+-- =====================================================
+-- 3. CONVERSAS
+-- =====================================================
+
+CREATE TABLE Conversa (
+    id_conversa INT PRIMARY KEY AUTO_INCREMENT,
+
+    tipo_conversa ENUM('privada', 'grupo')
+        NOT NULL DEFAULT 'privada',
+
+    nome_conversa VARCHAR(60),
+
+    data_criacao DATETIME
+        DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE Participantes_Conversa (
+    id_user INT NOT NULL,
+    id_conversa INT NOT NULL,
+
+    PRIMARY KEY (id_user, id_conversa),
+
+    CONSTRAINT fk_participante_usuario
+        FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user),
+
+    CONSTRAINT fk_participante_conversa
+        FOREIGN KEY (id_conversa)
+        REFERENCES Conversa(id_conversa)
+);
+
+
+CREATE TABLE Mensagem (
+    id_mensagem INT PRIMARY KEY AUTO_INCREMENT,
+    id_conversa INT NOT NULL,
+    id_remetente INT NOT NULL,
+
+    mensagem TEXT NOT NULL,
+
+    data_envio DATETIME
+        DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_mensagem_conversa
+        FOREIGN KEY (id_conversa)
+        REFERENCES Conversa(id_conversa),
+
+    CONSTRAINT fk_mensagem_remetente
+        FOREIGN KEY (id_remetente)
+        REFERENCES Usuario(id_user)
+);
+
+
+CREATE TABLE Notificacao (
+    id_notificacao INT PRIMARY KEY AUTO_INCREMENT,
+
+    id_destinatario INT NOT NULL,
+    id_remetente INT NOT NULL,
+
+    id_conversa INT NOT NULL,
+    id_mensagem INT NOT NULL,
+
+    tipo VARCHAR(30)
+        NOT NULL DEFAULT 'mensagem',
+
+    lida BOOLEAN
+        NOT NULL DEFAULT FALSE,
+
+    data_criacao DATETIME
+        DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_notificacao_destinatario
+        FOREIGN KEY (id_destinatario)
+        REFERENCES Usuario(id_user),
+
+    CONSTRAINT fk_notificacao_remetente
+        FOREIGN KEY (id_remetente)
+        REFERENCES Usuario(id_user),
+
+    CONSTRAINT fk_notificacao_conversa
+        FOREIGN KEY (id_conversa)
+        REFERENCES Conversa(id_conversa),
+
+    CONSTRAINT fk_notificacao_mensagem
+        FOREIGN KEY (id_mensagem)
+        REFERENCES Mensagem(id_mensagem)
+);
+
+
+-- =====================================================
+-- 4. EQUIPES
+-- =====================================================
+
+CREATE TABLE Equipe (
+    id_equipe INT PRIMARY KEY AUTO_INCREMENT,
+    nome_equipe VARCHAR(30) NOT NULL,
+
+    id_esporte INT NOT NULL,
+    id_criador INT NOT NULL,
+
+    CONSTRAINT fk_equipe_esporte
+        FOREIGN KEY (id_esporte)
+        REFERENCES Esporte(id_esporte),
+
+    CONSTRAINT fk_equipe_criador
+        FOREIGN KEY (id_criador)
+        REFERENCES Usuario(id_user)
+);
+
 
 CREATE TABLE ParticipantesEquipe (
-    id_partEquipe int primary key auto_increment,
-    id_user int,
-    id_equipe int,
+    id_partEquipe INT PRIMARY KEY AUTO_INCREMENT,
 
-    constraint id_usuarioFK foreign key(id_user) references Usuario(id_user),
-    constraint id_equipeFK foreign key (id_equipe) references Equipe(id_equipe),
+    id_user INT NOT NULL,
+    id_equipe INT NOT NULL,
 
-    UNIQUE(id_user, id_equipe)
+    CONSTRAINT fk_participanteequipe_usuario
+        FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user),
+
+    CONSTRAINT fk_participanteequipe_equipe
+        FOREIGN KEY (id_equipe)
+        REFERENCES Equipe(id_equipe),
+
+    UNIQUE (id_user, id_equipe)
 );
 
-create table Esporte(
-id_esporte int primary key auto_increment,
-nome_esporte varchar(35) not null
-);
-create table evento (
-    id_evento int primary key auto_increment,
-    data_evento date not null,
-    nome_evento varchar(100) not null,
-    horario_evento time not null,
-    id_esporte int not null,
-    id_criador int not null,
 
-    constraint fk_evento_esporte foreign key (id_esporte) references esporte(id_esporte),
-	constraint fklocal_evento foreign key (id_local) references LocalEsp(id_local),
-    constraint fk_evento_usuario foreign key (id_criador) references usuario(id_user)
-);
+-- =====================================================
+-- 5. EVENTOS
+-- =====================================================
 
-create table equipesevento (
-    id_evento int not null,
-    id_equipe int not null,
+CREATE TABLE Evento (
+    id_evento INT PRIMARY KEY AUTO_INCREMENT,
 
-    primary key (id_evento, id_equipe),
+    nome_evento VARCHAR(100) NOT NULL,
 
-    constraint fk_equipesevento_evento foreign key (id_evento) references evento(id_evento),
-    constraint fk_equipesevento_equipe foreign key (id_equipe) references equipe(id_equipe)
-);
+    data_evento DATE NOT NULL,
+    horario_evento TIME NOT NULL,
 
-create table lista_evento (
-    id_user int not null,
-    id_evento int not null,
+    id_esporte INT NOT NULL,
+    id_local INT NOT NULL,
+    id_criador INT NOT NULL,
 
-    primary key (id_user, id_evento),
+    CONSTRAINT fk_evento_esporte
+        FOREIGN KEY (id_esporte)
+        REFERENCES Esporte(id_esporte),
 
-    constraint fk_listaevento_usuario foreign key (id_user) references Usuario(id_user),
+    CONSTRAINT fk_evento_local
+        FOREIGN KEY (id_local)
+        REFERENCES LocalEsp(id_local),
 
-    constraint fk_listaevento_evento foreign key (id_evento) references evento(id_evento)
-);
-create table voto_sugestao (
-    id_sugestao int not null,
-    id_user int not null,
-
-    primary key (id_sugestao, id_user),
-
-    constraint fk_voto_sugestao foreign key (id_sugestao)
-    references sugestao_esporte(id_sugestao),
-
-    constraint fk_voto_usuario foreign key (id_user)
-    references usuario(id_user)
+    CONSTRAINT fk_evento_usuario
+        FOREIGN KEY (id_criador)
+        REFERENCES Usuario(id_user)
 );
 
-create table sugestao_esporte (
-    cod_sugestao int primary key auto_increment,
-    nome_esporte varchar(50) not null,
-    id_user int not null,
-    status_sugestao enum('pendente', 'aprovada', 'rejeitada') not null default 'pendente',
 
-    constraint fk_sugestao_usuario foreign key (id_user)
-    references usuario(id_user)
-);
-create table LocalEsp(
-    id_local int primary key auto_increment,
-    nome_local varchar(60) not null,
-    endereco_local varchar(120) not null,
-    tipo_local enum('quadra', 'poliesportivo', 'clube', 'ginásio') not null
- default 'poliesportivo'
+CREATE TABLE EquipesEvento (
+    id_evento INT NOT NULL,
+    id_equipe INT NOT NULL,
+
+    PRIMARY KEY (id_evento, id_equipe),
+
+    CONSTRAINT fk_equipesevento_evento
+        FOREIGN KEY (id_evento)
+        REFERENCES Evento(id_evento),
+
+    CONSTRAINT fk_equipesevento_equipe
+        FOREIGN KEY (id_equipe)
+        REFERENCES Equipe(id_equipe)
 );
 
-alter table Mensagem
-	add constraint id_conversaFK foreign key (id_conversa) references Conversa(id_conversa); 
-alter table Usuario
-	add password_user varchar(35);
+
+CREATE TABLE Lista_Evento (
+    id_user INT NOT NULL,
+    id_evento INT NOT NULL,
+
+    PRIMARY KEY (id_user, id_evento),
+
+    CONSTRAINT fk_listaevento_usuario
+        FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user),
+
+    CONSTRAINT fk_listaevento_evento
+        FOREIGN KEY (id_evento)
+        REFERENCES Evento(id_evento)
+);
+
+
+-- =====================================================
+-- 6. Sugestaos DE ESPORTE
+-- =====================================================
+
+CREATE TABLE Sugestao_Esporte (
+    id_sugestao INT PRIMARY KEY AUTO_INCREMENT,
+
+    nome_esporte VARCHAR(50) NOT NULL,
+
+    id_user INT NOT NULL,
+
+    status_sugestao ENUM(
+        'pendente',
+        'aprovada',
+        'rejeitada'
+    ) NOT NULL DEFAULT 'pendente',
+
+    CONSTRAINT fk_sugestao_usuario
+        FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user)
+);
+
+
+CREATE TABLE Voto_Sugestao (
+    id_sugestao INT NOT NULL,
+    id_user INT NOT NULL,
+
+    PRIMARY KEY (id_sugestao, id_user),
+
+    CONSTRAINT fk_voto_sugestao
+        FOREIGN KEY (id_sugestao)
+        REFERENCES Sugestao_Esporte(id_sugestao),
+
+    CONSTRAINT fk_voto_usuario
+        FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user)
+);

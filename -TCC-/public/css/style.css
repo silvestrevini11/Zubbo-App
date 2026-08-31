@@ -3926,7 +3926,6 @@ html.tema-escuro .perfil-pic-label {
 }
 /* =====================================================
    CRIAR EVENTO
-===================================================== */
 
 .evento-criar-container {
     width: 100%;
@@ -3945,7 +3944,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    TÍTULO
-===================================================== */
 
 .evento-criar-container h1 {
     margin: 0 0 30px;
@@ -3963,7 +3961,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    MENSAGEM DE ERRO
-===================================================== */
 
 .evento-erro {
     width: 100%;
@@ -3987,7 +3984,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    FORMULÁRIO
-===================================================== */
 
 .evento-criar-container form {
     width: 100%;
@@ -4001,7 +3997,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    CAMPOS
-===================================================== */
 
 .evento-criar-container form > div {
     width: 100%;
@@ -4015,7 +4010,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    LABELS
-===================================================== */
 
 .evento-criar-container label {
     padding-left: 4px;
@@ -4029,7 +4023,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    INPUTS E SELECTS
-===================================================== */
 
 .evento-criar-container input,
 .evento-criar-container select {
@@ -4058,7 +4051,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    PLACEHOLDER
-===================================================== */
 
 .evento-criar-container input::placeholder {
     color: #a7a9b1;
@@ -4067,7 +4059,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    FOCO
-===================================================== */
 
 .evento-criar-container input:focus,
 .evento-criar-container select:focus {
@@ -4082,7 +4073,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    SELECT
-===================================================== */
 
 .evento-criar-container select {
     cursor: pointer;
@@ -4109,7 +4099,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    DATA E HORÁRIO
-===================================================== */
 
 .evento-criar-container input[type="date"],
 .evento-criar-container input[type="time"] {
@@ -4119,7 +4108,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    BOTÃO CRIAR EVENTO
-===================================================== */
 
 .evento-criar-container button[type="submit"] {
     width: 100%;
@@ -4153,7 +4141,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    BOTÃO HOVER
-===================================================== */
 
 .evento-criar-container button[type="submit"]:hover {
     background: #e96d00;
@@ -4167,7 +4154,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    BOTÃO CLICK
-===================================================== */
 
 .evento-criar-container button[type="submit"]:active {
     transform: scale(0.98);
@@ -4176,7 +4162,6 @@ html.tema-escuro .perfil-pic-label {
 
 /* =====================================================
    TEMA ESCURO
-===================================================== */
 
 html.tema-escuro .evento-criar-container {
     background: #222222;
@@ -4216,7 +4201,6 @@ html.tema-escuro .evento-criar-container input::placeholder {
 
 /* =====================================================
    RESPONSIVIDADE
-===================================================== */
 
 @media (max-width: 430px) {
 

@@ -133,9 +133,9 @@ $fotoPerfil = !empty($usuario['foto_user'])
 
     <header class="chat-header">
 
-        <a href="chats.php" class="chat-voltar">
+        <button onclick="window.location.href='chats.php'" class="chat-voltar">
             ←
-        </a>
+        </button>
 
         <img
             src="<?= htmlspecialchars($fotoPerfil) ?>"
@@ -154,29 +154,33 @@ $fotoPerfil = !empty($usuario['foto_user'])
          MENSAGENS
     ====================================== -->
 
-    <div class="chat-mensagens">
+    <div
+    class="chat-mensagens"
+    id="chat-mensagens"
+    data-conversa="<?= $id_conversa ?>"
+>
 
-        <?php foreach ($mensagens as $msg): ?>
+    <?php foreach ($mensagens as $msg): ?>
 
-            <?php
-                $minhaMensagem =
-                    (int) $msg['id_remetente'] === $id_usuario_logado;
-            ?>
+        <?php
+            $minhaMensagem =
+                (int) $msg['id_remetente'] === $id_usuario_logado;
+        ?>
 
-            <div class="
-                chat-mensagem
-                <?= $minhaMensagem ? 'minha' : 'outra' ?>
-            ">
+        <div class="
+            chat-mensagem
+            <?= $minhaMensagem ? 'minha' : 'outra' ?>
+        ">
 
-                <span>
-                    <?= nl2br(htmlspecialchars($msg['mensagem'])) ?>
-                </span>
+            <span>
+                <?= nl2br(htmlspecialchars($msg['mensagem'])) ?>
+            </span>
 
-            </div>
+        </div>
 
-        <?php endforeach; ?>
+    <?php endforeach; ?>
 
-    </div>
+</div>
 
 
     <!-- =====================================
@@ -215,6 +219,99 @@ $fotoPerfil = !empty($usuario['foto_user'])
 
 </section>
 
+<script>
+
+const chatMensagens = document.getElementById('chat-mensagens');
+
+const idConversa = chatMensagens.dataset.conversa;
+
+let quantidadeMensagens = chatMensagens.children.length;
+
+
+async function atualizarChat() {
+
+    try {
+
+        const resposta = await fetch(
+            'buscar-mensagens.php?id_conversa=' + idConversa
+        );
+
+        if (!resposta.ok) {
+            return;
+        }
+
+        const mensagens = await resposta.json();
+
+
+        /*
+            Só atualiza se apareceu
+            alguma mensagem nova.
+        */
+
+        if (mensagens.length !== quantidadeMensagens) {
+
+            chatMensagens.innerHTML = '';
+
+
+            mensagens.forEach(msg => {
+
+                const div = document.createElement('div');
+
+                div.classList.add(
+                    'chat-mensagem',
+                    msg.minha ? 'minha' : 'outra'
+                );
+
+
+                const span = document.createElement('span');
+
+                /*
+                    textContent protege contra HTML malicioso.
+                */
+
+                span.textContent = msg.mensagem;
+
+
+                div.appendChild(span);
+
+                chatMensagens.appendChild(div);
+
+            });
+
+
+            quantidadeMensagens = mensagens.length;
+
+
+            /*
+                Desce automaticamente para
+                a mensagem mais recente.
+            */
+
+            chatMensagens.scrollTop =
+                chatMensagens.scrollHeight;
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao atualizar o chat:',
+            erro
+        );
+
+    }
+
+}
+
+
+/*
+    Verifica novas mensagens
+    a cada 1 segundo.
+*/
+
+setInterval(atualizarChat, 1000);
+
+</script>
 
 <?php
 include __DIR__ . '/../../views/includes/footer.php';

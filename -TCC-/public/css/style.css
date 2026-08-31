@@ -1,5 +1,140 @@
 @import url('https://googleapis.com');
 
+.notificacoes-container {
+    padding: 20px;
+}
+
+.notificacoes-titulo {
+    margin-bottom: 20px;
+}
+
+.notificacoes-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notificacao-item {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 15px;
+
+    text-decoration: none;
+    color: inherit;
+
+    border-radius: 12px;
+}
+
+.notificacao-item.nao-lida {
+    background: #eeeeee;
+}
+
+html.tema-escuro .notificacao-item.nao-lida {
+    background: #414141 !important;
+}
+
+.notificacao-foto {
+    width: 50px;
+    height: 50px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+}
+
+.notificacao-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.notificacao-info strong {
+    font-size: 16px;
+}
+
+.notificacao-info span {
+    font-size: 14px;
+    color: grey;
+}
+
+html.tema-escuro .notificacao-info span {
+    color: rgb(167, 167, 167);
+}
+
+.notificacao-info p {
+
+    margin: 4px 0 0;
+
+    font-size: 14px;
+}
+
+
+
+.painel-notificacao-link {
+
+    position: absolute;
+
+    top: 25px;
+    right: 22px;
+
+    display: inline-flex;
+
+    width: 32px;
+    height: 32px;
+
+    text-decoration: none;
+
+    z-index: 10;
+
+}
+
+
+.painel-notificacao {
+
+    display: block;
+
+    width: 32px;
+    height: 32px;
+
+    object-fit: contain;
+
+}
+
+
+.painel-notificacao-contador {
+    position: absolute;
+
+    top: -7px;
+    right: -7px;
+
+    min-width: 20px;
+    height: 20px;
+
+    padding: 0 5px;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background-color: #ff0000;
+    color: #ffffff;
+
+    border-radius: 50%;
+
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+
+    line-height: 1;
+
+    z-index: 10;
+
+    box-sizing: border-box;
+}
+
 .btn-voltar {
     position: fixed;
     top: 20px;
@@ -1474,48 +1609,57 @@ section {
 ======================================== */
 
 .painel-top {
+
     position: relative;
+
     padding: 25px 22px 10px;
+
     background: #ffffff;
-}
 
-.painel-notificacao {
-    position: absolute;
-    top: 24px;
-    right: 22px;
-
-    width: 28px;
-    height: 28px;
-
-    object-fit: contain;
-    cursor: pointer;
 }
 
 .painel-saudacoes {
+
     margin: 0;
+
     font-size: 25px;
+
     font-weight: 400;
+
     color: #222222;
+
 }
 
 .painel-saudacoes strong {
+
     font-weight: 700;
+
 }
 
 .painel-saudacoes-cor {
+
     color: #FF7A00;
+
 }
 
 .painel-sub-saudacoes {
+
     margin: 7px 0 0;
+
     font-size: 15px;
+
     font-weight: 400;
+
     color: #777777;
+
 }
 
 .painel-sub-saudacoes-cor {
+
     color: #FF7A00;
+
     font-weight: 600;
+
 }
 
 
@@ -3452,7 +3596,8 @@ html.tema-escuro .chat-header {
 }
 
 html.tema-escuro .chat-voltar {
-    color: #f4f4f4 !important;
+    background-color: #000000;
+    color: #f0f0f0 !important;
 }
 
 html.tema-escuro .chat-nome {

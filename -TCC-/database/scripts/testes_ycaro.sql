@@ -48,6 +48,33 @@ CREATE TABLE Mensagem (
     FOREIGN KEY (id_remetente) REFERENCES Usuario(id_user)
 );
 
+CREATE TABLE Notificacao (
+    id_notificacao INT AUTO_INCREMENT PRIMARY KEY,
+
+    id_destinatario INT NOT NULL,
+    id_remetente INT NOT NULL,
+
+    id_conversa INT NOT NULL,
+    id_mensagem INT NOT NULL,
+
+    tipo VARCHAR(30) NOT NULL DEFAULT 'mensagem',
+
+    lida BOOLEAN NOT NULL DEFAULT FALSE,
+
+    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_destinatario)
+        REFERENCES Usuario(id_user),
+
+    FOREIGN KEY (id_remetente)
+        REFERENCES Usuario(id_user),
+
+    FOREIGN KEY (id_conversa)
+        REFERENCES Conversa(id_conversa),
+
+    FOREIGN KEY (id_mensagem)
+        REFERENCES Mensagem(id_mensagem)
+);
 
 
 INSERT INTO Esporte (nome_esporte) VALUES

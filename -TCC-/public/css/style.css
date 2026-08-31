@@ -428,6 +428,15 @@ a {
     border-radius: 0 0 42px 42px;
 }
 
+html.tema-escuro .Tela-init{
+    background:
+        linear-gradient(
+            rgba(2, 2, 2, 0.364),
+            rgba(255, 255, 255, 0.0)
+        ),
+        url("../imagem/Mapa.png");
+}
+
 
 /* ================================
    ELEMENTOS DECORATIVOS

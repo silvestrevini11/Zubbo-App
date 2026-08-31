@@ -21,13 +21,15 @@ if ($id_conversa <= 0 || $mensagem === '') {
 }
 
 
-/*
-    Verifica se o usuário realmente pertence
-    a essa conversa.
-*/
+/* ==========================================
+   VERIFICAR SE O USUÁRIO PERTENCE À CONVERSA
+========================================== */
 
 $stmt = $conn->prepare("
-    SELECT id_conversa
+    SELECT
+        id_conversa,
+        id_user_a,
+        id_user_b
     FROM Conversa
     WHERE id_conversa = ?
       AND (id_user_a = ? OR id_user_b = ?)
@@ -47,7 +49,24 @@ if (!$conversa) {
 }
 
 
-/* Salvar mensagem */
+/* ==========================================
+   DESCOBRIR O DESTINATÁRIO
+========================================== */
+
+if ((int) $conversa['id_user_a'] === $id_usuario) {
+
+    $id_destinatario = (int) $conversa['id_user_b'];
+
+} else {
+
+    $id_destinatario = (int) $conversa['id_user_a'];
+
+}
+
+
+/* ==========================================
+   SALVAR MENSAGEM
+========================================== */
 
 $stmt = $conn->prepare("
     INSERT INTO Mensagem
@@ -63,35 +82,44 @@ $stmt->execute([
 ]);
 
 
-/*
-    Descobrir com quem estamos conversando
-    para voltar para a conversa.
-*/
+/* ==========================================
+   PEGAR ID DA MENSAGEM
+========================================== */
+
+$id_mensagem = $conn->lastInsertId();
+
+
+/* ==========================================
+   CRIAR NOTIFICAÇÃO
+========================================== */
 
 $stmt = $conn->prepare("
-    SELECT
-        CASE
-            WHEN id_user_a = ? THEN id_user_b
-            ELSE id_user_a
-        END AS outro_usuario
-    FROM Conversa
-    WHERE id_conversa = ?
+    INSERT INTO Notificacao
+        (
+            id_destinatario,
+            id_remetente,
+            id_conversa,
+            id_mensagem,
+            tipo
+        )
+    VALUES
+        (?, ?, ?, ?, 'mensagem')
 ");
 
 $stmt->execute([
+    $id_destinatario,
     $id_usuario,
-    $id_conversa
+    $id_conversa,
+    $id_mensagem
 ]);
 
-$dados = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$id_outro_usuario = $dados['outro_usuario'];
-
-
-/* Volta para a conversa */
+/* ==========================================
+   VOLTAR PARA A CONVERSA
+========================================== */
 
 header(
-    'Location: chats-conversas.php?id=' . $id_outro_usuario
+    'Location: chats-conversas.php?id=' . $id_destinatario
 );
 
 exit;

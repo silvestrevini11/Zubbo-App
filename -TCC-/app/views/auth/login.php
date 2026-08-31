@@ -5,7 +5,7 @@ include __DIR__.'/../includes/head.php';
 
 <main class="login-container">
 
-<button class="btn-voltar" onclick="history.back()">
+<button class="btn-voltar" onclick="window.location.href='/../-TCC-/public/index.php'">
     ←
 </button>
 

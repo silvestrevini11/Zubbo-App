@@ -17,7 +17,21 @@ $nomeUsuario = $_SESSION['usuario']['nome'];
 
 <div class="painel-top">
 
-<a href="../notificacoes/notificacoes.php"><img class="painel-notificacao" src="../../../public/imagem/Sino.png" alt=""></a>
+<a
+    href="../notificacoes/notificacoes.php"
+    class="painel-notificacao-link"
+>
+    <img
+        class="painel-notificacao"
+        src="../../../public/imagem/Sino.png"
+        alt="Notificações"
+    >
+
+    <span
+        class="painel-notificacao-contador"
+        id="painel-notificacao-contador"
+    ></span>
+</a>
 
 <h1 class="painel-saudacoes">Olá <strong class="painel-saudacoes-cor"><?= htmlspecialchars($nomeUsuario) ?></strong></h1>
 
@@ -79,6 +93,72 @@ $nomeUsuario = $_SESSION['usuario']['nome'];
 
 <h3 class="painel-atv">Atividades Proximas</h3>
 <h4 class="painel-all-atv"><strong class="painel-all-atv-cor">Ver todas</strong> ></h4>
+
+<script>
+
+const contadorNotificacao =
+    document.getElementById('painel-notificacao-contador');
+
+
+async function atualizarNotificacoes() {
+
+    try {
+
+        const resposta = await fetch(
+            '../notificacoes/buscar-notificacoes.php'
+        );
+
+        if (!resposta.ok) {
+            return;
+        }
+
+        const dados = await resposta.json();
+
+        const quantidade = dados.quantidade;
+
+
+        if (quantidade > 0) {
+
+            contadorNotificacao.textContent =
+                quantidade > 99 ? '99+' : quantidade;
+
+            contadorNotificacao.style.display = 'flex';
+
+        } else {
+
+            contadorNotificacao.textContent = '';
+
+            contadorNotificacao.style.display = 'none';
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            'Erro ao buscar notificações:',
+            erro
+        );
+
+    }
+
+}
+
+
+/*
+    Verifica imediatamente
+*/
+
+atualizarNotificacoes();
+
+
+/*
+    Verifica novas notificações
+    a cada 1 segundo.
+*/
+
+setInterval(atualizarNotificacoes, 1000);
+
+</script>
 
 </section>
 <?php

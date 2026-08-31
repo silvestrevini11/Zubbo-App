@@ -511,6 +511,10 @@ a {
     color: #f04b24;
 }
 
+html.tema-escuro .Titulo-init{
+    color: #f04b24;
+}
+
 
 /* ================================
    SUBTÍTULO
@@ -533,6 +537,10 @@ a {
 .Sub-titulo-init strong {
     color: #f04b24;
     font-weight: 700;
+}
+
+html.tema-escuro .Sub-titulo-init strong {
+    color: #f04b24;
 }
 
 
@@ -630,6 +638,10 @@ a {
     cursor: pointer;
 
     transition: 0.2s ease;
+}
+
+html.tema-escuro .btn-criar-init{
+    color: black;
 }
 
 .btn-criar-init::before {
@@ -951,11 +963,14 @@ a {
     font-size: 16px;
 }
 
-
 .field-cad input:focus {
     background: #e9ecfc;
 
     box-shadow: 0 0 0 2px rgba(239, 75, 37, 0.15);
+}
+
+html.tema-escuro .field-cad input:focus{
+    background: rgb(66, 66, 66);
 }
 
 
@@ -979,11 +994,19 @@ a {
     transition: 0.2s;
 }
 
+html.tema-escuro .telefone-container{
+    background-color: #2c2b2b;
+}
+
 
 .telefone-container:focus-within {
     background: #e9ecfc;
 
     box-shadow: 0 0 0 2px rgba(239, 75, 37, 0.15);
+}
+
+html.tema-escuro .telefone-container:focus-within{
+    background: #111111;
 }
 
 
@@ -1001,6 +1024,9 @@ a {
     font-weight: 500;
 }
 
+html.tema-escuro .codigo-pais{
+    color: rgb(140, 139, 139);
+}
 
 .telefone-container input {
     height: 100%;
@@ -1014,7 +1040,6 @@ a {
 
     box-shadow: none;
 }
-
 
 .telefone-container input:focus {
     background: transparent;
@@ -1136,6 +1161,10 @@ a {
     transition: 0.2s;
 }
 
+html.tema-escuro .dropdown-button-cad{
+    background:#252525;
+}
+
 
 .dropdown-button-cad:hover {
     background: #e9ecfc;
@@ -1167,6 +1196,10 @@ a {
     z-index: 100;
 }
 
+html.tema-escuro .lista-cad{
+    background: #2a2a2a;
+}
+
 
 .lista-cad.aberta {
     display: block;
@@ -1189,6 +1222,11 @@ a {
     cursor: pointer;
 }
 
+html.tema-escuro .opcao-cad{
+    background: #2a2a2a;
+    color: white;
+}
+
 
 .opcao-cad:hover {
     background: #f0f2ff;
@@ -1199,6 +1237,10 @@ a {
     background: #ef4b25;
 
     color: #ffffff;
+}
+
+html.tema-escuro .opcao-cad.selecionada{
+    background-color: #ef4b25;
 }
 
 
@@ -1519,6 +1561,10 @@ a {
     background: #ffffff;
     color: #222222;
     font-size: 0.95rem;
+}
+
+html.tema-escuro .login-social-button{
+    background-color: black;
 }
 
 .login-social-button:hover {

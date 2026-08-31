@@ -14,16 +14,19 @@ $id_usuario = (int) $_SESSION['usuario']['id'];
 
 
 /* ==========================================
-   Busca Conversas
+   BUSCAR CONVERSAS
 ========================================== */
 
 $stmt = $conn->prepare("
     SELECT
         c.id_conversa,
-        c.tipo_conversa,
-        c.nome_conversa,
 
-        u.id_user AS id_outro_usuario,
+        CASE
+            WHEN c.id_user_a = :id_user
+                THEN c.id_user_b
+            ELSE c.id_user_a
+        END AS id_outro_usuario,
+
         u.nome_user,
         u.foto_user,
 
@@ -32,16 +35,13 @@ $stmt = $conn->prepare("
 
     FROM Conversa c
 
-    INNER JOIN Participantes_Conversa pc_usuario
-        ON pc_usuario.id_conversa = c.id_conversa
-        AND pc_usuario.id_user = :id_usuario
-
-    LEFT JOIN Participantes_Conversa pc_outro
-        ON pc_outro.id_conversa = c.id_conversa
-        AND pc_outro.id_user != :id_usuario2
-
-    LEFT JOIN Usuario u
-        ON u.id_user = pc_outro.id_user
+    INNER JOIN Usuario u
+        ON u.id_user =
+            CASE
+                WHEN c.id_user_a = :id_user2
+                    THEN c.id_user_b
+                ELSE c.id_user_a
+            END
 
     LEFT JOIN Mensagem m
         ON m.id_mensagem = (
@@ -50,13 +50,18 @@ $stmt = $conn->prepare("
             WHERE m2.id_conversa = c.id_conversa
         )
 
+    WHERE c.id_user_a = :id_user3
+       OR c.id_user_b = :id_user4
+
     ORDER BY
         COALESCE(m.data_envio, c.data_criacao) DESC
 ");
 
 $stmt->execute([
-    ':id_usuario'  => $id_usuario,
-    ':id_usuario2' => $id_usuario
+    ':id_user'  => $id_usuario,
+    ':id_user2' => $id_usuario,
+    ':id_user3' => $id_usuario,
+    ':id_user4' => $id_usuario
 ]);
 
 $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -68,6 +73,7 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h1 class="chats-titulo">
         Conversas
     </h1>
+
 
     <div class="chats-lista">
 
@@ -84,9 +90,9 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <?php
 
-            $foto = !empty($conversa['foto_user'])
-                ? '/-TCC-/' . $conversa['foto_user']
-                : '/-TCC-/public/imagem/blank.png';
+                $foto = !empty($conversa['foto_user'])
+                    ? '/-TCC-/' . $conversa['foto_user']
+                    : '/-TCC-/public/imagem/blank.png';
 
             ?>
 
@@ -125,9 +131,8 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 </section>
 
-<?php
 
+<?php
 include __DIR__ . '/../../views/includes/under-bar.php';
 include __DIR__ . '/../../views/includes/footer.php';
-
 ?>

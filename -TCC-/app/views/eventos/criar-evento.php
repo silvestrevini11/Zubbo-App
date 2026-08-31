@@ -15,7 +15,6 @@ $id_usuario = (int) $_SESSION['usuario']['id'];
 
 /* ==========================================
    BUSCAR ESPORTES
-========================================== */
 
 $stmtEsportes = $conn->prepare("
     SELECT id_esporte, nome_esporte
@@ -30,7 +29,6 @@ $esportes = $stmtEsportes->fetchAll(PDO::FETCH_ASSOC);
 
 /* ==========================================
    BUSCAR LOCAIS
-========================================== */
 
 $stmtLocais = $conn->prepare("
     SELECT id_local, nome_local
@@ -45,7 +43,6 @@ $locais = $stmtLocais->fetchAll(PDO::FETCH_ASSOC);
 
 /* ==========================================
    CRIAR EVENTO
-========================================== */
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -234,4 +231,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include __DIR__ . '/../../views/includes/under-bar.php';
 include __DIR__ . '/../../views/includes/footer.php';
 
+<?php 
+include __DIR__ .'/../includes/head.php';
+include __DIR__.'/../../../config/database.php';
+?>
+
+<?php
+include __DIR__ . '/../../views/includes/footer.php';
 ?>

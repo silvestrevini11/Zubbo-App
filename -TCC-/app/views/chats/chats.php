@@ -69,8 +69,7 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <section class="chats-container">
-
-    <h1 class="chats-titulo">
+    <h1 style="" class="chats-titulo">
         Conversas
     </h1>
 
@@ -143,7 +142,7 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
             </a>
-
+            <hr class="perfil-hr">
         <?php endforeach; ?>
 
     </div>

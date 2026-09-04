@@ -24,7 +24,7 @@ include __DIR__.'/../../../config/database.php';
     <div id="resultadosPerfis" class="resultados-perfis">
         <!-- Os resultados vão aparecer aqui -->
     </div>
-
+    <hr class="perfil-hr">
 
     <h2 class="pesquisa-eventos">Eventos</h2>
     <hr class="perfil-hr">

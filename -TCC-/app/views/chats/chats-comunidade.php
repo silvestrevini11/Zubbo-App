@@ -4,6 +4,9 @@ include __DIR__ . '/../../../config/database.php';
 ?>
 
 <section class="chats-container">
+    <button  class="chats-btn-create" onclick="window.location.href='criar-comunidade.php'">
+      +
+    </button>
 
     <h1 class="chats-titulo">
         Conversas
@@ -16,7 +19,7 @@ include __DIR__ . '/../../../config/database.php';
     <div class="seletor-tipo">
     <span class="seletor-indicador"></span>
 
-    <button class="opcao ativa" data-tipo="privados" onclick="window.location.href='chats.php'">
+    <button class="opcao" data-tipo="privados" onclick="window.location.href='chats.php'">
         Privados
     </button>
 
@@ -24,7 +27,7 @@ include __DIR__ . '/../../../config/database.php';
         Grupos
     </button>
 
-    <button class="opcao" data-tipo="comunidade" onclick="window.location.href='chats-comunidade.php'">
+    <button class="opcao ativa" data-tipo="comunidade" onclick="window.location.href='chats-comunidade.php'">
         Comunidade
     </button>
 </div>

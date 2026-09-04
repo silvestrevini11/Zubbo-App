@@ -189,6 +189,45 @@ html.tema-escuro .notificacao-info span {
     transform: scale(0.85);
 }
 
+.chats-btn-create{
+    position: fixed;
+    top: 20px;
+    left: 80%;
+
+    width: 44px;
+    height: 43px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #ff4b1f;
+    color: white;
+
+    font-size: 25px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+
+    transition: 
+        transform 0.15s ease,
+        background 0.15s ease;
+}
+
+.chats-btn-create:hover {
+    background: #e63f16;
+    transform: scale(1.08);
+}
+
+.chats-btn-create:active {
+    transform: scale(0.85);
+}
+
 .bottom-nav {
     position: fixed;
 
@@ -3520,7 +3559,7 @@ section {
     background: #c9c9c9;
 }
 
-html.tema-escuro .seletor-tipo{
+html.tema-escuro .seletor-tipo {
     background-color: #fefefe21;
 }
 
@@ -3533,7 +3572,42 @@ html.tema-escuro .seletor-tipo{
     border-radius: 9px;
     background: #ff4b1f;
     transition: transform .25s ease;
+    pointer-events: none;
 }
+
+.seletor-tipo .opcao {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.seletor-tipo .opcao:nth-child(2).ativa ~ .seletor-indicador {
+    transform: translateX(0);
+}
+
+.seletor-tipo .opcao:nth-child(3).ativa ~ .seletor-indicador {
+    transform: translateX(100%);
+}
+
+.seletor-tipo .opcao:nth-child(4).ativa ~ .seletor-indicador {
+    transform: translateX(200%);
+}
+
+.seletor-tipo:has(.opcao:nth-child(2).ativa) .seletor-indicador {
+    transform: translateX(0);
+}
+
+.seletor-tipo:has(.opcao:nth-child(3).ativa) .seletor-indicador {
+    transform: translateX(100%);
+}
+
+.seletor-tipo:has(.opcao:nth-child(4).ativa) .seletor-indicador {
+    transform: translateX(200%);
+}
+
 
 .opcao {
     position: relative;
@@ -3583,6 +3657,7 @@ html.tema-escuro .perfil-sobre,
 html.tema-escuro .painel-esportes button,
 html.tema-escuro .painel-filtro,
 html.tema-escuro .pesquisa-filtro { border-color: #393939; background: #222222; color: #f4f4f4; }
+html.tema-escuro .painel-marker { color: #000000;}
 
 html.tema-escuro .configuracoes-voltar,
 html.tema-escuro .perfil-config,

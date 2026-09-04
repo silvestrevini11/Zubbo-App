@@ -54,9 +54,14 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <section
     class="notificacoes-container"
     style="padding-bottom: 80px;"
->
 
-    <h1 class="notificacoes-titulo">
+    >
+
+    <button class="btn-voltar" onclick="window.location.href='../painel/painel-inicial.php'">
+    ←  
+    </button>
+
+    <h1 style="padding-top: 40px;" class="notificacoes-titulo">
         Notificações
     </h1>
 
@@ -133,7 +138,6 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <?php
 
-include __DIR__ . '/../../views/includes/under-bar.php';
 include __DIR__ . '/../../views/includes/footer.php';
 
 ?>

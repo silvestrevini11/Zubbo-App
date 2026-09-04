@@ -1,9 +1,11 @@
 <?php 
+
 include __DIR__ .'/../includes/head.php';
 include __DIR__.'/../../../config/database.php';
+
 session_start();
 
-$id_user = $_SESSION['usuario']['id'];
+$id_user = (int) $_SESSION['usuario']['id'];
 
 $stmtUsuario = $conn->prepare("
     SELECT nome_user, email_user
@@ -16,6 +18,27 @@ $stmtUsuario->execute([$id_user]);
 $usuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
 
 
+/*
+ * Conta quantos amigos o usuário possui
+ */
+$stmtAmigos = $conn->prepare("
+    SELECT COUNT(*)
+    FROM Amizade
+    WHERE id_user_1 = ?
+       OR id_user_2 = ?
+");
+
+$stmtAmigos->execute([
+    $id_user,
+    $id_user
+]);
+
+$quantidadeAmigos = (int) $stmtAmigos->fetchColumn();
+
+
+/*
+ * Busca os esportes do usuário
+ */
 $stmt = $conn->prepare("
     SELECT e.nome_esporte
     FROM Esporte e
@@ -105,7 +128,7 @@ inputFoto.addEventListener('change', function () {
     </div>
     <div class="perfil-amigos">
         <h3 class="perfil-name">Amigos</h3>
-        <h2 class="perfil-amigos-num">0</h2>
+        <h2 class="perfil-amigos-num"><?= $quantidadeAmigos ?></h2>
     </div>
 </div>
 
@@ -138,7 +161,7 @@ inputFoto.addEventListener('change', function () {
             ?>
 
             <div class="esporte-card <?= $classe ?>">
-                <span><?= htmlspecialchars($nome) ?></span>
+                <span class="esporte-card-txt"><?= htmlspecialchars($nome) ?></span>
             </div>
 
         <?php endforeach; ?>

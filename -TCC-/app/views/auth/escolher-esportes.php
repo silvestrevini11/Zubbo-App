@@ -3,8 +3,8 @@
 
 session_start();
 
-if (!isset($_SESSION['usuario'])) {
-    header('Location: form-usuario.php');
+if (!isset($_SESSION['usuario_cadastro'])) {
+    header('Location: cadastro.php');
     exit;
 }
 

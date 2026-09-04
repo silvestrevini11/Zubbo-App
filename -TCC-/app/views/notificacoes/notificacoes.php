@@ -37,7 +37,7 @@ $stmt = $conn->prepare("
     INNER JOIN Usuario u
         ON u.id_user = n.id_remetente
 
-    INNER JOIN Mensagem m
+    LEFT JOIN Mensagem m
         ON m.id_mensagem = n.id_mensagem
 
     WHERE n.id_destinatario = ?
@@ -88,46 +88,76 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             ?>
 
 
-            <a
-                href="abrir-notificacao.php?id=<?= $notificacao['id_notificacao'] ?>"
-                class="
-                    notificacao-item
-                    <?= !$notificacao['lida'] ? 'nao-lida' : '' ?>
-                "
+            <div
+    class="
+        notificacao-item
+        <?= !$notificacao['lida'] ? 'nao-lida' : '' ?>
+    "
+>
+
+    <a
+        href="abrir-notificacao.php?id=<?= (int) $notificacao['id_notificacao'] ?>"
+        class="notificacao-link"
+    >
+
+        <img
+            src="<?= htmlspecialchars($foto) ?>"
+            alt=""
+            class="notificacao-foto"
+        >
+
+        <div class="notificacao-info">
+
+            <strong class="notificacao-nome-user">
+                <?= htmlspecialchars($notificacao['nome_user']) ?>
+            </strong>
+
+            <span class="notificacao-env-men">
+
+                <?php if ($notificacao['tipo'] === 'mensagem'): ?>
+
+                    enviou uma mensagem
+
+                <?php elseif ($notificacao['tipo'] === 'amizade'): ?>
+
+                    enviou uma solicitação de amizade
+
+                <?php elseif ($notificacao['tipo'] === 'amizade_aceita'): ?>
+
+                    aceitou sua solicitação de amizade
+
+                <?php endif; ?>
+
+            </span>
+
+            <p class="notificacao-mensagem">
+                <?= htmlspecialchars($notificacao['mensagem'] ?? '') ?>
+            </p>
+
+        </div>
+
+    </a>
+
+
+    <?php if ($notificacao['tipo'] === 'amizade'): ?>
+
+        <form action="aceitar-amizade.php" method="POST">
+
+            <input
+                type="hidden"
+                name="id_remetente"
+                value="<?= (int) $notificacao['id_remetente'] ?>"
             >
 
-                <img
-                    src="<?= htmlspecialchars($foto) ?>"
-                    alt=""
-                    class="notificacao-foto"
-                >
+            <button type="submit">
+                Aceitar
+            </button>
 
+        </form>
 
-                <div class="notificacao-info">
+    <?php endif; ?>
 
-                    <strong class="notificacao-nome-user">
-                        <?= htmlspecialchars($notificacao['nome_user']) ?>
-                    </strong>
-
-
-                    <span class="notificacao-env-men">
-
-                        <?php if ($notificacao['tipo'] === 'mensagem'): ?>
-
-                            enviou uma mensagem
-
-                        <?php endif; ?>
-
-                    </span>
-
-
-                    <p class="notificacao-mensagem">
-                        <?= htmlspecialchars($notificacao['mensagem']) ?>
-                    </p>
-
-                </div>
-
-            </a>
+</div>
 
         <?php endforeach; ?>
 

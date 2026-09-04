@@ -1,6 +1,13 @@
 create database app_zubbo;
 use app_zubbo;
 
+select * from Amizade;
+select * from Usuario;
+select * from Esporte;
+select * from Usuario_Esporte;
+select * from Mensagem;
+select * from Conversa;
+
 CREATE TABLE Usuario(
     id_user INT PRIMARY KEY AUTO_INCREMENT,
     nome_user VARCHAR(50) NOT NULL,
@@ -76,6 +83,41 @@ CREATE TABLE Notificacao (
         REFERENCES Mensagem(id_mensagem)
 );
 
+CREATE TABLE Amizade (
+    id_amizade INT AUTO_INCREMENT PRIMARY KEY,
+
+    id_user_1 INT NOT NULL,
+    id_user_2 INT NOT NULL,
+
+    data_aceita DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_user_1)
+        REFERENCES Usuario(id_user),
+
+    FOREIGN KEY (id_user_2)
+        REFERENCES Usuario(id_user),
+
+    UNIQUE (id_user_1, id_user_2)
+);
+
+CREATE TABLE Solicitacao_Amizade (
+    id_solicitacao INT AUTO_INCREMENT PRIMARY KEY,
+
+    id_remetente INT NOT NULL,
+    id_destinatario INT NOT NULL,
+
+    status ENUM('pendente', 'aceita', 'recusada') DEFAULT 'pendente',
+
+    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (id_remetente)
+        REFERENCES Usuario(id_user),
+
+    FOREIGN KEY (id_destinatario)
+        REFERENCES Usuario(id_user),
+
+    UNIQUE (id_remetente, id_destinatario)
+);
 
 INSERT INTO Esporte (nome_esporte) VALUES
 ('Futebol'),
@@ -88,8 +130,21 @@ INSERT INTO Esporte (nome_esporte) VALUES
 ALTER TABLE Usuario
 ADD foto_user VARCHAR(255) NULL;
 
-select * from Usuario;
-select * from Esporte;
-select * from Usuario_Esporte;
-select * from Mensagem;
-select * from Conversa;
+ALTER TABLE Notificacao
+MODIFY id_conversa INT NULL,
+MODIFY id_mensagem INT NULL;
+
+ALTER TABLE Usuario
+ADD COLUMN email_verificado BOOLEAN NOT NULL DEFAULT FALSE;
+
+CREATE TABLE Verificacao_Email (
+    id_verificacao INT PRIMARY KEY AUTO_INCREMENT,
+    id_user INT NOT NULL,
+    codigo VARCHAR(6) NOT NULL,
+    expiracao DATETIME NOT NULL,
+
+    CONSTRAINT fk_verificacao_usuario
+        FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user)
+        ON DELETE CASCADE
+);

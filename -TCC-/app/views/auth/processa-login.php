@@ -37,5 +37,5 @@ $_SESSION['usuario'] = [
     'email' => $usuario['email_user']
 ];
 
-header('Location: ../painel/Painel-inicial.php');
+header('Location: ../painel/painel-inicial.php');
 exit;

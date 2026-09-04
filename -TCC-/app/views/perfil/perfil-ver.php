@@ -31,6 +31,20 @@ if (!$usuario) {
     exit;
 }
 
+$stmtAmigos = $conn->prepare("
+    SELECT COUNT(*)
+    FROM Amizade
+    WHERE id_user_1 = ?
+       OR id_user_2 = ?
+");
+
+$stmtAmigos->execute([
+    $id_user,
+    $id_user
+]);
+
+$quantidadeAmigos = (int) $stmtAmigos->fetchColumn();
+
 
 $stmt = $conn->prepare("
     SELECT e.nome_esporte
@@ -110,7 +124,7 @@ inputFoto.addEventListener('change', function () {
     </div>
     <div class="perfil-amigos">
         <h3 class="perfil-name">Amigos</h3>
-        <h2 class="perfil-amigos-num">0</h2>
+        <h2 class="perfil-amigos-num"><?= $quantidadeAmigos ?></h2>
     </div>
 </div>
 

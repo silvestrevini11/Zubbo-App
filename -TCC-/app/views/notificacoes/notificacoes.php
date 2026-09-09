@@ -30,15 +30,22 @@ $stmt = $conn->prepare("
         u.nome_user,
         u.foto_user,
 
-        m.mensagem
+        m.mensagem,
+
+        sa.id_solicitacao,
+        sa.status AS status_solicitacao
 
     FROM Notificacao n
 
     INNER JOIN Usuario u
         ON u.id_user = n.id_remetente
 
-    INNER JOIN Mensagem m
+    LEFT JOIN Mensagem m
         ON m.id_mensagem = n.id_mensagem
+
+    LEFT JOIN Solicitacao_Amizade sa
+        ON sa.id_remetente = n.id_remetente
+        AND sa.id_destinatario = n.id_destinatario
 
     WHERE n.id_destinatario = ?
 
@@ -54,14 +61,19 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <section
     class="notificacoes-container"
     style="padding-bottom: 80px;"
+>
 
+    <button
+        class="btn-voltar"
+        onclick="window.location.href='../painel/painel-inicial.php'"
     >
-
-    <button class="btn-voltar" onclick="window.location.href='../painel/painel-inicial.php'">
-    ←  
+        ←
     </button>
 
-    <h1 style="padding-top: 40px;" class="notificacoes-titulo">
+    <h1
+        style="padding-top: 40px;"
+        class="notificacoes-titulo"
+    >
         Notificações
     </h1>
 
@@ -88,46 +100,121 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             ?>
 
 
-            <a
-                href="abrir-notificacao.php?id=<?= $notificacao['id_notificacao'] ?>"
+            <div
                 class="
                     notificacao-item
                     <?= !$notificacao['lida'] ? 'nao-lida' : '' ?>
                 "
             >
 
-                <img
-                    src="<?= htmlspecialchars($foto) ?>"
-                    alt=""
-                    class="notificacao-foto"
-                >
+                <?php
+                /*
+                 * Notificações de amizade não abrem conversa.
+                 * Apenas notificações de mensagem possuem
+                 * um link para abrir o chat.
+                 */
+                ?>
+
+                <?php if ($notificacao['tipo'] === 'mensagem'): ?>
+
+                    <a
+                        href="abrir-notificacao.php?id=<?= (int) $notificacao['id_notificacao'] ?>"
+                        class="notificacao-link"
+                    >
+
+                <?php endif; ?>
 
 
-                <div class="notificacao-info">
+                    <img
+                        src="<?= htmlspecialchars($foto) ?>"
+                        alt=""
+                        class="notificacao-foto"
+                    >
 
-                    <strong class="notificacao-nome-user">
-                        <?= htmlspecialchars($notificacao['nome_user']) ?>
-                    </strong>
+
+                    <div class="notificacao-info">
+
+                        <strong class="notificacao-nome-user">
+                            <?= htmlspecialchars($notificacao['nome_user']) ?>
+                        </strong>
 
 
-                    <span class="notificacao-env-men">
+                        <span class="notificacao-env-men">
+
+                            <?php if ($notificacao['tipo'] === 'mensagem'): ?>
+
+                                enviou uma mensagem
+
+                            <?php elseif ($notificacao['tipo'] === 'amizade'): ?>
+
+                                enviou uma solicitação de amizade
+
+                            <?php elseif ($notificacao['tipo'] === 'amizade_aceita'): ?>
+
+                                aceitou sua solicitação de amizade
+
+                            <?php endif; ?>
+
+                        </span>
+
 
                         <?php if ($notificacao['tipo'] === 'mensagem'): ?>
 
-                            enviou uma mensagem
+                            <p class="notificacao-mensagem">
+                                <?= htmlspecialchars($notificacao['mensagem'] ?? '') ?>
+                            </p>
 
                         <?php endif; ?>
 
-                    </span>
+                    </div>
 
 
-                    <p class="notificacao-mensagem">
-                        <?= htmlspecialchars($notificacao['mensagem']) ?>
-                    </p>
+                <?php if ($notificacao['tipo'] === 'mensagem'): ?>
 
-                </div>
+                    </a>
 
-            </a>
+                <?php endif; ?>
+
+
+                <?php
+                /*
+                 * Só mostra o botão se a solicitação
+                 * ainda estiver pendente.
+                 */
+                ?>
+
+                <?php if (
+                    $notificacao['tipo'] === 'amizade'
+                    && $notificacao['status_solicitacao'] === 'pendente'
+                ): ?>
+
+                    <form
+                        action="aceitar-amizade.php"
+                        method="POST"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="id_solicitacao"
+                            value="<?= (int) $notificacao['id_solicitacao'] ?>"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="id_notificacao"
+                            value="<?= (int) $notificacao['id_notificacao'] ?>"
+                        >
+
+                        <button type="submit">
+                            Aceitar
+                        </button>
+
+                    </form>
+
+                <?php endif; ?>
+
+
+            </div>
 
         <?php endforeach; ?>
 

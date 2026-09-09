@@ -66,30 +66,71 @@ $nomeUsuario = $_SESSION['usuario']['nome'];
 
 <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link
+  href="https://api.mapbox.com/mapbox-gl-js/v3.29.0/mapbox-gl.css"
+  rel="stylesheet"
+/>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.29.0/mapbox-gl.js"></script>
 
 <script>
-  const map = L.map('map').setView([-23.686, -46.623], 16);
+  mapboxgl.accessToken = 'pk.eyJ1Ijoia2lpbmd6ejAyMiIsImEiOiJjbXRseXozaHowMDNqMnlwa3djb2N5b2l2In0.5A9fNPCehI8fGGMcdgAV_A';
+
+  const centroDiadema = [-46.623, -23.686];
 
   const limitesDiadema = [
-    [-23.73, -46.67],
-    [-23.64, -46.59]
+    [-46.67, -23.73],
+    [-46.59, -23.64]
   ];
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+  const estiloClaro = 'mapbox://styles/kiingzz022/cmtly3m06011101s91vtve38u';
+  const estiloEscuro = 'mapbox://styles/kiingzz022/cmtlydg6j00co01s2e3hfh82s';
 
-  map.setMaxBounds(limitesDiadema);
-  map.options.maxBoundsViscosity = 1.0;
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: document.documentElement.classList.contains('tema-escuro')
+      ? estiloEscuro
+      : estiloClaro,
+    center: centroDiadema,
+    zoom: 16,
+    maxBounds: limitesDiadema
+  });
 
-  const marcador = L.marker([-23.686, -46.623])
-    .addTo(map)
-    .bindPopup('Diadema - SP');
+  map.addControl(
+    new mapboxgl.NavigationControl(),
+    'top-right'
+  );
 
-  // Zoom no marcador
-  map.setView([-23.686, -46.623], 16);
+  const marcador = new mapboxgl.Marker({
+    color: '#e63946'
+  })
+    .setLngLat(centroDiadema)
+    .setPopup(
+      new mapboxgl.Popup({
+        offset: 25
+      }).setHTML(
+        '<strong class="painel-marker">Diadema - SP</strong>'
+      )
+    )
+    .addTo(map);
+
+  function atualizarTemaMapa() {
+    const temaEscuro = document.documentElement.classList.contains('tema-escuro');
+
+    map.setStyle(temaEscuro ? estiloEscuro : estiloClaro);
+  }
+
+  const observer = new MutationObserver(() => {
+    atualizarTemaMapa();
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
 </script>
+
+
 
 <h3 class="painel-atv">Atividades Proximas</h3>
 <h4 class="painel-all-atv"><strong class="painel-all-atv-cor">Ver todas</strong> ></h4>

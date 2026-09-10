@@ -164,6 +164,8 @@ try {
 }
 
 
+
+
 /*
 |--------------------------------------------------------------------------
 | CONFIGURAR PHPMailer
@@ -184,11 +186,11 @@ try {
     $mail->SMTPAuth = true;
 
     // E-MAIL DO ZUBBO
-    $mail->Username = 'zubboadms@gmail.com';
+    $mail->Username = 'suportezubbo@gmail.com';
 
     // SENHA DE APLICATIVO DO GOOGLE
     // COLOQUE A SUA AQUI
-    $mail->Password = 'gksi zwrg tgxc upnr';
+    $mail->Password = 'kyzg opib pvzd msiy';
 
     // Segurança
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;

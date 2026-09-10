@@ -8,6 +8,7 @@ include __DIR__.'/../includes/head.php';
     ←  
     </button>
 
+
     <img class="logo-cad" src="/../-TCC-/public/imagem/LogooZ.png" alt="">
 
     <h1 class="title-cad">Criar Conta</h1>

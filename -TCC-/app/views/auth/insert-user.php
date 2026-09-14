@@ -186,11 +186,11 @@ try {
     $mail->SMTPAuth = true;
 
     // E-MAIL DO ZUBBO
-    $mail->Username = 'suportezubbo@gmail.com';
+    $mail->Username = 'zubbosupport@gmail.com';
 
     // SENHA DE APLICATIVO DO GOOGLE
     // COLOQUE A SUA AQUI
-    $mail->Password = 'kyzg opib pvzd msiy';
+    $mail->Password = 'legk uqny btkm vuau';
 
     // Segurança
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
@@ -209,7 +209,7 @@ try {
     */
 
     $mail->setFrom(
-        'zubboadms@gmail.com',
+        'zubbosupport@gmail.com',
         'Zubbo'
     );
 

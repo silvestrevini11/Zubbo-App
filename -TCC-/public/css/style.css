@@ -1,7 +1,3 @@
-body{
-    font-family: 
-}
-
 @font-face {
     font-family: 'poppins';
     src: url(../font/Poppins-Regular.ttf);
@@ -84,8 +80,6 @@ html.tema-escuro .notificacao-info span {
 
     font-size: 14px;
 }
-
-
 
 .painel-notificacao-link {
 
@@ -4368,3 +4362,198 @@ html.tema-escuro .verificar-text { color: white;}
 html.tema-escuro .verificar-mensagem-erro {background: #4e4c4c;}
 html.tema-escuro .verificar-caixa { background: #000000; color: #e3e2e2;}
 html.tema-escuro .verificar-caixa::placeholder{ color: #828282;}
+
+
+
+
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.esqueci-senha-body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f8;
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #222;
+}
+
+.container-esqueci-senha {
+    width: 100%;
+    padding: 20px;
+}
+
+html.tema-escuro .container-esqueci-senha {
+
+}
+
+.card-esqueci-senha {
+    width: 100%;
+    max-width: 420px;
+
+    margin: auto;
+    padding: 40px 35px;
+
+    background: #ffffff;
+    border-radius: 14px;
+
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+
+    text-align: center;
+}
+
+html.tema-escuro .card-esqueci-senha {
+    background: #111111;
+    color: white;
+    border: 5px solid #222222;
+    border-style: ridge;
+}
+
+.icon-esqueci-senha {
+    width: 85px;
+    height: 85px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eef4ff;
+    border-radius: 50%;
+
+    font-size: 30px;
+}
+
+h1 {
+    font-size: 26px;
+    margin-bottom: 12px;
+}
+
+.descricao {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+
+    margin-bottom: 25px;
+}
+
+form {
+    text-align: left;
+}
+
+label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+input {
+    width: 100%;
+
+    padding: 13px 14px;
+
+    border: 1px solid #d6d9de;
+    border-radius: 8px;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition: 0.2s;
+}
+
+input:focus {
+    border-color: #ff4b1f;
+
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.btn-esqueci-senha {
+    width: 100%;
+
+    margin-top: 18px;
+
+    padding: 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #ff4b1f;
+    color: white;
+
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.btn-esqueci-senha:hover {
+    background: #ff4b1f;
+}
+
+.voltar-esqueci-senha {
+    display: inline-block;
+
+    margin-top: 22px;
+
+    color: #dc4e0c;
+    text-decoration: none;
+
+    font-size: 14px;
+}
+
+.voltar-esqueci-senha:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    padding: 12px;
+
+    margin-bottom: 20px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.erro {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.sucesso {
+    background: #dcfce7;
+    color: #166534;
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 30px 22px;
+    }
+
+    h1 {
+        font-size: 23px;
+    }
+}
+
+.svg-lock{
+    height: 50px;
+    width: 50px;
+}

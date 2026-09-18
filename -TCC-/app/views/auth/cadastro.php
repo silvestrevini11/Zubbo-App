@@ -8,6 +8,7 @@ include __DIR__.'/../includes/head.php';
     ←  
     </button>
 
+
     <img class="logo-cad" src="/../-TCC-/public/imagem/LogooZ.png" alt="">
 
     <h1 class="title-cad">Criar Conta</h1>
@@ -91,42 +92,6 @@ include __DIR__.'/../includes/head.php';
 
         <div class="field-cad">
             <input type="date" name="data-nasc" required>
-        </div>
-
-        <h2 class="sub-title-cad">
-            Você possui alguma deficiência?
-        </h2>
-
-        <div class="dropdown-cad">
-
-            <button
-                type="button"
-                class="dropdown-button-cad"
-                id="botao-cad"
-            >
-                Lista
-            </button>
-
-            <div class="lista-cad" id="lista-cad">
-
-                <div class="opcao-cad">
-                    Deficiência visual
-                </div>
-
-                <div class="opcao-cad">
-                    Deficiência auditiva
-                </div>
-
-                <div class="opcao-cad">
-                    Deficiência física
-                </div>
-
-                <div class="opcao-cad">
-                    Não possuo deficiência
-                </div>
-
-            </div>
-
         </div>
 
         <div class="seguranca-cad">

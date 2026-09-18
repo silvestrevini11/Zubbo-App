@@ -76,6 +76,17 @@ CREATE TABLE Notificacao (
         REFERENCES Mensagem(id_mensagem)
 );
 
+CREATE TABLE Verificacao_Email (
+    id_verificacao INT PRIMARY KEY AUTO_INCREMENT,
+    id_user INT NOT NULL,
+    codigo VARCHAR(6) NOT NULL,
+    expiracao DATETIME NOT NULL,
+
+    CONSTRAINT fk_verificacao_usuario
+        FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user)
+        ON DELETE CASCADE
+);
 
 INSERT INTO Esporte (nome_esporte) VALUES
 ('Futebol'),
@@ -87,6 +98,9 @@ INSERT INTO Esporte (nome_esporte) VALUES
 
 ALTER TABLE Usuario
 ADD foto_user VARCHAR(255) NULL;
+
+ALTER TABLE Usuario
+ADD COLUMN email_verificado BOOLEAN NOT NULL DEFAULT FALSE;
 
 select * from Usuario;
 select * from Esporte;

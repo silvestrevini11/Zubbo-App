@@ -207,7 +207,7 @@ try {
     */
 
     $mail->setFrom(
-        'zubboadms@gmail.com',
+        'zubbosupport@gmail.com',
         'Zubbo'
     );
 

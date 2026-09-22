@@ -10,19 +10,21 @@ if (!isset($_SESSION['usuario'])) {
 include __DIR__ . '/../../../config/database.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
-$id_remetente = (int) ($_POST['id_remetente'] ?? 0);
 
-if ($id_remetente <= 0) {
-    die('Remetente inválido.');
+$id_solicitacao = (int) ($_POST['id_solicitacao'] ?? 0);
+$id_notificacao = (int) ($_POST['id_notificacao'] ?? 0);
+
+
+if ($id_solicitacao <= 0) {
+    header('Location: notificacoes.php');
+    exit;
 }
 
-if ($id_usuario === $id_remetente) {
-    die('Você não pode aceitar uma solicitação de si mesmo.');
-}
 
-/*
- * Procura a solicitação pendente.
- */
+/* ==========================================
+   BUSCAR SOLICITAÇÃO
+========================================== */
+
 $stmt = $conn->prepare("
     SELECT
         id_solicitacao,
@@ -30,38 +32,60 @@ $stmt = $conn->prepare("
         id_destinatario,
         status
     FROM Solicitacao_Amizade
-    WHERE id_remetente = ?
+    WHERE id_solicitacao = ?
       AND id_destinatario = ?
-      AND status = 'pendente'
-    LIMIT 1
 ");
 
 $stmt->execute([
-    $id_remetente,
+    $id_solicitacao,
     $id_usuario
 ]);
 
 $solicitacao = $stmt->fetch(PDO::FETCH_ASSOC);
 
+
 if (!$solicitacao) {
-    die('Solicitação de amizade não encontrada ou já foi processada.');
+    header('Location: notificacoes.php');
+    exit;
 }
 
-$id_solicitacao = (int) $solicitacao['id_solicitacao'];
 
-/*
- * Organiza os IDs para a tabela Amizade.
- */
+/* ==========================================
+   VERIFICAR STATUS
+========================================== */
+
+if ($solicitacao['status'] !== 'pendente') {
+    header('Location: notificacoes.php');
+    exit;
+}
+
+
+$id_remetente = (int) $solicitacao['id_remetente'];
+
+
+if ($id_usuario === $id_remetente) {
+    header('Location: notificacoes.php');
+    exit;
+}
+
+
+/* ==========================================
+   ORGANIZAR IDS DA AMIZADE
+========================================== */
+
 $id1 = min($id_usuario, $id_remetente);
 $id2 = max($id_usuario, $id_remetente);
+
 
 try {
 
     $conn->beginTransaction();
 
-    /*
-     * 1. Aceita a solicitação
-     */
+
+    /* ==========================================
+       1. ACEITAR SOLICITAÇÃO
+    ========================================== */
+
     $stmt = $conn->prepare("
         UPDATE Solicitacao_Amizade
         SET status = 'aceita'
@@ -73,9 +97,11 @@ try {
         $id_solicitacao
     ]);
 
-    /*
-     * 2. Cria a amizade
-     */
+
+    /* ==========================================
+       2. CRIAR AMIZADE
+    ========================================== */
+
     $stmt = $conn->prepare("
         INSERT INTO Amizade
         (
@@ -90,10 +116,34 @@ try {
         $id2
     ]);
 
-    /*
-     * 3. Cria notificação avisando
-     * que a solicitação foi aceita.
-     */
+
+    /* ==========================================
+       3. MARCAR NOTIFICAÇÃO ORIGINAL COMO LIDA
+    ========================================== */
+
+    if ($id_notificacao > 0) {
+
+        $stmt = $conn->prepare("
+            UPDATE Notificacao
+            SET lida = TRUE
+            WHERE id_notificacao = ?
+              AND id_destinatario = ?
+              AND id_remetente = ?
+              AND tipo = 'amizade'
+        ");
+
+        $stmt->execute([
+            $id_notificacao,
+            $id_usuario,
+            $id_remetente
+        ]);
+    }
+
+
+    /* ==========================================
+       4. CRIAR NOTIFICAÇÃO DE ACEITAÇÃO
+    ========================================== */
+
     $stmt = $conn->prepare("
         INSERT INTO Notificacao
         (
@@ -111,13 +161,23 @@ try {
         $id_usuario
     ]);
 
-    /*
-     * 4. Confirma
-     */
+
+    /* ==========================================
+       5. CONFIRMAR TUDO
+    ========================================== */
+
     $conn->commit();
 
+
+    /*
+     * Volta para a página de notificações.
+     *
+     * Isso faz a página ser carregada novamente,
+     * removendo o fundo de "não lida" e o botão Aceitar.
+     */
     header('Location: notificacoes.php');
     exit;
+
 
 } catch (Throwable $e) {
 

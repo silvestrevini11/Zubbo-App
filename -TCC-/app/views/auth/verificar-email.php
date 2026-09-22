@@ -14,36 +14,41 @@ if (!isset($_SESSION['usuario_verificacao'])) {
     exit;
 }
 
+include __DIR__.'/../includes/head.php';
+
 $erro = $_SESSION['erro_verificacao'] ?? null;
 
 unset($_SESSION['erro_verificacao']);
 
 ?>
 
-<main class="verificacao-container">
+<main class="verificar-container">
 
-    <h1>Verifique seu e-mail</h1>
+    <h1 class="verificar-titulo">
+        Verifique seu e-mail
+    </h1>
 
-    <p>
+    <p class="verificar-text">
         Enviamos um código de 6 dígitos para o seu e-mail.
         Digite o código abaixo para confirmar sua conta.
     </p>
 
     <?php if ($erro): ?>
 
-        <p class="mensagem-erro">
+        <p class="verificar-mensagem-erro">
             <?= htmlspecialchars($erro) ?>
         </p>
 
     <?php endif; ?>
 
-    <form action="processa-verificacao.php" method="POST">
-
-        <label for="codigo">
-            Código de verificação
-        </label>
+    <form 
+        class="verificar-form"
+        action="processa-verificacao.php" 
+        method="POST"
+    >
 
         <input
+            class="verificar-caixa"
             type="text"
             id="codigo"
             name="codigo"
@@ -56,10 +61,13 @@ unset($_SESSION['erro_verificacao']);
             required
         >
 
-        <button type="submit">
+        <button 
+            class="verificar-btn" 
+            type="submit"
+        >
             Verificar e-mail
         </button>
 
     </form>
 
-</main> 
+</main>

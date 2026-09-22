@@ -29,3 +29,5 @@ header('Content-Type: application/json; charset=utf-8');
 echo json_encode([
     'quantidade' => (int) $resultado['quantidade']
 ]);
+
+exit;

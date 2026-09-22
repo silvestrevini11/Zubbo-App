@@ -74,7 +74,7 @@ $nomeUsuario = $_SESSION['usuario']['nome'];
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.29.0/mapbox-gl.js"></script>
 
 <script>
-  mapboxgl.accessToken = 'pk.eyJ1Ijoia2lpbmd6ejAyMiIsImEiOiJjbXRseXozaHowMDNqMnlwa3djb2N5b2l2In0.5A9fNPCehI8fGGMcdgAV_A';
+  mapboxgl.accessToken = 'pk.eyJ1Ijoia2lpbmd6ejAyMiIsImEiOiJjbXR2eHhsODUwMzFjMnhxYmswOTRncmh5In0.MeIvXt_Cxk4WZbjYjKMEYw';
 
   const centroDiadema = [-46.623, -23.686];
 

@@ -1,0 +1,3 @@
+Email salvando no banco antes de validar (Faz com que se voce cadastrar e não conseguir validar, fica impossivel de usar o email novamente)
+tela/mensagem de quando a senha não existe ou esta incorreta no login (Te manda pra uma tela branca com texto preto sem volta possivel)
+clicar no proprio perfil na barra de pesquisa (Aparece opção para seguir e conversar com sigo mesmo)

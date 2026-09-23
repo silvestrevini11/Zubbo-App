@@ -14,18 +14,14 @@ $id_usuario = (int) $_SESSION['usuario']['id'];
 
 
 /* ==========================================
-   BUSCAR CONVERSAS
+   BUSCAR CONVERSAS PRIVADAS
 ========================================== */
 
 $stmt = $conn->prepare("
     SELECT
         c.id_conversa,
 
-        CASE
-            WHEN c.id_user_a = :id_user
-                THEN c.id_user_b
-            ELSE c.id_user_a
-        END AS id_outro_usuario,
+        pc_outro.id_user AS id_outro_usuario,
 
         u.nome_user,
         u.foto_user,
@@ -35,13 +31,16 @@ $stmt = $conn->prepare("
 
     FROM Conversa c
 
+    INNER JOIN Participantes_Conversa pc
+        ON pc.id_conversa = c.id_conversa
+        AND pc.id_user = :id_usuario
+
+    INNER JOIN Participantes_Conversa pc_outro
+        ON pc_outro.id_conversa = c.id_conversa
+        AND pc_outro.id_user <> :id_usuario_outro
+
     INNER JOIN Usuario u
-        ON u.id_user =
-            CASE
-                WHEN c.id_user_a = :id_user2
-                    THEN c.id_user_b
-                ELSE c.id_user_a
-            END
+        ON u.id_user = pc_outro.id_user
 
     LEFT JOIN Mensagem m
         ON m.id_mensagem = (
@@ -50,18 +49,15 @@ $stmt = $conn->prepare("
             WHERE m2.id_conversa = c.id_conversa
         )
 
-    WHERE c.id_user_a = :id_user3
-       OR c.id_user_b = :id_user4
+    WHERE c.tipo_conversa = 'privado'
 
     ORDER BY
         COALESCE(m.data_envio, c.data_criacao) DESC
 ");
 
 $stmt->execute([
-    ':id_user'  => $id_usuario,
-    ':id_user2' => $id_usuario,
-    ':id_user3' => $id_usuario,
-    ':id_user4' => $id_usuario
+    ':id_usuario' => $id_usuario,
+    ':id_usuario_outro' => $id_usuario
 ]);
 
 $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);

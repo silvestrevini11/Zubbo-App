@@ -23,15 +23,16 @@ if ($id_conversa <= 0) {
 */
 
 $stmt = $conn->prepare("
-    SELECT id_conversa
-    FROM Conversa
-    WHERE id_conversa = ?
-      AND (id_user_a = ? OR id_user_b = ?)
+    SELECT c.id_conversa
+    FROM Conversa c
+    INNER JOIN Participantes_Conversa pc
+        ON pc.id_conversa = c.id_conversa
+    WHERE c.id_conversa = ?
+      AND pc.id_user = ?
 ");
 
 $stmt->execute([
     $id_conversa,
-    $id_usuario,
     $id_usuario
 ]);
 

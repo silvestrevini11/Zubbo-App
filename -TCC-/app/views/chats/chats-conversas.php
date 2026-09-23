@@ -30,10 +30,6 @@ if ($id_outro_usuario <= 0 || $id_outro_usuario == $id_usuario_logado) {
     representam a mesma conversa.
 */
 
-$id_user_a = min($id_usuario_logado, $id_outro_usuario);
-$id_user_b = max($id_usuario_logado, $id_outro_usuario);
-
-
 /* ==========================================
    PEGAR DADOS DA OUTRA PESSOA
 ========================================== */
@@ -59,15 +55,23 @@ if (!$usuario) {
 ========================================== */
 
 $stmtConversa = $conn->prepare("
-    SELECT id_conversa
-    FROM Conversa
-    WHERE id_user_a = ?
-      AND id_user_b = ?
+    SELECT c.id_conversa
+    FROM Conversa c
+
+    INNER JOIN Participantes_Conversa pc1
+        ON pc1.id_conversa = c.id_conversa
+        AND pc1.id_user = ?
+
+    INNER JOIN Participantes_Conversa pc2
+        ON pc2.id_conversa = c.id_conversa
+        AND pc2.id_user = ?
+
+    WHERE c.tipo_conversa = 'privado'
 ");
 
 $stmtConversa->execute([
-    $id_user_a,
-    $id_user_b
+    $id_usuario_logado,
+    $id_outro_usuario
 ]);
 
 $conversa = $stmtConversa->fetch(PDO::FETCH_ASSOC);
@@ -78,16 +82,35 @@ $conversa = $stmtConversa->fetch(PDO::FETCH_ASSOC);
 if (!$conversa) {
 
     $stmtCriar = $conn->prepare("
-        INSERT INTO Conversa (id_user_a, id_user_b)
+        INSERT INTO Conversa (tipo_conversa)
+        VALUES ('privado')
+    ");
+
+    $stmtCriar->execute();
+
+    $id_conversa = $conn->lastInsertId();
+
+
+    /* Adiciona o usuário logado */
+
+    $stmtParticipante = $conn->prepare("
+        INSERT INTO Participantes_Conversa
+        (id_user, id_conversa)
         VALUES (?, ?)
     ");
 
-    $stmtCriar->execute([
-        $id_user_a,
-        $id_user_b
+    $stmtParticipante->execute([
+        $id_usuario_logado,
+        $id_conversa
     ]);
 
-    $id_conversa = $conn->lastInsertId();
+
+    /* Adiciona o outro usuário */
+
+    $stmtParticipante->execute([
+        $id_outro_usuario,
+        $id_conversa
+    ]);
 
 } else {
 

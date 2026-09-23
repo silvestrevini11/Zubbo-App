@@ -2178,6 +2178,34 @@ section {
     transition: 0.2s ease;
 }
 
+html.tema-escuro .esporte-card{
+    position: relative;
+
+    min-width: 0;
+
+    min-height: 75px;
+
+    padding: 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid #ffffff;
+    border-radius: 15px;
+
+    background: #000000;
+
+    color: #cccbcb;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
 
 /* ESCONDE CHECKBOX */
 
@@ -2196,6 +2224,16 @@ section {
     border-color: #FF7A00;
 
     background: #FFF3E8;
+
+    color: #FF7A00;
+
+    box-shadow: 0 4px 12px rgba(255, 122, 0, 0.15);
+}
+
+html.tema-escuro .esporte-card:has(input:checked) {
+    border-color: #FF7A00;
+
+    background: #2e2e2e;
 
     color: #FF7A00;
 
@@ -2327,45 +2365,67 @@ section {
 ======================================== */
 
 .esporte-futebol {
-    background: #EAF7EA !important;
-    color: #269B35 !important;
-    border-color: #BDE5C2 !important;
+    background: #d2cfcd !important;
+    border-color: #000000 !important;
 }
 
 .esporte-basquete {
-    background: #FFF0E5 !important;
-    color: #E86F00 !important;
-    border-color: #FFD0AD !important;
+    background: #d2cfcd !important;
+    border-color: #000000 !important;
 }
 
 .esporte-volei {
-    background: #EAF3FF !important;
-    color: #2475D9 !important;
-    border-color: #BDD9FF !important;
+    background: #d2cfcd !important;
+    border-color: #000000 !important;
 }
 
 .esporte-tenis {
-    background: #F7F5DE !important;
-    color: #858000 !important;
-    border-color: #E5E0A6 !important;
+    background: #d2cfcd !important;
+    border-color: #000000 !important;
 }
 
 .esporte-futesal {
-    background: #EAF7EA !important;
-    color: #238B35 !important;
-    border-color: #BDE5C2 !important;
+    background: #d2cfcd !important;
+    border-color: #000000 !important;
 }
 
 .esporte-handebol {
-    background: #F1EAFE !important;
-    color: #7A42C8 !important;
-    border-color: #D8C4F5 !important;
+    background: #d2cfcd !important;
+    border-color: #000000 !important;
 }
 
 .esporte-outro {
-    background: #F4F4F4 !important;
-    color: #555555 !important;
-    border-color: #DDDDDD !important;
+    background: #d2cfcd !important;
+    border-color: #000000 !important;
+}
+
+html.tema-escuro .esporte-futebol{
+    background: #434242 !important;
+    border-color: #fdfdfd !important;
+}
+html.tema-escuro .esporte-basquete{
+    background: #434242 !important;
+    border-color: #fdfdfd !important;
+}
+html.tema-escuro .esporte-volei{
+    background: #434242 !important;
+    border-color: #fdfdfd !important;
+}
+html.tema-escuro .esporte-tenis{
+    background: #434242 !important;
+    border-color: #fdfdfd !important;
+}
+html.tema-escuro .esporte-futesal{
+    background: #434242 !important;
+    border-color: #fdfdfd !important;
+}
+html.tema-escuro .esporte-handebol{
+    background: #434242 !important;
+    border-color: #fdfdfd !important;
+}
+html.tema-escuro .esporte-outro{
+    background: #434242 !important;
+    border-color: #fdfdfd !important;
 }
 
 

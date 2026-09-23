@@ -2,14 +2,7 @@
 
 session_start();
 
-/*
-    Quando o cadastro for concluído,
-    vamos guardar o ID do usuário nesta sessão:
-
-    $_SESSION['usuario_verificacao']
-*/
-
-if (!isset($_SESSION['usuario_verificacao'])) {
+if (!isset($_SESSION['cadastro_pendente'])) {
     header('Location: cadastro.php');
     exit;
 }

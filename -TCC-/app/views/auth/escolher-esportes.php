@@ -3,7 +3,10 @@
 
 session_start();
 
-if (!isset($_SESSION['usuario_cadastro'])) {
+if (
+    !isset($_SESSION['cadastro_pendente']) ||
+    !isset($_SESSION['email_verificado'])
+) {
     header('Location: cadastro.php');
     exit;
 }

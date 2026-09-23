@@ -72,44 +72,7 @@ if ($stmt->fetch()) {
 
 /*
 |--------------------------------------------------------------------------
-| CRIAR USUÁRIO
-|--------------------------------------------------------------------------
-*/
-
-try {
-
-    $stmt = $conn->prepare("
-        INSERT INTO Usuario
-        (
-            nome_user,
-            email_user,
-            tel_user,
-            senha_user,
-            date_user
-        )
-        VALUES (?, ?, ?, ?, ?)
-    ");
-
-    $stmt->execute([
-        $nome,
-        $email,
-        $telefone,
-        password_hash($senha, PASSWORD_DEFAULT),
-        $dataNascimento
-    ]);
-
-    $id_user = (int) $conn->lastInsertId();
-
-} catch (PDOException $e) {
-
-    header('Location: cadastro.php?erro=email');
-    exit;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| GERAR CÓDIGO DE 6 DÍGITOS
+| GERAR CÓDIGO
 |--------------------------------------------------------------------------
 */
 
@@ -135,33 +98,23 @@ $expiracao = date(
 
 /*
 |--------------------------------------------------------------------------
-| SALVAR CÓDIGO NO BANCO
+| GUARDAR CADASTRO TEMPORARIAMENTE NA SESSÃO
 |--------------------------------------------------------------------------
+|
+| IMPORTANTE:
+| O usuário ainda NÃO foi criado no banco.
+|
 */
 
-try {
-
-    $stmt = $conn->prepare("
-        INSERT INTO Verificacao_Email
-        (
-            id_user,
-            codigo,
-            expiracao
-        )
-        VALUES (?, ?, ?)
-    ");
-
-    $stmt->execute([
-        $id_user,
-        $codigo,
-        $expiracao
-    ]);
-
-} catch (PDOException $e) {
-
-    header('Location: cadastro.php?erro=verificacao');
-    exit;
-}
+$_SESSION['cadastro_pendente'] = [
+    'nome' => $nome,
+    'email' => $email,
+    'telefone' => $telefone,
+    'senha' => password_hash($senha, PASSWORD_DEFAULT),
+    'data_nascimento' => $dataNascimento,
+    'codigo' => $codigo,
+    'expiracao' => $expiracao
+];
 
 
 /*
@@ -174,29 +127,20 @@ $mail = new PHPMailer(true);
 
 try {
 
-    // Usar SMTP
     $mail->isSMTP();
 
-    // Servidor SMTP do Gmail
     $mail->Host = 'smtp.gmail.com';
 
-    // Ativar autenticação
     $mail->SMTPAuth = true;
 
-    // E-MAIL DO ZUBBO
     $mail->Username = 'zubbosupport@gmail.com';
 
-    // SENHA DE APLICATIVO DO GOOGLE
-    // COLOQUE A SUA AQUI
     $mail->Password = 'xqyp cdic ldtg asyc';
 
-    // Segurança
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
 
-    // Porta do Gmail
     $mail->Port = 587;
 
-    // UTF-8
     $mail->CharSet = 'UTF-8';
 
 
@@ -216,9 +160,6 @@ try {
     |--------------------------------------------------------------------------
     | DESTINATÁRIO
     |--------------------------------------------------------------------------
-    |
-    | Aqui entra o e-mail que o usuário colocou no cadastro.
-    |
     */
 
     $mail->addAddress(
@@ -308,7 +249,6 @@ try {
         </div>
     ";
 
-
     /*
     |--------------------------------------------------------------------------
     | VERSÃO TEXTO
@@ -333,24 +273,18 @@ try {
 } catch (Exception $e) {
 
     /*
-    | Durante os testes podemos mostrar o erro.
-    | Depois podemos esconder essa informação.
+    |--------------------------------------------------------------------------
+    | SE O E-MAIL FALHAR, CANCELAR CADASTRO TEMPORÁRIO
+    |--------------------------------------------------------------------------
     */
+
+    unset($_SESSION['cadastro_pendente']);
 
     die(
         'Erro ao enviar o e-mail: ' .
         htmlspecialchars($mail->ErrorInfo)
     );
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| CRIAR SESSÃO
-|--------------------------------------------------------------------------
-*/
-
-$_SESSION['usuario_verificacao'] = $id_user;
 
 
 /*

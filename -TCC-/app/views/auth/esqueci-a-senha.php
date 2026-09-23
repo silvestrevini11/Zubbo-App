@@ -52,6 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body class="esqueci-senha-body">
+    <button class="btn-voltar" onclick="window.location.href='/../-TCC-/public/index.php'">
+    ←  
+    </button>
 
 <div class="container-esqueci-senha">
     <div class="card-esqueci-senha">

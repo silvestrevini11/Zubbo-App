@@ -23,22 +23,32 @@ if ($id_conversa <= 0 || $mensagem === '') {
 
 /* ==========================================
    VERIFICAR SE O USUÁRIO PERTENCE À CONVERSA
+   E DESCOBRIR O DESTINATÁRIO
 ========================================== */
 
 $stmt = $conn->prepare("
     SELECT
-        id_conversa,
-        id_user_a,
-        id_user_b
-    FROM Conversa
-    WHERE id_conversa = ?
-      AND (id_user_a = ? OR id_user_b = ?)
+        c.id_conversa,
+        pc_outro.id_user AS id_destinatario
+
+    FROM Conversa c
+
+    INNER JOIN Participantes_Conversa pc
+        ON pc.id_conversa = c.id_conversa
+        AND pc.id_user = ?
+
+    INNER JOIN Participantes_Conversa pc_outro
+        ON pc_outro.id_conversa = c.id_conversa
+        AND pc_outro.id_user <> ?
+
+    WHERE c.id_conversa = ?
+      AND c.tipo_conversa = 'privado'
 ");
 
 $stmt->execute([
-    $id_conversa,
     $id_usuario,
-    $id_usuario
+    $id_usuario,
+    $id_conversa
 ]);
 
 $conversa = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -48,20 +58,7 @@ if (!$conversa) {
     exit;
 }
 
-
-/* ==========================================
-   DESCOBRIR O DESTINATÁRIO
-========================================== */
-
-if ((int) $conversa['id_user_a'] === $id_usuario) {
-
-    $id_destinatario = (int) $conversa['id_user_b'];
-
-} else {
-
-    $id_destinatario = (int) $conversa['id_user_a'];
-
-}
+$id_destinatario = (int) $conversa['id_destinatario'];
 
 
 /* ==========================================

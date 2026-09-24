@@ -77,6 +77,12 @@ $nomeUsuario = $_SESSION['usuario']['nome'];
   mapboxgl.accessToken = 'pk.eyJ1Ijoia2lpbmd6ejAyMiIsImEiOiJjbXR2eHhsODUwMzFjMnhxYmswOTRncmh5In0.MeIvXt_Cxk4WZbjYjKMEYw';
 
   const centroDiadema = [-46.623, -23.686];
+  
+
+  // Rua Caramuru, 1230 - Conceição, Diadema - SP
+  // Mapbox usa a ordem: [longitude, latitude]
+  const localCaramuru = [-46.6138447, -23.6930109];
+
 
   const limitesDiadema = [
     [-46.67, -23.73],
@@ -91,7 +97,7 @@ $nomeUsuario = $_SESSION['usuario']['nome'];
     style: document.documentElement.classList.contains('tema-escuro')
       ? estiloEscuro
       : estiloClaro,
-    center: centroDiadema,
+    center: localCaramuru,
     zoom: 16,
     maxBounds: limitesDiadema
   });
@@ -104,12 +110,13 @@ $nomeUsuario = $_SESSION['usuario']['nome'];
   const marcador = new mapboxgl.Marker({
     color: '#e63946'
   })
-    .setLngLat(centroDiadema)
+    .setLngLat(localCaramuru)
     .setPopup(
       new mapboxgl.Popup({
         offset: 25
       }).setHTML(
-        '<strong class="painel-marker">Diadema - SP</strong>'
+        '<strong class="painel-marker">R. Caramuru, 1230</strong><br>' +
+        '<span>Conceição, Diadema - SP</span>'
       )
     )
     .addTo(map);

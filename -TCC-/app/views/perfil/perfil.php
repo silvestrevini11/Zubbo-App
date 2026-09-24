@@ -154,7 +154,8 @@ inputFoto.addEventListener('change', function () {
                     'Basquete' => 'esporte-basquete',
                     'Vôlei' => 'esporte-volei',
                     'Tênis' => 'esporte-tenis',
-                    'Futesal' => 'esporte-futesal',
+                    'Futsal' => 'esporte-futesal',
+                    'Corrida' => 'esporte-corrida',
                     'Handebol' => 'esporte-handebol',
                     default => 'esporte-outro'
                 };

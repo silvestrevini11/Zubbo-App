@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+$erro = $_SESSION['erro_login'] ?? null;
+
+unset($_SESSION['erro_login']);
+
 include __DIR__.'/../includes/head.php';
 ?>
 
@@ -41,6 +45,14 @@ include __DIR__.'/../includes/head.php';
         </button>
 
     </form>
+
+    <?php if ($erro): ?>
+
+        <script>
+            alert("<?= htmlspecialchars($erro) ?>");
+        </script>
+
+    <?php endif; ?>
 
 </main>
 

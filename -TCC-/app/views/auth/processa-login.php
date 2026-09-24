@@ -23,12 +23,21 @@ $stmt->execute([$email]);
 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$usuario) {
-    die("E-mail ou senha incorretos.");
+
+    $_SESSION['erro_login'] = 'E-mail ou senha incorretos.';
+
+    header('Location: login.php');
+    exit;
 }
 
 if (!password_verify($senha, $usuario['senha_user'])) {
-    die("E-mail ou senha incorretos.");
+
+    $_SESSION['erro_login'] = 'E-mail ou senha incorretos.';
+
+    header('Location: login.php');
+    exit;
 }
+
 
 // Cria a sessão do usuário
 $_SESSION['usuario'] = [

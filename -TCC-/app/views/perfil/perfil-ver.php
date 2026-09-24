@@ -1,33 +1,40 @@
- <?php
-
+<?php
 session_start();
 
-include __DIR__ . '/../includes/head.php';
-include __DIR__ . '/../../../config/database.php';
+if (!isset($_SESSION['usuario']['id'])) {
+    header('Location: ../auth/login.php');
+    exit;
+}
 
+include __DIR__ . '/../../../config/database.php';
 
 // ID do perfil que está sendo visualizado
 $id_user = (int) ($_GET['id'] ?? 0);
-
+$id_logado = (int) $_SESSION['usuario']['id'];
 
 // Se não recebeu ID, volta para a pesquisa
 if ($id_user <= 0) {
-    header('Location: ../pesquisa/pesquisa.php');
+    header('Location: ../pesquisa/pesquisar.php');
+    exit;
+}
+
+// Se o usuário abriu o próprio resultado da pesquisa, leva ao perfil normal.
+// Assim não aparecem ações de adicionar amigo ou conversar consigo mesmo.
+if ($id_user === $id_logado) {
+    header('Location: perfil.php');
     exit;
 }
 
 $stmtUsuario = $conn->prepare("
-    SELECT nome_user, email_user
+    SELECT nome_user, email_user, foto_user
     FROM Usuario
     WHERE id_user = ?
 ");
-
 $stmtUsuario->execute([$id_user]);
-
 $usuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
 
 if (!$usuario) {
-    header('Location: ../pesquisa/pesquisa.php');
+    header('Location: ../pesquisa/pesquisar.php');
     exit;
 }
 
@@ -37,14 +44,8 @@ $stmtAmigos = $conn->prepare("
     WHERE id_user_1 = ?
        OR id_user_2 = ?
 ");
-
-$stmtAmigos->execute([
-    $id_user,
-    $id_user
-]);
-
+$stmtAmigos->execute([$id_user, $id_user]);
 $quantidadeAmigos = (int) $stmtAmigos->fetchColumn();
-
 
 $stmt = $conn->prepare("
     SELECT e.nome_esporte
@@ -54,55 +55,24 @@ $stmt = $conn->prepare("
     WHERE ue.id_user = ?
     ORDER BY e.nome_esporte
 ");
-
 $stmt->execute([$id_user]);
-
 $esportes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-<section style="padding-bottom: 80px;
-}">
 
-<?php
-    $stmtFoto = $conn->prepare("
-    SELECT foto_user
-    FROM Usuario
-    WHERE id_user = ?
-");
-
-$stmtFoto->execute([$id_user]);
-
-$usuarioFoto = $stmtFoto->fetch(PDO::FETCH_ASSOC);
-
-$fotoPerfil = !empty($usuarioFoto['foto_user'])
-    ? '/-TCC-/' . $usuarioFoto['foto_user']
+$fotoPerfil = !empty($usuario['foto_user'])
+    ? '/-TCC-/' . $usuario['foto_user']
     : '/-TCC-/public/imagem/blank.png';
+
+include __DIR__ . '/../includes/head.php';
 ?>
+<section style="padding-bottom: 80px;">
 
-<form action="upload-foto.php" method="POST" enctype="multipart/form-data">
-
-    <label for="fotoPerfil" class="perfil-pic-label">
-
-        <img
-            class="perfil-pic"
-            src="<?= htmlspecialchars($fotoPerfil) ?>"
-            alt="Foto de perfil"
-        >
-
-    </label>
-
-</form>
-
-<script>
-const inputFoto = document.getElementById('fotoPerfil');
-
-inputFoto.addEventListener('change', function () {
-
-    if (this.files.length > 0) {
-        this.form.submit();
-    }
-
-});
-</script>
+<div class="perfil-pic-label" aria-label="Foto de perfil">
+    <img
+        class="perfil-pic"
+        src="<?= htmlspecialchars($fotoPerfil) ?>"
+        alt="Foto de perfil"
+    >
+</div>
 
 <h1 class="perfil-nome">
     <?= htmlspecialchars($usuario['nome_user']) ?>
@@ -111,7 +81,6 @@ inputFoto.addEventListener('change', function () {
 <h3 class="perfil-email">
     <?= htmlspecialchars($usuario['email_user']) ?>
 </h3>
-
 
 <div class="perfil-nivel">
     <p class="perfil-nivel-nome">Nivel-Iniciante</p>
@@ -129,20 +98,9 @@ inputFoto.addEventListener('change', function () {
 </div>
 
 <div class="perfil-acoes">
-
     <form action="adicionar-amigo.php" method="POST">
-        <input
-            type="hidden"
-            name="id_amigo"
-            value="<?= $id_user ?>"
-        >
-
-        <button
-            type="submit"
-            class="btn-adicionar-amigo"
-        >
-            + Adicionar amigo
-        </button>
+        <input type="hidden" name="id_amigo" value="<?= $id_user ?>">
+        <button type="submit" class="btn-adicionar-amigo">+ Adicionar amigo</button>
     </form>
 
     <button
@@ -152,23 +110,18 @@ inputFoto.addEventListener('change', function () {
     >
         Conversar
     </button>
-
 </div>
 
 <div class="perfil-sobre">
     <h2 class="perfil-sobremim">Sobre Mim</h2>
-
     <p class="perfil-sobremim-texto"></p>
 </div>
 
 <div class="perfil-esportes">
-
     <h2>Meus Esportes</h2>
 
     <div class="esportes-lista">
-
         <?php foreach ($esportes as $esporte): ?>
-
             <?php
                 $nome = $esporte['nome_esporte'];
 
@@ -177,7 +130,8 @@ inputFoto.addEventListener('change', function () {
                     'Basquete' => 'esporte-basquete',
                     'Vôlei' => 'esporte-volei',
                     'Tênis' => 'esporte-tenis',
-                    'Futesal' => 'esporte-futesal',
+                    'Futsal' => 'esporte-futesal',
+                    'Corrida' => 'esporte-corrida',
                     'Handebol' => 'esporte-handebol',
                     default => 'esporte-outro'
                 };
@@ -186,16 +140,13 @@ inputFoto.addEventListener('change', function () {
             <div class="esporte-card <?= $classe ?>">
                 <span><?= htmlspecialchars($nome) ?></span>
             </div>
-
         <?php endforeach; ?>
-
     </div>
-
 </div>
 
 <div class="perfil-organiza-eventos">
     <h2>Eventos que organizei</h2>
-    </p>Ver Todos</p>
+    <p>Ver Todos</p>
 
     <section class="perfil-eventos-idos">
         <!--para fazer ainda-->

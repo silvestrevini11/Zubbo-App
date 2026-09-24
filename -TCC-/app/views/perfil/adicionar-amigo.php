@@ -3,7 +3,7 @@
 session_start();
 
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../login/login.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
@@ -14,13 +14,13 @@ $id_destinatario = (int) ($_POST['id_amigo'] ?? 0);
 
 // Verifica se o ID é válido
 if ($id_destinatario <= 0) {
-    header('Location: ../pesquisa/pesquisa.php');
+    header('Location: ../pesquisa/pesquisar.php');
     exit;
 }
 
 // Não pode adicionar a si mesmo
 if ($id_remetente === $id_destinatario) {
-    header('Location: perfil.php?id=' . $id_destinatario);
+    header('Location: perfil.php');
     exit;
 }
 
@@ -39,7 +39,7 @@ $stmt = $conn->prepare("
 $stmt->execute([$id1, $id2]);
 
 if ($stmt->fetch()) {
-    header('Location: perfil.php?id=' . $id_destinatario);
+    header('Location: perfil-ver.php?id=' . $id_destinatario);
     exit;
 }
 
@@ -65,7 +65,7 @@ $stmt->execute([
 ]);
 
 if ($stmt->fetch()) {
-    header('Location: perfil.php?id=' . $id_destinatario);
+    header('Location: perfil-ver.php?id=' . $id_destinatario);
     exit;
 }
 
@@ -103,5 +103,5 @@ $stmt->execute([
     $id_remetente
 ]);
 
-header('Location: perfil.php?id=' . $id_destinatario);
+header('Location: perfil-ver.php?id=' . $id_destinatario);
 exit;

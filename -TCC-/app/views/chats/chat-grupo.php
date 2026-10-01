@@ -47,6 +47,16 @@ $foto = $grupo['foto_grupo'] ? '/-TCC-/'.$grupo['foto_grupo'] : '/-TCC-/public/i
             <h2 class="chat-nome"><?= htmlspecialchars($grupo['nome_grupo']) ?></h2>
             <span><?= (int)$grupo['total_participantes'] ?> participantes</span>
         </div>
+
+        <?php if ((int)$grupo['id_criador'] === $id_usuario): ?>
+            <button
+                type="button"
+                class="grupo-btn-editar"
+                onclick="location.href='editar-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>'"
+                aria-label="Editar grupo"
+                title="Editar grupo"
+            >⚙</button>
+        <?php endif; ?>
     </header>
 
     <div class="chat-mensagens" id="chat-mensagens">

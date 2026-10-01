@@ -2374,6 +2374,16 @@ html.tema-escuro .esporte-card:has(input:checked) {
     border-color: #000000 !important;
 }
 
+.esporte-corrida {
+    background: #d2cfcd !important;
+    border-color: #000000 !important;
+}
+
+html.tema-escuro .esporte-corrida{
+    background: #434242 !important;
+    border-color: #fdfdfd !important;
+}
+
 .esporte-volei {
     background: #d2cfcd !important;
     border-color: #000000 !important;
@@ -3713,10 +3723,11 @@ html.tema-escuro .painel-search,
 html.tema-escuro .painel-esportes,
 html.tema-escuro .esportes-container,
 html.tema-escuro .under-bar,
-html.tema-escuro .bottom-nav,
 html.tema-escuro .pesquisa-search,
 html.tema-escuro .resultado-perfil,
 html.tema-escuro .modal-excluir { background: #171717; color: #f4f4f4; }
+
+html.tema-escuro .bottom-nav{background: #272727;}
 
 html.tema-escuro .configuracoes-item,
 html.tema-escuro .perfil-sobre,
@@ -5927,4 +5938,526 @@ html.tema-escuro .evento-erro {
         height: 54px;
         font-size: 16px;
     }
+}
+/* =========================================================
+   ZUBBO - CRIAÇÃO E LISTAGEM DE GRUPOS
+========================================================= */
+
+.grupo-criar-container {
+    width: 100%;
+    max-width: 428px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 24px 20px 110px;
+    background: #ffffff;
+    color: #1b1b1b;
+}
+
+.grupo-criar-topo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+    padding-left: 58px;
+}
+
+.grupo-criar-topo > div > span {
+    display: block;
+    margin-bottom: 2px;
+    color: #ef4b25;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .14em;
+}
+
+.grupo-criar-topo h1 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.grupo-criar-voltar {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #e8e8e8;
+    border-radius: 50%;
+    background: #f5f5f5;
+    font-size: 22px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.grupo-criar-descricao {
+    margin: 15px 0 20px;
+    color: #777a83;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.grupo-criar-alerta,
+.grupo-lista-sucesso,
+.grupo-sem-amigos {
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.grupo-criar-alerta {
+    margin-bottom: 16px;
+    border: 1px solid #f1c1bb;
+    background: #fff1ef;
+    color: #a42d24;
+}
+
+.grupo-lista-sucesso {
+    margin: 0 20px 16px;
+    border: 1px solid #b6e7c4;
+    background: #effcf3;
+    color: #137333;
+    text-align: center;
+    font-weight: 700;
+}
+
+.grupo-sem-amigos {
+    border: 1px solid #ececef;
+    background: #fafafa;
+    color: #6f727a;
+}
+
+.grupo-criar-form,
+.grupo-campo {
+    display: flex;
+    flex-direction: column;
+}
+
+.grupo-criar-form {
+    gap: 18px;
+}
+
+.grupo-campo {
+    gap: 7px;
+}
+
+.grupo-campo label {
+    padding-left: 3px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.grupo-campo input,
+.grupo-campo textarea {
+    width: 100%;
+    border: 1px solid #e3e5ec;
+    border-radius: 12px;
+    outline: none;
+    background: #f3f4fb;
+    color: #222222;
+    font: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.grupo-campo input {
+    height: 50px;
+    padding: 0 14px;
+}
+
+.grupo-campo textarea {
+    min-height: 105px;
+    padding: 13px 14px;
+    resize: vertical;
+}
+
+.grupo-campo input:focus,
+.grupo-campo textarea:focus {
+    border-color: #ef4b25;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(239,75,37,.11);
+}
+
+.grupo-campo small {
+    align-self: flex-end;
+    color: #888b93;
+    font-size: 10px;
+}
+
+.grupo-foto-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.grupo-foto-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #ef4b25;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.grupo-foto-label img {
+    width: 92px;
+    height: 92px;
+    border: 3px solid #ef4b25;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f3f3f3;
+}
+
+.grupo-amigos-cabecalho {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.grupo-amigos-cabecalho h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.grupo-amigos-cabecalho p {
+    margin: 3px 0 0;
+    color: #85858b;
+    font-size: 10.5px;
+}
+
+#contador-selecionados {
+    flex-shrink: 0;
+    color: #ef4b25;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.grupo-amigos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.grupo-amigo-item {
+    position: relative;
+    display: flex;
+    min-height: 62px;
+    padding: 9px 12px;
+    align-items: center;
+    gap: 11px;
+    border: 1px solid #ececef;
+    border-radius: 14px;
+    background: #fafafa;
+    cursor: pointer;
+}
+
+.grupo-amigo-item input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.grupo-amigo-foto {
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.grupo-amigo-nome {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.grupo-amigo-check {
+    display: flex;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #dedee2;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.grupo-amigo-item:has(input:checked) {
+    border-color: #ef4b25;
+    background: #fff4f0;
+}
+
+.grupo-amigo-item:has(input:checked) .grupo-amigo-check {
+    background: #ef4b25;
+}
+
+.grupo-criar-submit {
+    width: 100%;
+    height: 54px;
+    border: 0;
+    border-radius: 12px;
+    background: #ef4b25;
+    color: #ffffff;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(239,75,37,.2);
+}
+
+.grupo-lista-vazia {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 32px 20px;
+    padding: 24px 18px;
+    border: 1px solid #ececef;
+    border-radius: 16px;
+    background: #fafafa;
+    text-align: center;
+}
+
+.grupo-lista-vazia span {
+    color: #868890;
+    font-size: 12px;
+}
+
+.grupo-chat-item {
+    position: relative;
+}
+
+.grupo-chat-total {
+    display: flex;
+    min-width: 26px;
+    height: 26px;
+    padding: 0 7px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: #f1f1f1;
+    color: #777;
+    font-size: 10px;
+    font-weight: 800;
+}
+html.tema-escuro .grupo-chat-total{
+    background: #272727;
+}
+
+.grupo-chat-header-info {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.grupo-chat-header-info span {
+    color: #8a8a8a;
+    font-size: 10px;
+}
+
+.grupo-msg-remetente {
+    display: block;
+    margin-bottom: 3px;
+    color: #ef4b25;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+html.tema-escuro .grupo-criar-container {
+    background: #171717;
+    color: #f5f5f5;
+}
+
+html.tema-escuro .grupo-criar-voltar,
+html.tema-escuro .grupo-amigo-item,
+html.tema-escuro .grupo-lista-vazia,
+html.tema-escuro .grupo-sem-amigos {
+    border-color: #373737;
+    background: #242424;
+    color: #f3f3f3;
+}
+
+html.tema-escuro .grupo-campo input,
+html.tema-escuro .grupo-campo textarea {
+    border-color: #3a3a3a;
+    background: #2b2b2b;
+    color: #f5f5f5;
+}
+
+html.tema-escuro .grupo-amigo-item:has(input:checked) {
+    border-color: #ef4b25;
+    background: #35231f;
+}
+
+html.tema-escuro .grupo-lista-sucesso {
+    border-color: rgba(79, 190, 110, .35);
+    background: rgba(38, 120, 62, .16);
+    color: #8ee0a5;
+}
+
+html.tema-escuro .grupo-criar-alerta {
+    border-color: rgba(255, 90, 90, .25);
+    background: rgba(201,44,44,.12);
+    color: #ff8b8b;
+}
+
+@media (max-width: 360px) {
+    .grupo-criar-container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .grupo-amigos-cabecalho {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+
+/* EDIÇÃO DE GRUPO */
+.grupo-btn-editar {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: #ef4b25;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease;
+}
+.grupo-btn-editar:hover { background: #df421d; }
+.grupo-btn-editar:active { transform: scale(.92); }
+
+.grupo-remover-check {
+    padding: 6px 9px;
+    border-radius: 10px;
+    background: #f1f1f1;
+    color: #777;
+    font-size: 10px;
+    font-weight: 800;
+}
+.grupo-amigo-item:has(input[name="remover[]"]:checked) {
+    border-color: #d83b31;
+    background: #fff1ef;
+}
+.grupo-amigo-item:has(input[name="remover[]"]:checked) .grupo-remover-check {
+    background: #d83b31;
+    color: #fff;
+}
+.grupo-criador-item { cursor: default; }
+.grupo-criador-badge {
+    padding: 6px 9px;
+    border-radius: 10px;
+    background: #fff0eb;
+    color: #ef4b25;
+    font-size: 10px;
+    font-weight: 800;
+}
+.grupo-amigo-nome small {
+    color: #ef4b25;
+    font-size: 9px;
+    font-weight: 800;
+}
+html.tema-escuro .grupo-remover-check {
+    background: #3a3a3a;
+    color: #ccc;
+}
+html.tema-escuro .grupo-amigo-item:has(input[name="remover[]"]:checked) {
+    border-color: #d85349;
+    background: #3a2220;
+}
+html.tema-escuro .grupo-criador-badge {
+    background: #3a2822;
+}
+
+/* ==============================
+   SELETOR PRIVADOS / GRUPOS
+============================== */
+
+.seletor-tipo {
+    position: relative;
+
+    display: flex;
+
+    width: 100%;
+    height: 42px;
+
+    background: #cccccc;
+
+    border-radius: 12px;
+
+    padding: 4px;
+
+    box-sizing: border-box;
+
+    margin-bottom: 30px;
+}
+
+
+/* BARRA LARANJA */
+
+.seletor-indicador {
+    position: absolute;
+
+    top: 4px;
+    left: 4px;
+
+    width: calc(50% - 4px);
+    height: calc(100% - 8px);
+
+    background: #ff4b2b;
+
+    border-radius: 9px;
+
+    transition: transform 0.3s ease;
+
+    z-index: 1;
+}
+
+
+/* BOTÕES */
+
+.seletor-tipo .opcao {
+    position: relative;
+
+    width: 50%;
+
+    border: none;
+    background: transparent;
+
+    color: #444;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    z-index: 2;
+
+    transition: color 0.3s ease;
+}
+
+
+/* TEXTO DO BOTÃO SELECIONADO */
+
+.seletor-tipo .opcao.ativa {
+    color: white;
+}
+
+
+/* =================================
+   MOVE O LARANJA PARA GRUPOS
+================================= */
+
+.seletor-tipo:has(
+    .opcao[data-tipo="grupos"].ativa
+) .seletor-indicador {
+
+    transform: translateX(100%);
 }

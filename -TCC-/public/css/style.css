@@ -6303,3 +6303,63 @@ html.tema-escuro .grupo-criar-alerta {
         flex-direction: column;
     }
 }
+
+
+/* EDIÇÃO DE GRUPO */
+.grupo-btn-editar {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: #ef4b25;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease;
+}
+.grupo-btn-editar:hover { background: #df421d; }
+.grupo-btn-editar:active { transform: scale(.92); }
+
+.grupo-remover-check {
+    padding: 6px 9px;
+    border-radius: 10px;
+    background: #f1f1f1;
+    color: #777;
+    font-size: 10px;
+    font-weight: 800;
+}
+.grupo-amigo-item:has(input[name="remover[]"]:checked) {
+    border-color: #d83b31;
+    background: #fff1ef;
+}
+.grupo-amigo-item:has(input[name="remover[]"]:checked) .grupo-remover-check {
+    background: #d83b31;
+    color: #fff;
+}
+.grupo-criador-item { cursor: default; }
+.grupo-criador-badge {
+    padding: 6px 9px;
+    border-radius: 10px;
+    background: #fff0eb;
+    color: #ef4b25;
+    font-size: 10px;
+    font-weight: 800;
+}
+.grupo-amigo-nome small {
+    color: #ef4b25;
+    font-size: 9px;
+    font-weight: 800;
+}
+html.tema-escuro .grupo-remover-check {
+    background: #3a3a3a;
+    color: #ccc;
+}
+html.tema-escuro .grupo-amigo-item:has(input[name="remover[]"]:checked) {
+    border-color: #d85349;
+    background: #3a2220;
+}
+html.tema-escuro .grupo-criador-badge {
+    background: #3a2822;
+}

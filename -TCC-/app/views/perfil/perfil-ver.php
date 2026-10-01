@@ -47,6 +47,21 @@ $stmtAmigos = $conn->prepare("
 $stmtAmigos->execute([$id_user, $id_user]);
 $quantidadeAmigos = (int) $stmtAmigos->fetchColumn();
 
+// Verifica se os dois usuários já são amigos
+$id1 = min($id_logado, $id_user);
+$id2 = max($id_logado, $id_user);
+
+$stmtAmizade = $conn->prepare("
+    SELECT id_amizade
+    FROM Amizade
+    WHERE id_user_1 = ?
+      AND id_user_2 = ?
+");
+
+$stmtAmizade->execute([$id1, $id2]);
+
+$saoAmigos = $stmtAmizade->fetch();
+
 $stmt = $conn->prepare("
     SELECT e.nome_esporte
     FROM Esporte e
@@ -98,10 +113,18 @@ include __DIR__ . '/../includes/head.php';
 </div>
 
 <div class="perfil-acoes">
-    <form action="adicionar-amigo.php" method="POST">
-        <input type="hidden" name="id_amigo" value="<?= $id_user ?>">
-        <button type="submit" class="btn-adicionar-amigo">+ Adicionar amigo</button>
-    </form>
+
+    <?php if (!$saoAmigos): ?>
+
+        <form action="adicionar-amigo.php" method="POST">
+            <input type="hidden" name="id_amigo" value="<?= $id_user ?>">
+
+            <button type="submit" class="btn-adicionar-amigo">
+                + Adicionar amigo
+            </button>
+        </form>
+
+    <?php endif; ?>
 
     <button
         type="button"
@@ -110,6 +133,7 @@ include __DIR__ . '/../includes/head.php';
     >
         Conversar
     </button>
+
 </div>
 
 <div class="perfil-sobre">

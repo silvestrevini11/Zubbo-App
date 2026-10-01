@@ -6461,3 +6461,16 @@ html.tema-escuro .grupo-criador-badge {
 
     transform: translateX(100%);
 }
+.perfil-amigos {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+.amigos-titulo {
+    text-align: center;
+    margin-top: 35px;
+    color: #ff4b2b;
+}
+html.tema-escuro .amigos-titulo {
+    color: #ff4b2b;
+}

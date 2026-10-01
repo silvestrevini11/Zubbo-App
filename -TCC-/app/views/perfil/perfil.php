@@ -126,10 +126,15 @@ inputFoto.addEventListener('change', function () {
         <h3 class="perfil-name">Eventos</h3>
         <h2 class="perfil-eventos-num">0</h2>
     </div>
-    <div class="perfil-amigos">
-        <h3 class="perfil-name">Amigos</h3>
-        <h2 class="perfil-amigos-num"><?= $quantidadeAmigos ?></h2>
-    </div>
+    <a href="amigos.php" class="perfil-amigos">
+
+    <h3 class="perfil-name">Amigos</h3>
+
+    <h2 class="perfil-amigos-num">
+        <?= $quantidadeAmigos ?>
+    </h2>
+
+</a>
 </div>
 
 <div class="perfil-sobre">

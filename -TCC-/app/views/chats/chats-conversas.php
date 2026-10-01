@@ -160,11 +160,13 @@ $fotoPerfil = !empty($usuario['foto_user'])
          <span class="seta-esquerda">&#10140;</span>
         </a>
 
-        <img
-            src="<?= htmlspecialchars($fotoPerfil) ?>"
-            alt="Foto de perfil"
-            class="chat-foto"
-        >
+       <a href="../perfil/perfil-ver.php?id=<?= $id_outro_usuario ?>">
+            <img
+                src="<?= htmlspecialchars($fotoPerfil) ?>"
+                alt="Foto de perfil"
+                class="chat-foto"
+            >
+        </a>
 
         <h2 class="chat-nome">
             <?= htmlspecialchars($usuario['nome_user']) ?>

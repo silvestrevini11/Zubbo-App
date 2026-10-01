@@ -116,7 +116,7 @@ $nomeUsuario = $_SESSION['usuario']['nome'];
         offset: 25
       }).setHTML(
         '<strong class="painel-marker">R. Caramuru, 1230</strong><br>' +
-        '<span>Conceição, Diadema - SP</span>'
+        '<span class="painel-marker">Conceição, Diadema - SP</span>'
       )
     )
     .addTo(map);
@@ -136,11 +136,6 @@ $nomeUsuario = $_SESSION['usuario']['nome'];
     attributeFilter: ['class']
   });
 </script>
-
-
-
-<h3 class="painel-atv">Atividades Proximas</h3>
-<h4 class="painel-all-atv"><strong class="painel-all-atv-cor">Ver todas</strong> ></h4>
 
 <script>
 

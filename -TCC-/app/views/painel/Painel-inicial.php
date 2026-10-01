@@ -5,7 +5,7 @@ session_start();
 include __DIR__.'/../../../config/database.php';
 
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../login/login.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
@@ -25,6 +25,45 @@ try {
     error_log('Erro ao carregar locais do mapa: ' . $erro->getMessage());
     $erroLocaisMapa = true;
 }
+$filtrosEventos = ['todos' => 'Todos', 'futsal' => 'Futsal', 'volei' => 'Vôlei', 'futebol' => 'Futebol'];
+$filtroEvento = is_string($_GET['esporte'] ?? null) ? $_GET['esporte'] : 'todos';
+if (!isset($filtrosEventos[$filtroEvento])) $filtroEvento = 'todos';
+$buscaEvento = is_string($_GET['q'] ?? null) ? trim($_GET['q']) : '';
+$eventosPainel = [];
+$erroEventosPainel = false;
+try {
+    $sqlEventos = "
+        SELECT ev.id_evento, ev.nome_evento, ev.data_evento, ev.horario_evento,
+               e.nome_esporte, l.nome_local,
+               (SELECT COUNT(*) FROM Lista_Evento le WHERE le.id_evento = ev.id_evento) AS integrantes
+        FROM Evento ev
+        INNER JOIN Esporte e ON e.id_esporte = ev.id_esporte
+        INNER JOIN LocalEsp l ON l.id_local = ev.id_local
+        WHERE ev.status_evento = 'ativo'
+          AND TIMESTAMP(ev.data_evento, ev.horario_evento) >= NOW()
+    ";
+    $parametrosEventos = [];
+    if ($filtroEvento !== 'todos') {
+        $sqlEventos .= ' AND e.nome_esporte = ?';
+        $parametrosEventos[] = $filtrosEventos[$filtroEvento];
+    }
+    if ($buscaEvento !== '') {
+        $sqlEventos .= ' AND (ev.nome_evento LIKE ? OR l.nome_local LIKE ?)';
+        $parametrosEventos[] = '%' . $buscaEvento . '%';
+        $parametrosEventos[] = '%' . $buscaEvento . '%';
+    }
+    $sqlEventos .= ' ORDER BY ev.data_evento, ev.horario_evento, ev.id_evento LIMIT 30';
+    $stmtEventos = $conn->prepare($sqlEventos);
+    $stmtEventos->execute($parametrosEventos);
+    $eventosPainel = $stmtEventos->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $erro) {
+    error_log('Erro ao carregar eventos do painel: ' . $erro->getMessage());
+    $erroEventosPainel = true;
+}
+function escaparPainelEvento($valor) {
+    return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
+}
+
 include __DIR__ . '/../includes/head.php';
 
 ?>
@@ -53,19 +92,19 @@ include __DIR__ . '/../includes/head.php';
 <h4 class="painel-sub-saudacoes">Pronto para <strong class="painel-sub-saudacoes-cor">jogar</strong> hoje</h4>
 </div>
 
-<div class="painel-search">
-        <input type="text" placeholder="PESQUISAR..." name="text" class="painel-busca">
-        <button class="painel-filtro"></button>
-</div>
-
-<div class="painel-esportes">
-    <button class="painel-esporte-todos"><img class="painel-todos-img" src="" alt="">Todos</button>
-    <button class="painel-esporte-futebol"><img class="painel-futebol-img" src="" alt="">Futebol</button>
-    <button class="painel-esporte-basquete"><img class="painel-basquete-img" src="" alt="">Basquete</button>
-    <button class="painel-esporte-volei"><img class="painel-volei-img" src="" alt="">Volei</button>
-    <button class="painel-esporte-corrida"><img class="painel-corrida-img" src="" alt="">Corrida</button>
-    <button class="painel-esporte-outros"><img class="painel-outros-img" src="" alt="">Outros</button>
-</div>
+<link rel="stylesheet" href="../../../public/css/painel-eventos.css">
+<form class="painel-eventos-filtros" method="get" action="Painel-inicial.php">
+    <label for="painel-busca-evento">Pesquisar eventos</label>
+    <div class="painel-eventos-busca">
+        <input id="painel-busca-evento" name="q" type="search" maxlength="100" placeholder="Nome do evento ou local" value="<?= escaparPainelEvento($buscaEvento) ?>">
+        <button type="submit" name="esporte" value="<?= escaparPainelEvento($filtroEvento) ?>">Pesquisar</button>
+    </div>
+    <div class="painel-eventos-modalidades" role="group" aria-label="Filtrar eventos por esporte">
+        <?php foreach ($filtrosEventos as $chave => $rotulo): ?>
+        <button type="submit" name="esporte" value="<?= $chave ?>" aria-pressed="<?= $filtroEvento === $chave ? 'true' : 'false' ?>"><?= $rotulo ?></button>
+        <?php endforeach; ?>
+    </div>
+</form>
 
 <link
   rel="stylesheet"
@@ -218,8 +257,31 @@ include __DIR__ . '/../includes/head.php';
 
 
 
-<h3 class="painel-atv">Atividades Proximas</h3>
-<h4 class="painel-all-atv"><strong class="painel-all-atv-cor">Ver todas</strong> ></h4>
+<section class="painel-eventos-lista" aria-labelledby="painel-eventos-titulo">
+    <div class="painel-eventos-cabecalho">
+        <h2 id="painel-eventos-titulo">Próximos eventos<?= $filtroEvento !== 'todos' ? ' de ' . escaparPainelEvento($filtrosEventos[$filtroEvento]) : '' ?></h2>
+        <a href="../eventos/eventos.php">Ver todos →</a>
+    </div>
+    <?php if ($erroEventosPainel): ?>
+        <p class="painel-eventos-vazio" role="alert">Não foi possível carregar os eventos. Tente novamente.</p>
+    <?php elseif (!$eventosPainel): ?>
+        <p class="painel-eventos-vazio">Nenhum evento encontrado para este filtro.</p>
+        <a class="painel-eventos-link" href="../eventos/criar-evento.php">Criar um evento</a>
+    <?php else: ?>
+        <div class="painel-eventos-grid">
+        <?php foreach ($eventosPainel as $evento): ?>
+            <article class="painel-evento-card">
+                <span class="painel-evento-esporte"><?= escaparPainelEvento($evento['nome_esporte']) ?></span>
+                <h3><?= escaparPainelEvento($evento['nome_evento']) ?></h3>
+                <p><?= escaparPainelEvento(date('d/m/Y', strtotime($evento['data_evento']))) ?> às <?= escaparPainelEvento(substr($evento['horario_evento'], 0, 5)) ?></p>
+                <p><?= escaparPainelEvento($evento['nome_local']) ?></p>
+                <p><?= (int) $evento['integrantes'] ?> integrante(s)</p>
+                <a class="painel-eventos-link" href="../eventos/detalhes-evento.php?id_evento=<?= (int) $evento['id_evento'] ?>">Entrar no evento →</a>
+            </article>
+        <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</section>
 
 <script>
 

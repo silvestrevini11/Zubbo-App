@@ -28,3 +28,22 @@ html.tema-escuro .eventos-esporte { background:#3c261f; color:#ffac91; }
 html.tema-escuro .eventos-status { background:#203526; color:#98dfaa; }
 html.tema-escuro .eventos-status-cancelado { background:#402525; color:#ffabab; }
 @media(max-width:600px) { .eventos-container { padding:24px 18px 115px; } .eventos-grid { grid-template-columns:1fr; } .eventos-topo { align-items:flex-start; } .eventos-topo h1 { font-size:29px; } .eventos-card { padding:20px; } }
+
+/* Detalhes do evento e inscrição de integrantes */
+.eventos-voltar { display:inline-block; margin-bottom:24px; color:var(--ev-muted); font-size:13px; }
+.evento-abrir,.evento-participar { margin-top:20px; }
+.eventos-criar { border:0; cursor:pointer; font-family:inherit; }
+.evento-detalhes { margin-bottom:20px; }
+.evento-aviso { margin-bottom:18px; padding:14px; border-radius:12px; background:#fff0ef; color:#9e2828; }
+.evento-aviso-sucesso { background:#edf9ef; color:#26743b; }
+.evento-integrantes { list-style:none; padding:0; display:grid; gap:8px; }
+.evento-integrantes li { padding:10px 12px; border:1px solid var(--ev-border); border-radius:10px; }
+.evento-adicionar { margin-top:18px; }
+.evento-adicionar fieldset { min-width:0; border:0; margin-bottom:18px; }
+.evento-adicionar legend { margin-bottom:10px; font-size:14px; }
+.evento-selecao { max-height:300px; overflow:auto; display:grid; gap:8px; padding:4px; }
+.evento-selecao label { display:flex; align-items:center; gap:10px; padding:12px; border:1px solid var(--ev-border); border-radius:10px; cursor:pointer; }
+.evento-selecao input { width:18px; height:18px; accent-color:#df421d; }
+.evento-selecao small { color:var(--ev-muted); }
+html.tema-escuro .evento-aviso { background:#402525; color:#ffabab; }
+html.tema-escuro .evento-aviso-sucesso { background:#203526; color:#98dfaa; }

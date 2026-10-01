@@ -1,0 +1,28 @@
+/* Filtros e eventos no painel inicial */
+.painel-eventos-filtros,.painel-eventos-lista { max-width:960px; margin:20px auto; padding:0 20px; }
+.painel-eventos-filtros label { display:block; margin-bottom:8px; font-size:13px; font-weight:600; }
+.painel-eventos-busca { display:flex; gap:8px; }
+.painel-eventos-busca input { min-width:0; flex:1; padding:12px; border:1px solid #dedee6; border-radius:12px; background:#f0f2ff; color:#222; font:inherit; font-size:13px; }
+.painel-eventos-busca button,.painel-eventos-modalidades button,.painel-eventos-link { border:0; border-radius:12px; padding:12px 16px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; }
+.painel-eventos-busca button,.painel-eventos-link { display:inline-block; background:#df421d; color:#fff; }
+.painel-eventos-modalidades { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.painel-eventos-modalidades button { background:#f0f2ff; color:#333; }
+.painel-eventos-modalidades button[aria-pressed="true"] { background:#df421d; color:#fff; }
+.painel-eventos-filtros button:focus-visible,.painel-eventos-link:focus-visible,.painel-eventos-busca input:focus-visible { outline:3px solid #ef4b25; outline-offset:3px; }
+.painel-eventos-cabecalho { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px; }
+.painel-eventos-cabecalho h2 { font-size:21px; }
+.painel-eventos-cabecalho a { color:#d03c1b; font-size:13px; font-weight:600; }
+.painel-eventos-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.painel-evento-card { padding:20px; border:1px solid #e8e8ed; border-radius:18px; background:#fff; color:#222; overflow-wrap:anywhere; }
+.painel-evento-esporte { display:inline-block; padding:5px 10px; border-radius:20px; background:#fff0e9; color:#ad3214; font-size:12px; font-weight:700; }
+.painel-evento-card h3 { margin:12px 0; font-size:18px; }
+.painel-evento-card p { margin:6px 0; font-size:13px; color:#62626c; }
+.painel-evento-card .painel-eventos-link { margin-top:12px; }
+.painel-eventos-vazio { padding:20px 0; font-size:14px; }
+html.tema-escuro .painel-eventos-busca input,html.tema-escuro .painel-eventos-modalidades button { background:#292929; border-color:#414141; color:#eee; }
+html.tema-escuro .painel-eventos-modalidades button[aria-pressed="true"] { background:#df421d; color:#fff; }
+html.tema-escuro .painel-evento-card { background:#232323; border-color:#383838; color:#f5f5f5; }
+html.tema-escuro .painel-evento-card p { color:#b1b1ba; }
+html.tema-escuro .painel-evento-esporte { background:#3c261f; color:#ffac91; }
+html.tema-escuro .painel-eventos-cabecalho a { color:#ffac91; }
+@media(max-width:600px) { .painel-eventos-grid { grid-template-columns:1fr; } .painel-eventos-filtros,.painel-eventos-lista { padding:0 18px; } .painel-eventos-busca button { padding:12px; } }

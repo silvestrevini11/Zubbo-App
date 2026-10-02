@@ -48,31 +48,17 @@ $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="chats-options"></div>
 
     <div class="seletor-tipo">
-
-    <span class="seletor-indicador"></span>
-
-    <button
-        class="opcao"
-        data-tipo="privados"
-        onclick="window.location.href='chats.php'"
-    >
-        Privados
-    </button>
-
-    <button
-        class="opcao ativa"
-        data-tipo="grupos"
-        onclick="window.location.href='chats-grupos.php'"
-    >
-        Grupos
-    </button>
-
-</div>
+        <span class="seletor-indicador"></span>
+        <button class="opcao" data-tipo="privados" onclick="location.href='chats.php'">Privados</button>
+        <button class="opcao ativa" data-tipo="grupos" onclick="location.href='chats-grupos.php'">Grupos</button>
+        <button class="opcao" data-tipo="comunidade" onclick="location.href='chats-comunidade.php'">Comunidade</button>
+    </div>
 
     <div class="chats-lista">
         <?php if (!$grupos): ?>
             <div class="grupo-lista-vazia">
-                Você ainda não possui grupos.
+                <strong>Nenhum grupo por aqui ainda.</strong>
+                <span>Toque no botão + para criar o primeiro.</span>
             </div>
         <?php endif; ?>
 

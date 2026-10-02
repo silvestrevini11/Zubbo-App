@@ -26,10 +26,6 @@ include __DIR__.'/../../../config/database.php';
     </div>
     <hr class="perfil-hr">
 
-    <h2 class="pesquisa-eventos">Eventos</h2>
-    <hr class="perfil-hr">
-
-
     <h2 class="pesquisa-poles">Poles</h2>
     <hr class="perfil-hr">
 

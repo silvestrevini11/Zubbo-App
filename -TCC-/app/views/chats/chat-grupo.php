@@ -59,7 +59,7 @@ $foto = $grupo['foto_grupo'] ? '/-TCC-/'.$grupo['foto_grupo'] : '/-TCC-/public/i
         <?php endif; ?>
     </header>
 
-    <div class="chat-mensagens" id="chat-mensagens">
+    <div class="chat-mensagens" id="chat-mensagens"  data-conversa="<?= $id_conversa ?>">
         <?php foreach ($mensagens as $msg): ?>
             <?php $minha = (int)$msg['id_remetente'] === $id_usuario; ?>
             <div class="chat-mensagem <?= $minha ? 'minha' : 'outra' ?>">
@@ -79,4 +79,138 @@ $foto = $grupo['foto_grupo'] ? '/-TCC-/'.$grupo['foto_grupo'] : '/-TCC-/public/i
 const box = document.getElementById('chat-mensagens');
 if (box) box.scrollTop = box.scrollHeight;
 </script>
+
+<script>
+const chatMensagens = document.getElementById('chat-mensagens');
+
+if (chatMensagens) {
+
+    const idConversa = chatMensagens.dataset.conversa;
+
+    let quantidadeMensagens = chatMensagens.children.length;
+
+
+    async function atualizarChat() {
+
+        try {
+
+            const resposta = await fetch(
+                'buscar-mensagens.php?id_conversa=' + idConversa
+            );
+
+            if (!resposta.ok) {
+                return;
+            }
+
+            const mensagens = await resposta.json();
+
+
+            /*
+                Só atualiza quando a quantidade
+                de mensagens mudar.
+            */
+
+            if (mensagens.length !== quantidadeMensagens) {
+
+                chatMensagens.innerHTML = '';
+
+
+                mensagens.forEach(msg => {
+
+                    const div = document.createElement('div');
+
+                    div.classList.add(
+                        'chat-mensagem',
+                        msg.minha ? 'minha' : 'outra'
+                    );
+
+
+                    /*
+                        Em grupos, mostra o nome
+                        de quem enviou a mensagem.
+                    */
+
+                    if (!msg.minha && msg.nome_user) {
+
+                        const remetente =
+                            document.createElement('small');
+
+                        remetente.classList.add(
+                            'grupo-msg-remetente'
+                        );
+
+                        remetente.textContent =
+                            msg.nome_user;
+
+                        div.appendChild(remetente);
+
+                    }
+
+
+                    const span =
+                        document.createElement('span');
+
+                    /*
+                        Protege contra HTML malicioso.
+                    */
+
+                    span.textContent =
+                        msg.mensagem;
+
+
+                    div.appendChild(span);
+
+                    chatMensagens.appendChild(div);
+
+                });
+
+
+                quantidadeMensagens =
+                    mensagens.length;
+
+
+                /*
+                    Desce automaticamente
+                    para a mensagem mais recente.
+                */
+
+                chatMensagens.scrollTop =
+                    chatMensagens.scrollHeight;
+
+            }
+
+        } catch (erro) {
+
+            console.error(
+                'Erro ao atualizar o chat:',
+                erro
+            );
+
+        }
+
+    }
+
+
+    /*
+        Desce para a última mensagem
+        quando abrir o grupo.
+    */
+
+    chatMensagens.scrollTop =
+        chatMensagens.scrollHeight;
+
+
+    /*
+        Verifica novas mensagens
+        a cada 1 segundo.
+    */
+
+    setInterval(
+        atualizarChat,
+        1000
+    );
+
+}
+</script>
+
 <?php include __DIR__ . '/../../views/includes/footer.php'; ?>

@@ -6476,6 +6476,110 @@ html.tema-escuro .amigos-titulo {
 }
 
 /* =========================================
+   GRID / LAYOUT GLOBAL DO ZUBBO
+========================================= */
+
+/* Faz padding e borda não aumentarem o tamanho dos elementos */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+
+/* CONTAINER PADRÃO DAS TELAS */
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding-left: clamp(16px, 4vw, 40px);
+    padding-right: clamp(16px, 4vw, 40px);
+}
+
+
+/* GRID PADRÃO */
+
+.grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(min(250px, 100%), 1fr)
+        );
+
+    gap: clamp(12px, 2vw, 24px);
+}
+
+
+/* IMAGENS RESPONSIVAS */
+
+img {
+    max-width: 100%;
+}
+
+
+/* INPUTS */
+
+input,
+textarea,
+select,
+button {
+    max-width: 100%;
+}
+
+
+/* CELULAR */
+
+@media (max-width: 600px) {
+
+    .container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+}
+
+
+/* TABLET */
+
+@media (min-width: 601px) and (max-width: 900px) {
+
+    .container {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+}
+
+
+/* PC */
+
+@media (min-width: 901px) {
+
+    .container {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+
+}
+
+/* =========================================
    EVENTOS NA PESQUISA
    Baseado no eventos.css
 ========================================= */
@@ -6644,7 +6748,6 @@ html.tema-escuro .resultado-evento-info {
     }
 
 }
-
 
 /* =========================================
    CONFIGURAÇÕES - SUGESTÕES E DENÚNCIAS
@@ -6841,6 +6944,8 @@ html.tema-escuro .suporte-mensagem-sucesso {
         font-size: 23px;
     }
 }
+
+
 
 
 /* Ajustes do fluxo de recuperação de senha */

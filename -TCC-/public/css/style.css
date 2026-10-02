@@ -6841,3 +6841,42 @@ html.tema-escuro .suporte-mensagem-sucesso {
         font-size: 23px;
     }
 }
+
+
+/* Ajustes do fluxo de recuperação de senha */
+.recuperacao-link-teste {
+    display: grid;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 14px;
+    border: 1px dashed #d7d7dd;
+    border-radius: 10px;
+    background: #f7f7f9;
+    color: #444;
+    font-size: 12px;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.recuperacao-link-teste a {
+    color: #df421d;
+    font-weight: 700;
+}
+
+.recuperacao-link-botao {
+    display: block;
+    margin-top: 20px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.recuperacao-label-confirmacao {
+    display: block;
+    margin-top: 15px;
+}
+
+html.tema-escuro .recuperacao-link-teste {
+    border-color: #4a4a4a;
+    background: #252525;
+    color: #d0d0d0;
+}

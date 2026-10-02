@@ -1,13 +1,12 @@
 <?php
+require_once __DIR__ . '/../../middleware/auth.php';
 
-session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../login/login.php');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: notificacoes.php');
     exit;
 }
 
-include __DIR__ . '/../../../config/database.php';
+zubbo_require_csrf();
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 
@@ -185,8 +184,7 @@ try {
         $conn->rollBack();
     }
 
-    die(
-        '<h2>Erro ao aceitar amizade</h2>' .
-        '<p>' . htmlspecialchars($e->getMessage()) . '</p>'
-    );
+    error_log('Erro ao aceitar amizade: ' . $e->getMessage());
+    header('Location: notificacoes.php?erro=amizade');
+    exit;
 }

@@ -1,14 +1,6 @@
 <?php
-
-session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../usuario/form-usuario.php');
-    exit;
-}
-
+require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../includes/head.php';
-include __DIR__ . '/../../../config/database.php';
 
 $id_usuario_logado = (int) $_SESSION['usuario']['id'];
 
@@ -217,6 +209,7 @@ $fotoPerfil = !empty($usuario['foto_user'])
         method="POST"
         class="chat-form"
     >
+        <?= zubbo_csrf_input() ?>
 
         <input
             type="hidden"

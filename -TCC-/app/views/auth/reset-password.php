@@ -1,8 +1,10 @@
 <?php
-$token = trim((string) ($_GET['token'] ?? ''));
-$destino = '../../../public/reset-password.php';
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
-if (preg_match('/^[a-f0-9]{64}$/i', $token)) {
+$token = trim($_GET['token'] ?? '');
+$destino = '/-TCC-/public/reset-password.php';
+if ($token !== '') {
     $destino .= '?token=' . urlencode($token);
 }
 

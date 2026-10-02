@@ -93,7 +93,7 @@ include __DIR__ . '/../includes/head.php';
 </div>
 
 <link rel="stylesheet" href="../../../public/css/painel-eventos.css">
-<form class="painel-eventos-filtros" method="get" action="Painel-inicial.php">
+<form class="painel-eventos-filtros" method="get" action="painel-inicial.php">
     <label for="painel-busca-evento">Pesquisar eventos</label>
     <div class="painel-eventos-busca">
         <input id="painel-busca-evento" name="q" type="search" maxlength="100" placeholder="Nome do evento ou local" value="<?= escaparPainelEvento($buscaEvento) ?>">

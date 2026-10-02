@@ -1,14 +1,6 @@
 <?php
-
-session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../login/login.php');
-    exit;
-}
-
+require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../includes/head.php';
-include __DIR__ . '/../../../config/database.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 
@@ -192,6 +184,7 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         action="aceitar-amizade.php"
                         method="POST"
                     >
+                        <?= zubbo_csrf_input() ?>
 
                         <input
                             type="hidden"

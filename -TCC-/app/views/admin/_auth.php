@@ -1,12 +1,33 @@
 <?php
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
+require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../services/AdminService.php';
 
-if (empty($_SESSION['admin']['id'])) {
-    header('Location: login.php');
+if (empty($_SESSION['usuario']['id']) || empty($_SESSION['usuario']['email'])) {
+    unset($_SESSION['admin'], $_SESSION['admin_csrf_token']);
+    header('Location: ../auth/login.php');
     exit;
 }
+
+$idAdminAtual = AdminService::buscarIdAtivo(
+    $conn,
+    (int) $_SESSION['usuario']['id'],
+    (string) $_SESSION['usuario']['email']
+);
+
+if ($idAdminAtual === null) {
+    unset($_SESSION['admin'], $_SESSION['admin_csrf_token'], $_SESSION['admin_flash']);
+    header('Location: ../painel/painel-inicial.php');
+    exit;
+}
+
+$_SESSION['admin'] = [
+    'id' => $idAdminAtual,
+    'id_user' => (int) $_SESSION['usuario']['id'],
+    'nome' => $_SESSION['usuario']['nome'] ?? 'Administrador',
+    'email' => $_SESSION['usuario']['email'],
+];
 
 if (empty($_SESSION['admin_csrf_token'])) {
     $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));
@@ -28,10 +49,7 @@ function admin_exigir_post(): void
 
 function admin_flash(string $tipo, string $mensagem): void
 {
-    $_SESSION['admin_flash'] = [
-        'tipo' => $tipo,
-        'mensagem' => $mensagem,
-    ];
+    $_SESSION['admin_flash'] = ['tipo' => $tipo, 'mensagem' => $mensagem];
 }
 
 function admin_registrar_acao(PDO $conn, string $tipo, string $motivo, array $alvos = []): void

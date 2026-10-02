@@ -50,9 +50,9 @@ include __DIR__ . '/../includes/head.php';
     <section class="configuracoes-grupo" aria-labelledby="conta-titulo">
         <h2 id="conta-titulo">Conta</h2>
         <?php if ($adminDisponivel): ?>
-            <a class="configuracoes-item configuracoes-botao" href="../admin/login.php">
+            <a class="configuracoes-item configuracoes-botao" href="../admin/painel.php">
                 <span class="configuracoes-icone" aria-hidden="true">🛡</span>
-                <span class="configuracoes-item-texto"><strong>Painel administrativo</strong><span>Acesso restrito a administradores</span></span>
+                <span class="configuracoes-item-texto"><strong>Painel administrativo</strong><span>Abrir área de administração</span></span>
                 <span class="configuracoes-seta" aria-hidden="true">›</span>
             </a>
         <?php endif; ?>

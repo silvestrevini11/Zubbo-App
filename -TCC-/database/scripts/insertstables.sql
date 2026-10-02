@@ -7,8 +7,9 @@ INSERT INTO Esporte (nome_esporte) VALUES
 ('Corrida'),
 ('Handebol');
 
--- Administradores não recebem credenciais padrão.
--- Crie a primeira conta com: php database/scripts/criar-admin.php
+-- Administradores usam a mesma conta e senha da tabela Usuario.
+-- Cadastre o usuário normalmente e depois conceda a permissão com:
+-- php database/scripts/criar-admin.php
 
 -- Local para testar a criação de eventos.
 USE app_zubbo;

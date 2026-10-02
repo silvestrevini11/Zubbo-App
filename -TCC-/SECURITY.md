@@ -18,11 +18,17 @@ Qualquer credencial que já tenha sido versionada precisa ser revogada e substit
 
 ## Administrador
 
-O seed SQL não cria mais uma conta com senha padrão. Crie a primeira conta administrativa pela linha de comando:
+O Zubbo utiliza **login único**. A senha é validada somente pela conta da tabela `Usuario`.
+
+A tabela `Administrador` funciona como registro de permissão: se o e-mail autenticado também estiver cadastrado como administrador ativo, o login comum redireciona diretamente para o painel administrativo.
+
+Para promover uma conta existente:
 
 `php database/scripts/criar-admin.php`
 
-A senha é armazenada com `password_hash()`.
+O script pede apenas o e-mail de uma conta já cadastrada no Zubbo. O campo legado `senha_adm` é preenchido com um hash aleatório inutilizável e não participa mais da autenticação.
+
+As páginas administrativas revalidam a permissão no servidor a cada acesso, portanto conhecer a URL do painel não concede acesso.
 
 ## Proteções
 

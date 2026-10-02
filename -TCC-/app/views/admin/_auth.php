@@ -1,11 +1,39 @@
 <?php
 require_once __DIR__ . '/../../../config/security.php';
 zubbo_start_session();
+require_once __DIR__ . '/../../../config/database.php';
 
-if (empty($_SESSION['admin']['id'])) {
-    header('Location: login.php');
+if (
+    empty($_SESSION['usuario']['id'])
+    || empty($_SESSION['usuario']['email'])
+) {
+    unset($_SESSION['admin'], $_SESSION['admin_csrf_token']);
+    header('Location: ../auth/login.php');
     exit;
 }
+
+$stmtAdminAtual = $conn->prepare(
+    'SELECT id_adm
+     FROM Administrador
+     WHERE email_adm = ?
+       AND ativo = 1
+     LIMIT 1'
+);
+$stmtAdminAtual->execute([$_SESSION['usuario']['email']]);
+$idAdminAtual = $stmtAdminAtual->fetchColumn();
+
+if ($idAdminAtual === false) {
+    unset($_SESSION['admin'], $_SESSION['admin_csrf_token'], $_SESSION['admin_flash']);
+    header('Location: ../painel/painel-inicial.php');
+    exit;
+}
+
+$_SESSION['admin'] = [
+    'id' => (int) $idAdminAtual,
+    'id_user' => (int) $_SESSION['usuario']['id'],
+    'nome' => $_SESSION['usuario']['nome'] ?? 'Administrador',
+    'email' => $_SESSION['usuario']['email'],
+];
 
 if (empty($_SESSION['admin_csrf_token'])) {
     $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));

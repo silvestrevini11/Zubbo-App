@@ -6245,6 +6245,9 @@ html.tema-escuro .evento-erro {
     font-size: 10px;
     font-weight: 800;
 }
+html.tema-escuro .grupo-chat-total{
+    background: #272727;
+}
 
 .grupo-chat-header-info {
     display: flex;
@@ -6374,104 +6377,6 @@ html.tema-escuro .grupo-amigo-item:has(input[name="remover[]"]:checked) {
 html.tema-escuro .grupo-criador-badge {
     background: #3a2822;
 }
-
-/* ==============================
-   SELETOR PRIVADOS / GRUPOS
-
-.seletor-tipo {
-    position: relative;
-
-    display: flex;
-
-    width: 100%;
-    height: 42px;
-
-    background: #cccccc;
-
-    border-radius: 12px;
-
-    padding: 4px;
-
-    box-sizing: border-box;
-
-    margin-bottom: 30px;
-}
-
-
-/* BARRA LARANJA */
-
-.seletor-indicador {
-    position: absolute;
-
-    top: 4px;
-    left: 4px;
-
-    width: calc(50% - 4px);
-    height: calc(100% - 8px);
-
-    background: #ff4b2b;
-
-    border-radius: 9px;
-
-    transition: transform 0.3s ease;
-
-    z-index: 1;
-}
-
-
-/* BOTÕES */
-
-.seletor-tipo .opcao {
-    position: relative;
-
-    width: 50%;
-
-    border: none;
-    background: transparent;
-
-    color: #444;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    cursor: pointer;
-
-    z-index: 2;
-
-    transition: color 0.3s ease;
-}
-
-
-/* TEXTO DO BOTÃO SELECIONADO */
-
-.seletor-tipo .opcao.ativa {
-    color: white;
-}
-
-
-/* =================================
-   MOVE O LARANJA PARA GRUPOS
-
-.seletor-tipo:has(
-    .opcao[data-tipo="grupos"].ativa
-) .seletor-indicador {
-
-    transform: translateX(100%);
-}
-.perfil-amigos {
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
-}
-.amigos-titulo {
-    text-align: center;
-    margin-top: 35px;
-    color: #ff4b2b;
-}
-html.tema-escuro .amigos-titulo {
-    color: #ff4b2b;
-}
-
 
 /* ==============================
    SELETOR PRIVADOS / GRUPOS

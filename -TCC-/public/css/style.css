@@ -2308,155 +2308,198 @@ html.tema-escuro .esporte-card:has(input:checked) {
    ESPORTES DO PERFIL
 ======================================== */
 
+/* =========================================
+   MEUS ESPORTES
+========================================= */
+
 .perfil-esportes {
-    width: 100%;
-
     margin-top: 25px;
-
-    padding: 0 20px;
 }
 
 .perfil-esportes h2 {
-    margin: 0 0 15px;
-
-    color: #222222;
-
-    font-size: 20px;
-    font-weight: 700;
+    margin-bottom: 12px;
 }
 
 
-/* LISTA */
+/* LISTA DOS ESPORTES */
 
 .esportes-lista {
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
 
 /* CARD */
 
-.esportes-lista .esporte-card {
-    min-width: 0;
-    min-height: 55px;
-
-    padding: 10px 12px;
+.esporte-card {
+    width: 72px;
+    min-height: 82px;
 
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 
-    border-radius: 12px;
+    gap: 7px;
 
-    font-size: 14px;
-    font-weight: 700;
+    padding: 9px 5px 7px;
 
-    border: 1px solid #E5E5E5;
+    background: #eeeeee;
+
+    border: 1.5px solid #222;
+    border-radius: 14px;
+
+    box-sizing: border-box;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
 }
 
 
-/* ========================================
-   CORES DOS ESPORTES
-======================================== */
+/* EFEITO AO PASSAR O MOUSE */
 
-.esporte-futebol {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
+.esporte-card:hover {
+    transform: translateY(-3px);
 
-.esporte-basquete {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
+    border-color: #ff6b00;
 
-.esporte-corrida {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-html.tema-escuro .esporte-corrida{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-
-.esporte-volei {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-tenis {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-futesal {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-handebol {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-outro {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-html.tema-escuro .esporte-futebol{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-basquete{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-volei{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-tenis{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-futesal{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-handebol{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-outro{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
 }
 
 
-/* CELULAR PEQUENO */
+/* =========================================
+   ÁREA DA IMAGEM
+========================================= */
 
-@media (max-width: 360px) {
+.esporte-card::before {
+    content: "";
 
-    .perfil-esportes {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
+    display: block;
+
+    width: 40px;
+    height: 40px;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    flex-shrink: 0;
+}
+
+
+/* FUTEBOL */
+
+.esporte-futebol::before {
+    background-image: url("../imagem/futebol.png");
+}
+
+
+/* FUTSAL */
+
+.esporte-futesal::before,
+.esporte-futsal::before {
+    background-image: url("../imagem/futsal.png");
+}
+
+
+/* BASQUETE */
+
+.esporte-basquete::before {
+    background-image: url("../imagem/basquete.png");
+}
+
+
+/* VÔLEI */
+
+.esporte-volei::before {
+    background-image: url("../imagem/volei.png");
+}
+
+
+/* CORRIDA */
+
+.esporte-corrida::before {
+    background-image: url("../imagem/corrida.png");
+}
+
+
+/* HANDEBOL */
+
+.esporte-handebol::before {
+    background-image: url("../imagem/handebol.png");
+}
+
+
+/* =========================================
+   NOME DO ESPORTE
+========================================= */
+
+.esporte-card-txt {
+    width: 100%;
+
+    color: #222;
+
+    font-size: 11px;
+    font-weight: 500;
+
+    line-height: 1.1;
+
+    text-align: center;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   MODO ESCURO
+========================================= */
+
+html.tema-escuro .esporte-card {
+    background: #333;
+
+    border-color: #f5f5f5;
+}
+
+html.tema-escuro .esporte-card-txt {
+    color: #fff;
+}
+
+html.tema-escuro .esporte-card:hover {
+    border-color: #ff6b00;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================
+   CELULAR
+========================================= */
+
+@media (max-width: 600px) {
 
     .esportes-lista {
         gap: 8px;
     }
 
-    .esportes-lista .esporte-card {
-        min-height: 50px;
+    .esporte-card {
+        width: 68px;
+        min-height: 78px;
 
-        font-size: 13px;
+        padding: 8px 4px;
     }
+
+    .esporte-card::before {
+        width: 37px;
+        height: 37px;
+    }
+
+    .esporte-card-txt {
+        font-size: 10px;
+    }
+
 }
 
 .perfil-pic-label {
@@ -2817,58 +2860,74 @@ section {
 }
 
 
-/* =====================================================
-   CORES DOS ESPORTES
-===================================================== */
+/* =========================================
+   ÍCONES DOS ESPORTES
+========================================= */
+
+.esporte-futebol::before,
+.esporte-futesal::before,
+.esporte-futsal::before,
+.esporte-basquete::before,
+.esporte-volei::before,
+.esporte-corrida::before,
+.esporte-handebol::before {
+    content: "";
+
+    display: inline-block;
+
+    width: 20px;
+    height: 20px;
+
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    flex-shrink: 0;
+}
+
+
+/* FUTEBOL */
 
 .esporte-futebol::before {
-    content: "⚽";
-
-    background: #ff4b1f;
+    background-image: url("../imagem/futebol.png");
 }
+
+
+/* FUTSAL */
+
+/* Coloquei os dois porque encontrei "futesal"
+   escrito assim no CSS atual */
+.esporte-futesal::before,
+.esporte-futsal::before {
+    background-image: url("../imagem/futsal.png");
+}
+
+
+/* BASQUETE */
 
 .esporte-basquete::before {
-    content: "🏀";
-
-    background: #8e44ad;
+    background-image: url("../imagem/basquete.png");
 }
+
+
+/* VÔLEI */
 
 .esporte-volei::before {
-    content: "🏐";
-
-    background: #f39c12;
+    background-image: url("../imagem/volei.png");
 }
 
-.esporte-tenis::before {
-    content: "🎾";
 
-    background: #27ae60;
-}
-
-.esporte-futesal::before {
-    content: "⚽";
-
-    background: #e74c3c;
-}
-
-.esporte-handebol::before {
-    content: "🤾";
-
-    background: #3498db;
-}
+/* CORRIDA */
 
 .esporte-corrida::before {
-    content: "🏃";
-
-    background: #16a085;
+    background-image: url("../imagem/corrida.png");
 }
 
-.esporte-outro::before {
-    content: "★";
 
-    background: #777777;
+/* HANDEBOL */
 
-    color: #ffffff;
+.esporte-handebol::before {
+    background-image: url("../imagem/handebol.png");
 }
 
 

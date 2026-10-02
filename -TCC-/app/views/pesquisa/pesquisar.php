@@ -121,7 +121,7 @@ pesquisaInput.addEventListener('input', function () {
 
                             <strong>${perfil.nome}</strong>
 
-                            <span>@${perfil.nome}</span>
+                            <span>${perfil.email}</span>
 
                         </div>
                     `;

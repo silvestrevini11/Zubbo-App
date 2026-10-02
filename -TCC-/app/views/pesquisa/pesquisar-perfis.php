@@ -15,6 +15,7 @@ $stmt = $conn->prepare("
     SELECT 
         id_user,
         nome_user,
+        email_user,
         foto_user
     FROM Usuario
     WHERE nome_user LIKE ?
@@ -39,6 +40,7 @@ foreach ($usuarios as $usuario) {
     $resultados[] = [
         'id_user' => $usuario['id_user'],
         'nome' => $usuario['nome_user'],
+        'email' => $usuario['email_user'],
         'foto' => $foto
     ];
 }

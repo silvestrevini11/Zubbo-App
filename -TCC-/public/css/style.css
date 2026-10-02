@@ -2374,6 +2374,16 @@ html.tema-escuro .esporte-card:has(input:checked) {
     border-color: #000000 !important;
 }
 
+.esporte-corrida {
+    background: #d2cfcd !important;
+    border-color: #000000 !important;
+}
+
+html.tema-escuro .esporte-corrida{
+    background: #434242 !important;
+    border-color: #fdfdfd !important;
+}
+
 .esporte-volei {
     background: #d2cfcd !important;
     border-color: #000000 !important;
@@ -3713,10 +3723,11 @@ html.tema-escuro .painel-search,
 html.tema-escuro .painel-esportes,
 html.tema-escuro .esportes-container,
 html.tema-escuro .under-bar,
-html.tema-escuro .bottom-nav,
 html.tema-escuro .pesquisa-search,
 html.tema-escuro .resultado-perfil,
 html.tema-escuro .modal-excluir { background: #171717; color: #f4f4f4; }
+
+html.tema-escuro .bottom-nav{background: #272727;}
 
 html.tema-escuro .configuracoes-item,
 html.tema-escuro .perfil-sobre,
@@ -5928,7 +5939,7 @@ html.tema-escuro .evento-erro {
         font-size: 16px;
     }
 }
-
+'
 
 /* =========================================================
    ZUBBO - CRIAÇÃO E LISTAGEM DE GRUPOS
@@ -6362,4 +6373,101 @@ html.tema-escuro .grupo-amigo-item:has(input[name="remover[]"]:checked) {
 }
 html.tema-escuro .grupo-criador-badge {
     background: #3a2822;
+}
+
+/* ==============================
+   SELETOR PRIVADOS / GRUPOS
+
+.seletor-tipo {
+    position: relative;
+
+    display: flex;
+
+    width: 100%;
+    height: 42px;
+
+    background: #cccccc;
+
+    border-radius: 12px;
+
+    padding: 4px;
+
+    box-sizing: border-box;
+
+    margin-bottom: 30px;
+}
+
+
+/* BARRA LARANJA */
+
+.seletor-indicador {
+    position: absolute;
+
+    top: 4px;
+    left: 4px;
+
+    width: calc(50% - 4px);
+    height: calc(100% - 8px);
+
+    background: #ff4b2b;
+
+    border-radius: 9px;
+
+    transition: transform 0.3s ease;
+
+    z-index: 1;
+}
+
+
+/* BOTÕES */
+
+.seletor-tipo .opcao {
+    position: relative;
+
+    width: 50%;
+
+    border: none;
+    background: transparent;
+
+    color: #444;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    z-index: 2;
+
+    transition: color 0.3s ease;
+}
+
+
+/* TEXTO DO BOTÃO SELECIONADO */
+
+.seletor-tipo .opcao.ativa {
+    color: white;
+}
+
+
+/* =================================
+   MOVE O LARANJA PARA GRUPOS
+
+.seletor-tipo:has(
+    .opcao[data-tipo="grupos"].ativa
+) .seletor-indicador {
+
+    transform: translateX(100%);
+}
+.perfil-amigos {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+.amigos-titulo {
+    text-align: center;
+    margin-top: 35px;
+    color: #ff4b2b;
+}
+html.tema-escuro .amigos-titulo {
+    color: #ff4b2b;
 }

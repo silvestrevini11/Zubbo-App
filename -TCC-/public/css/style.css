@@ -6474,3 +6474,173 @@ html.tema-escuro .grupo-criador-badge {
 html.tema-escuro .amigos-titulo {
     color: #ff4b2b;
 }
+
+/* =========================================
+   EVENTOS NA PESQUISA
+   Baseado no eventos.css
+========================================= */
+
+.resultados-eventos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 14px;
+    margin-bottom: 25px;
+}
+
+
+/* CARD DO EVENTO */
+
+.resultado-evento {
+    display: block;
+
+    padding: 22px;
+
+    border: 1px solid #e8e8ed;
+    border-radius: 20px;
+
+    background: #ffffff;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
+
+    text-decoration: none;
+
+    color: #202024;
+
+    overflow-wrap: anywhere;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+/* EFEITO AO PASSAR O MOUSE */
+
+.resultado-evento:hover {
+    transform: translateY(-2px);
+
+    border-color: #ef4b25;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+
+/* PARTE DE CIMA DO CARD */
+
+.resultado-evento-topo {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-bottom: 16px;
+}
+
+
+/* NOME DO EVENTO */
+
+.resultado-evento-nome {
+    color: #202024;
+
+    font-size: 20px;
+
+    line-height: 1.35;
+}
+
+
+/* ESPORTE */
+
+.resultado-evento-esporte {
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    background: #fff0e9;
+
+    color: #ad3214;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+/* INFORMAÇÕES */
+
+.resultado-evento-info {
+    display: grid;
+
+    gap: 10px;
+
+    color: #64646e;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+.resultado-evento-info span {
+    display: block;
+}
+
+
+/* =========================================
+   MODO ESCURO
+========================================= */
+
+html.tema-escuro .resultado-evento {
+    background: #232323;
+
+    border-color: #383838;
+
+    color: #f5f5f5;
+}
+
+
+html.tema-escuro .resultado-evento-nome {
+    color: #f5f5f5;
+}
+
+
+html.tema-escuro .resultado-evento-esporte {
+    background: #3c261f;
+
+    color: #ffac91;
+}
+
+
+html.tema-escuro .resultado-evento-info {
+    color: #b1b1ba;
+}
+
+
+/* =========================================
+   CELULAR
+========================================= */
+
+@media (max-width: 600px) {
+
+    .resultados-eventos {
+        grid-template-columns: 1fr;
+
+        gap: 14px;
+    }
+
+
+    .resultado-evento {
+        padding: 20px;
+    }
+
+
+    .resultado-evento-nome {
+        font-size: 18px;
+    }
+
+}

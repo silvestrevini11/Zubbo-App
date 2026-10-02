@@ -23,7 +23,7 @@ SELECT * FROM ParticipantesEquipe;
 SELECT * FROM LocalEsp;
 SELECT * FROM Evento;
 SELECT * FROM EquipesEvento;
-SELECT * FROM Lista_Evento;
+SELECT * FROM Lista_Evento;\r\nSELECT * FROM Solicitacao_Vaga_Evento;
 
 SELECT * FROM Sugestao_Esporte;
 SELECT * FROM Voto_Sugestao;

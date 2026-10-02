@@ -7,7 +7,7 @@ if (!isset($_SESSION['usuario']['id'])) {
 }
 
 require_once __DIR__ . '/../../../config/database.php';
-require_once __DIR__ . '/_regras-equipes.php';
+require_once __DIR__ . '/_escalacao-evento.php';
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $idEvento = filter_var($_GET['id_evento'] ?? null, FILTER_VALIDATE_INT);
@@ -27,67 +27,44 @@ function escaparDetalhe($valor): string
 }
 
 try {
-    $stmt = $conn->prepare("
-        SELECT ev.*, e.nome_esporte, l.nome_local, l.endereco_local,
-               u.nome_user AS criador,
-               (TIMESTAMP(ev.data_evento, ev.horario_evento) >= NOW()) AS aberto
-        FROM Evento ev
-        INNER JOIN Esporte e ON e.id_esporte = ev.id_esporte
-        INNER JOIN LocalEsp l ON l.id_local = ev.id_local
-        LEFT JOIN Usuario u ON u.id_user = ev.id_criador
-        WHERE ev.id_evento = ? AND ev.status_evento <> 'removido'
-        LIMIT 1
-    ");
-    $stmt->execute([$idEvento]);
-    $evento = $stmt->fetch(PDO::FETCH_ASSOC);
+    $evento = evento_buscar($conn, $idEvento);
 
     if (!$evento) {
         http_response_code(404);
         exit('Evento não encontrado.');
     }
 
-    $stmt = $conn->prepare("
-        SELECT s.id_solicitacao, s.id_user, s.time_num, s.numero_vaga,
-               s.status_solicitacao, s.data_solicitacao,
-               u.nome_user
-        FROM Solicitacao_Vaga_Evento s
-        INNER JOIN Usuario u ON u.id_user = s.id_user
-        WHERE s.id_evento = ?
-          AND s.status_solicitacao IN ('pendente', 'aprovada')
-        ORDER BY s.time_num, s.numero_vaga
-    ");
-    $stmt->execute([$idEvento]);
-    $solicitacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $solicitacoes = evento_buscar_solicitacoes($conn, $idEvento);
+    $confirmadosSemVaga = evento_buscar_confirmados_sem_vaga($conn, $idEvento);
 } catch (PDOException $e) {
     error_log('Erro ao carregar detalhes do evento: ' . $e->getMessage());
     http_response_code(503);
     exit('Não foi possível carregar o evento. Verifique se a atualização do banco foi executada.');
 }
 
+$estado = evento_montar_escalacao($solicitacoes, $idUsuario);
+$confirmadosTimes = $estado['confirmados_times'];
+$pendentesPorVaga = $estado['pendentes_por_vaga'];
+$confirmadosIndividuais = $estado['confirmados_individuais'];
+$pendentes = $estado['pendentes'];
+$minhaSolicitacao = $estado['minha_solicitacao'];
+
 $organizador = (int) $evento['id_criador'] === $idUsuario;
 $aberto = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
 $limite = evento_vagas_por_time((string) $evento['nome_esporte']);
-$times = [1 => [], 2 => []];
-$pendentes = [];
-$confirmados = 0;
-$minhaSolicitacao = null;
+$totalConfirmados = count($confirmadosSemVaga);
 
-foreach ($solicitacoes as $solicitacao) {
-    $time = (int) $solicitacao['time_num'];
-    $vaga = (int) $solicitacao['numero_vaga'];
+if ($limite !== null) {
+    $totalConfirmados += count($confirmadosTimes[1]) + count($confirmadosTimes[2]);
+} else {
+    $totalConfirmados += count($confirmadosIndividuais);
+}
 
-    if (isset($times[$time])) {
-        $times[$time][$vaga] = $solicitacao;
-    }
-
-    if ($solicitacao['status_solicitacao'] === 'aprovada') {
-        $confirmados++;
-    } else {
-        $pendentes[] = $solicitacao;
-    }
-
-    if ((int) $solicitacao['id_user'] === $idUsuario) {
-        $minhaSolicitacao = $solicitacao;
+$minhaParticipacaoSemVaga = null;
+foreach ($confirmadosSemVaga as $participanteSemVaga) {
+    if ((int) $participanteSemVaga['id_user'] === $idUsuario) {
+        $minhaParticipacaoSemVaga = $participanteSemVaga;
+        break;
     }
 }
 
@@ -117,8 +94,13 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
             <div>
                 <p class="eventos-marca"><?= escaparDetalhe($evento['nome_esporte']) ?></p>
                 <h1><?= escaparDetalhe($evento['nome_evento']) ?></h1>
-                <p><?= escaparDetalhe($evento['nome_local']) ?> · <?= escaparDetalhe(date('d/m/Y', strtotime($evento['data_evento']))) ?> às <?= escaparDetalhe(substr($evento['horario_evento'], 0, 5)) ?></p>
+                <p>
+                    <?= escaparDetalhe($evento['nome_local']) ?> ·
+                    <?= escaparDetalhe(date('d/m/Y', strtotime($evento['data_evento']))) ?> às
+                    <?= escaparDetalhe(substr($evento['horario_evento'], 0, 5)) ?>
+                </p>
             </div>
+
             <span class="evento-score-status <?= !$aberto ? 'fechado' : '' ?>">
                 <?= $evento['status_evento'] === 'cancelado' ? 'CANCELADO' : ($aberto ? 'ABERTO' : 'ENCERRADO') ?>
             </span>
@@ -126,30 +108,46 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
 
         <div class="evento-score-resumo">
             <div><span>ORGANIZADOR</span><strong><?= escaparDetalhe($evento['criador'] ?? 'Indisponível') ?></strong></div>
-            <div><span>CONFIRMADOS</span><strong><?= $confirmados ?><?= $limite ? ' / ' . ($limite * 2) : '' ?></strong></div>
+            <div><span>CONFIRMADOS</span><strong><?= $totalConfirmados ?><?= $limite ? ' / ' . ($limite * 2) : '' ?></strong></div>
             <div><span>SOLICITAÇÕES</span><strong><?= count($pendentes) ?></strong></div>
             <div><span>LOCAL</span><strong><?= escaparDetalhe($evento['endereco_local']) ?></strong></div>
         </div>
     </section>
 
     <?php if ($flash): ?>
-        <p class="evento-aviso <?= $flash['tipo'] === 'sucesso' ? 'evento-aviso-sucesso' : '' ?>" role="status">
+        <p
+            class="evento-aviso <?= $flash['tipo'] === 'sucesso' ? 'evento-aviso-sucesso' : '' ?>"
+            role="<?= $flash['tipo'] === 'sucesso' ? 'status' : 'alert' ?>"
+        >
             <?= escaparDetalhe($flash['mensagem']) ?>
         </p>
     <?php endif; ?>
 
-    <?php if ($limite === null): ?>
-        <section class="eventos-card evento-detalhes">
-            <h2>Escalação não disponível</h2>
-            <p class="eventos-subtitulo">
-                <?= escaparDetalhe($evento['nome_esporte']) ?> não possui uma formação fixa de dois times configurada.
+    <?php if ($confirmadosSemVaga): ?>
+        <section class="evento-legado-aviso">
+            <strong><?= count($confirmadosSemVaga) ?> participação(ões) do sistema antigo ainda sem vaga.</strong>
+            <p>
+                Quem já estava confirmado continua na lista. Ao escolher uma vaga no novo quadro,
+                a participação antiga será vinculada automaticamente sem precisar de nova aprovação.
             </p>
+
+            <?php if ($minhaParticipacaoSemVaga): ?>
+                <form action="vaga-evento-acao.php" method="post">
+                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
+                    <input type="hidden" name="acao" value="cancelar">
+                    <input type="hidden" name="origem" value="detalhes">
+                    <button class="evento-botao-secundario" type="submit">Cancelar minha participação</button>
+                </form>
+            <?php endif; ?>
         </section>
-    <?php else: ?>
+    <?php endif; ?>
+
+    <?php if ($limite !== null): ?>
         <div class="evento-score-acoes">
             <div>
                 <strong>Escalação <?= $limite ?> x <?= $limite ?></strong>
-                <span>Escolha uma vaga livre e envie sua solicitação ao organizador.</span>
+                <span>Escolha uma vaga livre. Ela só fica ocupada depois da aprovação do organizador.</span>
             </div>
             <a class="eventos-criar" href="lista-presenca.php?id_evento=<?= $idEvento ?>">Abrir escalação completa</a>
         </div>
@@ -157,11 +155,16 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
         <?php if ($minhaSolicitacao): ?>
             <section class="evento-minha-vaga <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada' ? 'confirmada' : '' ?>">
                 <div>
-                    <span>SUA VAGA</span>
+                    <span>SUA PARTICIPAÇÃO</span>
                     <strong>
-                        Time <?= (int) $minhaSolicitacao['time_num'] ?> · #<?= str_pad((string) $minhaSolicitacao['numero_vaga'], 2, '0', STR_PAD_LEFT) ?>
+                        Time <?= (int) $minhaSolicitacao['time_num'] ?> ·
+                        #<?= str_pad((string) $minhaSolicitacao['numero_vaga'], 2, '0', STR_PAD_LEFT) ?>
                     </strong>
-                    <small><?= $minhaSolicitacao['status_solicitacao'] === 'aprovada' ? 'Confirmado pelo organizador' : 'Aguardando aprovação' ?></small>
+                    <small>
+                        <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada'
+                            ? 'Confirmado pelo organizador'
+                            : 'Aguardando aprovação' ?>
+                    </small>
                 </div>
                 <form action="vaga-evento-acao.php" method="post">
                     <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
@@ -169,7 +172,9 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                     <input type="hidden" name="acao" value="cancelar">
                     <input type="hidden" name="origem" value="detalhes">
                     <button class="evento-botao-secundario" type="submit">
-                        <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada' ? 'Sair da escalação' : 'Cancelar solicitação' ?>
+                        <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada'
+                            ? 'Sair da escalação'
+                            : 'Cancelar solicitação' ?>
                     </button>
                 </form>
             </section>
@@ -180,36 +185,33 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                 <article class="evento-time-preview evento-time-<?= $time ?>">
                     <header>
                         <div>
-                            <span>TEAM</span>
+                            <span>TEAM <?= $time === 1 ? 'A' : 'B' ?></span>
                             <h2>TIME <?= $time ?></h2>
                         </div>
-                        <strong>
-                            <?= count(array_filter($times[$time], fn($vaga) => $vaga['status_solicitacao'] === 'aprovada')) ?>
-                            / <?= $limite ?>
-                        </strong>
+                        <strong><?= count($confirmadosTimes[$time]) ?> / <?= $limite ?></strong>
                     </header>
 
                     <ol>
                         <?php for ($vaga = 1; $vaga <= $limite; $vaga++): ?>
-                            <?php $ocupante = $times[$time][$vaga] ?? null; ?>
-                            <li class="<?= $ocupante ? 'ocupada status-' . escaparDetalhe($ocupante['status_solicitacao']) : 'livre' ?>">
+                            <?php
+                                $ocupante = $confirmadosTimes[$time][$vaga] ?? null;
+                                $quantidadePendentes = count($pendentesPorVaga[$time][$vaga] ?? []);
+                            ?>
+                            <li class="<?= $ocupante ? 'ocupada status-aprovada' : 'livre' ?>">
                                 <span class="evento-slot-numero"><?= str_pad((string) $vaga, 2, '0', STR_PAD_LEFT) ?></span>
 
                                 <?php if ($ocupante): ?>
                                     <span class="evento-slot-avatar"><?= escaparDetalhe(evento_iniciais($ocupante['nome_user'])) ?></span>
                                     <span class="evento-slot-jogador">
-                                        <strong>
-                                            <?= $ocupante['status_solicitacao'] === 'aprovada'
-                                                ? escaparDetalhe($ocupante['nome_user'])
-                                                : ($organizador || (int) $ocupante['id_user'] === $idUsuario
-                                                    ? escaparDetalhe($ocupante['nome_user'])
-                                                    : 'Solicitação em análise') ?>
-                                        </strong>
-                                        <small><?= $ocupante['status_solicitacao'] === 'aprovada' ? 'CONFIRMADO' : 'PENDENTE' ?></small>
+                                        <strong><?= escaparDetalhe($ocupante['nome_user']) ?></strong>
+                                        <small>CONFIRMADO</small>
                                     </span>
                                 <?php else: ?>
                                     <span class="evento-slot-avatar evento-slot-vazio">+</span>
-                                    <span class="evento-slot-jogador"><strong>Vaga livre</strong><small>DISPONÍVEL</small></span>
+                                    <span class="evento-slot-jogador">
+                                        <strong>Vaga livre</strong>
+                                        <small><?= $quantidadePendentes ? $quantidadePendentes . ' SOLICITAÇÃO(ÕES)' : 'DISPONÍVEL' ?></small>
+                                    </span>
                                 <?php endif; ?>
                             </li>
                         <?php endfor; ?>
@@ -217,24 +219,81 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                 </article>
             <?php endforeach; ?>
         </section>
+    <?php else: ?>
+        <section class="evento-individual-card">
+            <div>
+                <p class="eventos-marca">PARTICIPAÇÃO INDIVIDUAL</p>
+                <h2><?= escaparDetalhe($evento['nome_esporte']) ?></h2>
+                <p>Esta modalidade não usa Time 1 e Time 2. A entrada continua dependendo da aprovação do organizador.</p>
+            </div>
 
-        <?php if ($organizador && $pendentes): ?>
-            <section class="evento-solicitacoes-card">
-                <div class="evento-solicitacoes-titulo">
-                    <div>
-                        <span>ORGANIZADOR</span>
-                        <h2>Solicitações pendentes</h2>
-                    </div>
-                    <strong><?= count($pendentes) ?></strong>
+            <?php if (!$minhaSolicitacao && $aberto): ?>
+                <form action="vaga-evento-acao.php" method="post">
+                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
+                    <input type="hidden" name="acao" value="solicitar">
+                    <input type="hidden" name="origem" value="detalhes">
+                    <button class="eventos-criar" type="submit">Solicitar participação</button>
+                </form>
+            <?php elseif ($minhaSolicitacao): ?>
+                <div class="evento-individual-status">
+                    <strong>
+                        <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada'
+                            ? 'Participação confirmada'
+                            : 'Solicitação pendente' ?>
+                    </strong>
+                    <form action="vaga-evento-acao.php" method="post">
+                        <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                        <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
+                        <input type="hidden" name="acao" value="cancelar">
+                        <input type="hidden" name="origem" value="detalhes">
+                        <button class="evento-botao-secundario" type="submit">Cancelar participação</button>
+                    </form>
                 </div>
+            <?php endif; ?>
+        </section>
 
+        <?php if ($confirmadosIndividuais || $confirmadosSemVaga): ?>
+            <section class="eventos-card evento-detalhes">
+                <h2>Participantes confirmados</h2>
+                <ul class="evento-integrantes">
+                    <?php foreach ($confirmadosIndividuais as $participante): ?>
+                        <li><?= escaparDetalhe($participante['nome_user']) ?></li>
+                    <?php endforeach; ?>
+                    <?php foreach ($confirmadosSemVaga as $participante): ?>
+                        <li><?= escaparDetalhe($participante['nome_user']) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </section>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if ($organizador): ?>
+        <section class="evento-solicitacoes-card">
+            <div class="evento-solicitacoes-titulo">
+                <div>
+                    <span>ORGANIZADOR</span>
+                    <h2>Solicitações pendentes</h2>
+                </div>
+                <strong><?= count($pendentes) ?></strong>
+            </div>
+
+            <?php if (!$pendentes): ?>
+                <p class="evento-solicitacoes-vazio">Nenhuma solicitação aguardando resposta.</p>
+            <?php else: ?>
                 <div class="evento-solicitacoes-lista">
                     <?php foreach ($pendentes as $solicitacao): ?>
                         <article>
                             <span class="evento-slot-avatar"><?= escaparDetalhe(evento_iniciais($solicitacao['nome_user'])) ?></span>
                             <div>
                                 <strong><?= escaparDetalhe($solicitacao['nome_user']) ?></strong>
-                                <small>Time <?= (int) $solicitacao['time_num'] ?> · vaga #<?= (int) $solicitacao['numero_vaga'] ?></small>
+                                <small>
+                                    <?php if ($solicitacao['time_num'] !== null): ?>
+                                        Time <?= (int) $solicitacao['time_num'] ?> · vaga #<?= (int) $solicitacao['numero_vaga'] ?>
+                                    <?php else: ?>
+                                        Participação individual
+                                    <?php endif; ?>
+                                </small>
                             </div>
                             <div class="evento-solicitacao-acoes">
                                 <form action="vaga-evento-acao.php" method="post">
@@ -257,8 +316,8 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                         </article>
                     <?php endforeach; ?>
                 </div>
-            </section>
-        <?php endif; ?>
+            <?php endif; ?>
+        </section>
     <?php endif; ?>
 </main>
 

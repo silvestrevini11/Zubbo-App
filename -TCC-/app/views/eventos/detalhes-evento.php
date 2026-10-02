@@ -190,6 +190,9 @@ $aberto = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
             <div><dt>Organizador</dt><dd><?= escaparDetalhe($evento['criador'] ?? 'Usuário indisponível') ?></dd></div>
             <div><dt>Status</dt><dd><?= $evento['status_evento'] === 'cancelado' ? 'Cancelado' : ($aberto ? 'Inscrições abertas' : 'Inscrições encerradas') ?></dd></div>
         </dl>
+        <div class="evento-lista-presenca-atalho">
+            <a class="eventos-criar" href="lista-presenca.php?id_evento=<?= (int) $idEvento ?>">Ver lista de presença</a>
+        </div>
         <?php if ($aberto && !$erroLista): ?>
             <form method="post" class="evento-participar">
                 <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">

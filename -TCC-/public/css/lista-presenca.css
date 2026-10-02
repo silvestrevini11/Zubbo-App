@@ -1,0 +1,345 @@
+/* Lista de presença dos eventos */
+.presenca-container {
+    --pr-laranja: #df421d;
+    --pr-laranja-claro: #fff2ed;
+    --pr-verde: #26743b;
+    --pr-verde-claro: #edf9ef;
+    --pr-cinza: #f7f7f9;
+}
+
+.presenca-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.presenca-topo h1 {
+    margin: 4px 0 6px;
+    color: var(--ev-text);
+    font-size: 32px;
+    line-height: 1.2;
+}
+
+.presenca-status {
+    flex: 0 0 auto;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: var(--pr-verde-claro);
+    color: var(--pr-verde);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.presenca-status-cancelado {
+    background: #fff0ef;
+    color: #a12b28;
+}
+
+.presenca-resumo {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.presenca-indicador {
+    min-height: 132px;
+    padding: 18px;
+    border: 1px solid var(--ev-border);
+    border-radius: 18px;
+    background: var(--ev-card);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, .035);
+}
+
+.presenca-indicador span,
+.presenca-info-evento span {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--ev-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.presenca-indicador strong {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--ev-text);
+    font-size: 30px;
+    line-height: 1;
+}
+
+.presenca-indicador small {
+    color: var(--ev-muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.presenca-indicador-completo {
+    border-color: #b9e2c2;
+    background: var(--pr-verde-claro);
+}
+
+.presenca-indicador-largo {
+    grid-column: span 3;
+}
+
+.presenca-indicador-largo strong {
+    font-size: 22px;
+}
+
+.presenca-progresso-card,
+.presenca-lista-card,
+.presenca-info-evento {
+    margin-bottom: 18px;
+    padding: 22px;
+    border: 1px solid var(--ev-border);
+    border-radius: 20px;
+    background: var(--ev-card);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, .04);
+}
+
+.presenca-progresso-cabecalho,
+.presenca-lista-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.presenca-progresso-cabecalho h2,
+.presenca-lista-cabecalho h2 {
+    margin: 0 0 5px;
+    color: var(--ev-text);
+    font-size: 19px;
+}
+
+.presenca-progresso-cabecalho p,
+.presenca-lista-cabecalho p {
+    margin: 0;
+    color: var(--ev-muted);
+    font-size: 12px;
+}
+
+.presenca-progresso-cabecalho > strong {
+    color: var(--pr-laranja);
+    font-size: 22px;
+}
+
+.presenca-barra {
+    height: 12px;
+    margin-top: 18px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #ececf0;
+}
+
+.presenca-barra span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--pr-laranja);
+    transition: width .25s ease;
+}
+
+.presenca-extra {
+    margin: 13px 0 0;
+    color: var(--pr-verde);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.presenca-lista-cabecalho {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--ev-border);
+}
+
+.presenca-lista-cabecalho > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 12px;
+    background: var(--pr-laranja-claro);
+    color: var(--pr-laranja);
+    font-weight: 800;
+}
+
+.presenca-lista {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0 0;
+}
+
+.presenca-lista li {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--ev-border);
+}
+
+.presenca-lista li:last-child {
+    border-bottom: 0;
+}
+
+.presenca-numero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--pr-cinza);
+    color: var(--ev-muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.presenca-pessoa {
+    min-width: 0;
+}
+
+.presenca-pessoa strong {
+    display: block;
+    color: var(--ev-text);
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.presenca-pessoa small {
+    display: block;
+    margin-top: 3px;
+    color: var(--ev-muted);
+    font-size: 11px;
+}
+
+.presenca-confirmado {
+    padding: 6px 9px;
+    border-radius: 999px;
+    background: var(--pr-verde-claro);
+    color: var(--pr-verde);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.presenca-vazio {
+    padding: 34px 16px 20px;
+    text-align: center;
+}
+
+.presenca-vazio strong {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--ev-text);
+}
+
+.presenca-vazio p {
+    margin: 0;
+    color: var(--ev-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.presenca-info-evento {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.presenca-info-evento strong {
+    display: block;
+    color: var(--ev-text);
+    font-size: 14px;
+}
+
+.presenca-info-evento small {
+    display: block;
+    margin-top: 3px;
+    color: var(--ev-muted);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.evento-lista-presenca-atalho {
+    margin-top: 20px;
+}
+
+html.tema-escuro .presenca-container {
+    --pr-laranja-claro: #3c261f;
+    --pr-verde-claro: #203526;
+    --pr-cinza: #2d2d2d;
+}
+
+html.tema-escuro .presenca-indicador-completo {
+    border-color: #315c3c;
+}
+
+html.tema-escuro .presenca-barra {
+    background: #343434;
+}
+
+html.tema-escuro .presenca-status-cancelado {
+    background: #402525;
+    color: #ffabab;
+}
+
+@media (max-width: 760px) {
+    .presenca-resumo {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .presenca-indicador-largo {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 520px) {
+    .presenca-topo {
+        flex-direction: column;
+    }
+
+    .presenca-topo h1 {
+        font-size: 28px;
+    }
+
+    .presenca-resumo {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .presenca-indicador {
+        min-height: 118px;
+        padding: 15px;
+    }
+
+    .presenca-indicador strong {
+        font-size: 26px;
+    }
+
+    .presenca-progresso-card,
+    .presenca-lista-card,
+    .presenca-info-evento {
+        padding: 18px;
+    }
+
+    .presenca-lista li {
+        grid-template-columns: 34px minmax(0, 1fr);
+    }
+
+    .presenca-confirmado {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .presenca-info-evento {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}

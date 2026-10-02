@@ -60,6 +60,14 @@ if ($limite !== null) {
     $totalConfirmados += count($confirmadosIndividuais);
 }
 
+$minhaParticipacaoSemVaga = null;
+foreach ($confirmadosSemVaga as $participanteSemVaga) {
+    if ((int) $participanteSemVaga['id_user'] === $idUsuario) {
+        $minhaParticipacaoSemVaga = $participanteSemVaga;
+        break;
+    }
+}
+
 $flash = $_SESSION['flash_vaga_evento'][$idEvento] ?? null;
 unset($_SESSION['flash_vaga_evento'][$idEvento]);
 
@@ -117,6 +125,16 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
         <section class="presenca-legado">
             <strong><?= count($confirmadosSemVaga) ?> participação(ões) antigas ainda não foram posicionadas.</strong>
             <p>Essas pessoas continuam confirmadas e podem escolher uma vaga sem passar por nova aprovação.</p>
+
+            <?php if ($minhaParticipacaoSemVaga): ?>
+                <form action="vaga-evento-acao.php" method="post">
+                    <input type="hidden" name="csrf" value="<?= escaparEscalacao($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
+                    <input type="hidden" name="acao" value="cancelar">
+                    <input type="hidden" name="origem" value="lista">
+                    <button type="submit">Cancelar minha participação</button>
+                </form>
+            <?php endif; ?>
         </section>
     <?php endif; ?>
 
@@ -276,7 +294,7 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
                     <p>A participação precisa ser aprovada pelo organizador.</p>
                 </div>
 
-                <?php if (!$minhaSolicitacao && $aberto): ?>
+                <?php if (!$minhaSolicitacao && !$minhaParticipacaoSemVaga && $aberto): ?>
                     <form action="vaga-evento-acao.php" method="post">
                         <input type="hidden" name="csrf" value="<?= escaparEscalacao($_SESSION['csrf_eventos']) ?>">
                         <input type="hidden" name="id_evento" value="<?= $idEvento ?>">

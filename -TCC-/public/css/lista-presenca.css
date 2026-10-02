@@ -645,3 +645,6 @@ html.tema-escuro .presenca-fila-acoes .recusar {
 .presenca-individual-vazio { display:block !important; color:var(--score-muted); font-size:11px; text-align:center; }
 html.tema-escuro .presenca-legado { border-color:#665a2b; background:#302b1d; color:#e6d585; }
 @media(max-width:520px) { .presenca-slot-livre-acoes { grid-column:3; justify-content:flex-start; } .presenca-individual-topo,.presenca-individual-minha { align-items:flex-start; flex-direction:column; } }
+
+.presenca-legado form { margin-top:9px; }
+.presenca-legado button { padding:7px 10px; border:1px solid #c9ad50; border-radius:7px; background:transparent; color:inherit; font:inherit; font-size:9px; font-weight:800; cursor:pointer; }

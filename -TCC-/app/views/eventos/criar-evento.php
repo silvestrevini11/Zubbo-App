@@ -110,11 +110,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             header('Location: detalhes-evento.php?id_evento=' . $novoEvento, true, 303);
             exit;
-        } catch (RuntimeException $e) {
-            $erro = $e->getMessage();
         } catch (PDOException $e) {
             error_log('Erro ao criar evento: ' . $e->getMessage());
             $erro = 'Não foi possível criar o evento. Tente novamente.';
+        } catch (RuntimeException $e) {
+            $erro = $e->getMessage();
         }
     }
 }

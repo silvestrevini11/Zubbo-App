@@ -185,5 +185,5 @@ $_SESSION['sucesso_login'] =
 |--------------------------------------------------------------------------
 */
 
-header('Location: login.php');
+header('Location:login.php');
 exit;

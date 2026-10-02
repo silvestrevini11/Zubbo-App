@@ -73,27 +73,33 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
     </div>
 
-    <div class="seletor-tipo">
+<div class="seletor-tipo">
+
     <span class="seletor-indicador"></span>
 
-    <button class="opcao ativa" data-tipo="privados" onclick="window.location.href='chats.php'">
+    <button
+        class="opcao ativa"
+        data-tipo="privados"
+        onclick="window.location.href='chats.php'"
+    >
         Privados
     </button>
 
-    <button class="opcao" data-tipo="grupos" onclick="window.location.href='chats-grupos.php'">
+    <button
+        class="opcao"
+        data-tipo="grupos"
+        onclick="window.location.href='chats-grupos.php'"
+    >
         Grupos
     </button>
 
-    <button class="opcao" data-tipo="comunidade" onclick="window.location.href='chats-comunidade.php'">
-        Comunidade
-    </button>
 </div>
 
     <div class="chats-lista">
 
         <?php if (empty($conversas)): ?>
 
-            <p class="chats-vazio">
+            <p class="grupo-lista-vazia">
                 Você ainda não possui conversas.
             </p>
 

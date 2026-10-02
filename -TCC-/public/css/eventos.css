@@ -47,3 +47,71 @@ html.tema-escuro .eventos-status-cancelado { background:#402525; color:#ffabab; 
 .evento-selecao small { color:var(--ev-muted); }
 html.tema-escuro .evento-aviso { background:#402525; color:#ffabab; }
 html.tema-escuro .evento-aviso-sucesso { background:#203526; color:#98dfaa; }
+
+
+/* =========================================
+   EVENTO - PLACAR E PRÉVIA DA ESCALAÇÃO
+========================================= */
+.evento-detalhes-shell { max-width:1100px; }
+.evento-score-hero { margin-bottom:18px; overflow:hidden; border-radius:20px; background:#141a20; color:#f7f9fb; box-shadow:0 10px 30px rgba(0,0,0,.12); }
+.evento-score-faixa { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; padding:25px; border-bottom:1px solid rgba(255,255,255,.08); background:linear-gradient(130deg,rgba(255,255,255,.05),transparent 55%); }
+.evento-score-faixa h1 { margin:4px 0 7px; font-size:clamp(28px,4vw,42px); line-height:1.05; }
+.evento-score-faixa p:last-child { margin:0; color:#9eabb6; font-size:12px; }
+.evento-score-status { padding:7px 10px; border-radius:7px; background:#255d48; color:#93e0b7; font-size:9px; font-weight:900; letter-spacing:.1em; }
+.evento-score-status.fechado { background:#52312f; color:#ffaaa3; }
+.evento-score-resumo { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); }
+.evento-score-resumo > div { min-width:0; padding:14px 18px; border-right:1px solid rgba(255,255,255,.08); }
+.evento-score-resumo > div:last-child { border-right:0; }
+.evento-score-resumo span { display:block; margin-bottom:4px; color:#778591; font-size:8px; font-weight:900; letter-spacing:.13em; }
+.evento-score-resumo strong { display:block; overflow:hidden; color:#f6f8f9; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+.evento-score-acoes { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:16px; padding:16px 18px; border:1px solid var(--ev-border); border-radius:14px; background:var(--ev-card); }
+.evento-score-acoes strong { display:block; color:var(--ev-text); font-size:14px; }
+.evento-score-acoes span { color:var(--ev-muted); font-size:11px; }
+.evento-minha-vaga { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-bottom:16px; padding:15px 17px; border:1px solid #e2c56f; border-radius:13px; background:#fff9e8; }
+.evento-minha-vaga.confirmada { border-color:#9fd3af; background:#effaf2; }
+.evento-minha-vaga span { display:block; color:#94731c; font-size:8px; font-weight:900; letter-spacing:.15em; }
+.evento-minha-vaga.confirmada span { color:#2e7b47; }
+.evento-minha-vaga strong { display:block; margin:2px 0; color:#252525; font-size:14px; }
+.evento-minha-vaga small { color:#777; font-size:10px; }
+.evento-botao-secundario { padding:8px 10px; border:1px solid #d8d8dd; border-radius:8px; background:#fff; color:#555; font:inherit; font-size:10px; font-weight:800; cursor:pointer; }
+.evento-times-preview { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); overflow:hidden; margin-bottom:18px; border:1px solid #252d34; border-radius:18px; background:#151b21; }
+.evento-time-preview + .evento-time-preview { border-left:1px solid rgba(255,255,255,.17); }
+.evento-time-preview > header { display:flex; align-items:center; justify-content:space-between; padding:15px 17px; color:#fff; }
+.evento-time-1 > header { background:linear-gradient(90deg,#237e78,#315c5b); }
+.evento-time-2 > header { background:linear-gradient(90deg,#754141,#a64646); }
+.evento-time-preview header span { display:block; font-size:7px; font-weight:900; letter-spacing:.18em; opacity:.7; }
+.evento-time-preview header h2 { margin:1px 0 0; font-size:16px; }
+.evento-time-preview header > strong { font-size:15px; }
+.evento-time-preview ol { list-style:none; margin:0; padding:0; }
+.evento-time-preview li { display:grid; grid-template-columns:32px 31px minmax(0,1fr); align-items:center; gap:8px; min-height:53px; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,.07); color:#f3f6f8; }
+.evento-time-preview li:last-child { border-bottom:0; }
+.evento-time-preview li.status-pendente { background:rgba(205,157,39,.08); }
+.evento-time-preview li.status-aprovada { background:rgba(84,181,126,.05); }
+.evento-slot-numero { color:#74818c; font-size:10px; font-weight:900; text-align:center; }
+.evento-slot-avatar { display:grid; place-items:center; width:29px; height:29px; border-radius:8px; background:#36414b; color:#fff; font-size:9px; font-weight:900; }
+.evento-time-1 .evento-slot-avatar:not(.evento-slot-vazio) { background:#2f8f87; }
+.evento-time-2 .evento-slot-avatar:not(.evento-slot-vazio) { background:#b45656; }
+.evento-slot-vazio { border:1px dashed #586570; background:transparent; color:#7e8b96; font-size:16px; }
+.evento-slot-jogador { min-width:0; }
+.evento-slot-jogador strong { display:block; overflow:hidden; font-size:11px; text-overflow:ellipsis; white-space:nowrap; }
+.evento-slot-jogador small { display:block; margin-top:2px; color:#788591; font-size:7px; font-weight:900; letter-spacing:.08em; }
+.evento-solicitacoes-card { overflow:hidden; margin-top:18px; border:1px solid var(--ev-border); border-radius:16px; background:var(--ev-card); }
+.evento-solicitacoes-titulo { display:flex; align-items:center; justify-content:space-between; padding:17px 19px; background:#252c33; color:#fff; }
+.evento-solicitacoes-titulo span { display:block; color:#ff8a6e; font-size:8px; font-weight:900; letter-spacing:.15em; }
+.evento-solicitacoes-titulo h2 { margin:2px 0 0; font-size:17px; }
+.evento-solicitacoes-titulo > strong { display:grid; place-items:center; min-width:32px; height:32px; padding:0 8px; border-radius:9px; background:rgba(255,255,255,.1); }
+.evento-solicitacoes-lista article { display:grid; grid-template-columns:34px minmax(0,1fr) auto; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--ev-border); }
+.evento-solicitacoes-lista article:last-child { border-bottom:0; }
+.evento-solicitacoes-lista article > div:nth-child(2) strong { display:block; font-size:12px; }
+.evento-solicitacoes-lista article > div:nth-child(2) small { color:var(--ev-muted); font-size:10px; }
+.evento-solicitacao-acoes { display:flex; gap:6px; }
+.evento-solicitacao-acoes button { padding:7px 10px; border:0; border-radius:7px; font:inherit; font-size:9px; font-weight:900; cursor:pointer; }
+.evento-aprovar { background:#287f50; color:#fff; }
+.evento-recusar { background:#f2eded; color:#8b3939; }
+html.tema-escuro .evento-minha-vaga { border-color:#6a5a2c; background:#332d1e; }
+html.tema-escuro .evento-minha-vaga.confirmada { border-color:#345f41; background:#203026; }
+html.tema-escuro .evento-minha-vaga strong { color:#f5f5f5; }
+html.tema-escuro .evento-botao-secundario { border-color:#484848; background:#292929; color:#ddd; }
+html.tema-escuro .evento-recusar { background:#3a2c2c; color:#ffadad; }
+@media(max-width:760px) { .evento-score-resumo { grid-template-columns:repeat(2,minmax(0,1fr)); } .evento-score-resumo > div:nth-child(2) { border-right:0; } .evento-times-preview { grid-template-columns:1fr; } .evento-time-preview + .evento-time-preview { border-left:0; border-top:3px solid #11161b; } }
+@media(max-width:520px) { .evento-score-faixa,.evento-score-acoes,.evento-minha-vaga { align-items:flex-start; flex-direction:column; } .evento-score-resumo { grid-template-columns:1fr; } .evento-score-resumo > div { border-right:0; border-bottom:1px solid rgba(255,255,255,.08); } .evento-score-resumo > div:last-child { border-bottom:0; } .evento-solicitacoes-lista article { grid-template-columns:32px minmax(0,1fr); } .evento-solicitacao-acoes { grid-column:2; } }

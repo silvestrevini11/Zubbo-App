@@ -143,3 +143,5 @@ html.tema-escuro .evento-recusar { background:#3a2c2c; color:#ffadad; }
 html.tema-escuro .eventos-status-encerrado { color:#c0c0c7; background:#303034; }
 html.tema-escuro .evento-legado-aviso { border-color:#665a2b; background:#302b1d; color:#e6d585; }
 @media(max-width:600px) { .eventos-card-rodape,.evento-individual-card { align-items:flex-start; flex-direction:column; } .evento-individual-status { justify-items:start; } }
+
+.evento-legado-aviso form { margin-top:10px; }

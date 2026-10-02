@@ -60,6 +60,14 @@ if ($limite !== null) {
     $totalConfirmados += count($confirmadosIndividuais);
 }
 
+$minhaParticipacaoSemVaga = null;
+foreach ($confirmadosSemVaga as $participanteSemVaga) {
+    if ((int) $participanteSemVaga['id_user'] === $idUsuario) {
+        $minhaParticipacaoSemVaga = $participanteSemVaga;
+        break;
+    }
+}
+
 $flash = $_SESSION['flash_vaga_evento'][$idEvento] ?? null;
 unset($_SESSION['flash_vaga_evento'][$idEvento]);
 ?>
@@ -122,6 +130,16 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                 Quem já estava confirmado continua na lista. Ao escolher uma vaga no novo quadro,
                 a participação antiga será vinculada automaticamente sem precisar de nova aprovação.
             </p>
+
+            <?php if ($minhaParticipacaoSemVaga): ?>
+                <form action="vaga-evento-acao.php" method="post">
+                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
+                    <input type="hidden" name="acao" value="cancelar">
+                    <input type="hidden" name="origem" value="detalhes">
+                    <button class="evento-botao-secundario" type="submit">Cancelar minha participação</button>
+                </form>
+            <?php endif; ?>
         </section>
     <?php endif; ?>
 

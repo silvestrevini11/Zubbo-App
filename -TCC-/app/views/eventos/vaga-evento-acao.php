@@ -181,6 +181,20 @@ try {
             ]);
         }
 
+        if ($participacaoAntiga && $limite !== null) {
+            $stmt = $conn->prepare("
+                UPDATE Solicitacao_Vaga_Evento
+                SET status_solicitacao = 'recusada',
+                    data_resposta = CURRENT_TIMESTAMP
+                WHERE id_evento = ?
+                  AND time_num = ?
+                  AND numero_vaga = ?
+                  AND id_user <> ?
+                  AND status_solicitacao = 'pendente'
+            ");
+            $stmt->execute([$idEvento, $time, $vaga, $idUsuario]);
+        }
+
         vaga_flash(
             $idEvento,
             'sucesso',
@@ -203,28 +217,42 @@ try {
         $stmt->execute([$idEvento, $idUsuario]);
         $solicitacao = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$solicitacao || !in_array($solicitacao['status_solicitacao'], ['pendente', 'aprovada'], true)) {
-            throw new RuntimeException('Você não possui uma solicitação ou participação ativa neste evento.');
+        if (!$solicitacao) {
+            $stmt = $conn->prepare('SELECT 1 FROM Lista_Evento WHERE id_evento = ? AND id_user = ? LIMIT 1');
+            $stmt->execute([$idEvento, $idUsuario]);
+
+            if (!$stmt->fetchColumn()) {
+                throw new RuntimeException('Você não possui uma solicitação ou participação ativa neste evento.');
+            }
+
+            $stmt = $conn->prepare('DELETE FROM Lista_Evento WHERE id_evento = ? AND id_user = ?');
+            $stmt->execute([$idEvento, $idUsuario]);
+
+            vaga_flash($idEvento, 'sucesso', 'Sua participação foi cancelada.');
+        } else {
+            if (!in_array($solicitacao['status_solicitacao'], ['pendente', 'aprovada'], true)) {
+                throw new RuntimeException('Você não possui uma solicitação ou participação ativa neste evento.');
+            }
+
+            $stmt = $conn->prepare("
+                UPDATE Solicitacao_Vaga_Evento
+                SET status_solicitacao = 'cancelada',
+                    data_resposta = CURRENT_TIMESTAMP
+                WHERE id_solicitacao = ?
+            ");
+            $stmt->execute([(int) $solicitacao['id_solicitacao']]);
+
+            $stmt = $conn->prepare('DELETE FROM Lista_Evento WHERE id_evento = ? AND id_user = ?');
+            $stmt->execute([$idEvento, $idUsuario]);
+
+            vaga_flash(
+                $idEvento,
+                'sucesso',
+                $solicitacao['status_solicitacao'] === 'aprovada'
+                    ? 'Você saiu do evento.'
+                    : 'Sua solicitação foi cancelada.'
+            );
         }
-
-        $stmt = $conn->prepare("
-            UPDATE Solicitacao_Vaga_Evento
-            SET status_solicitacao = 'cancelada',
-                data_resposta = CURRENT_TIMESTAMP
-            WHERE id_solicitacao = ?
-        ");
-        $stmt->execute([(int) $solicitacao['id_solicitacao']]);
-
-        $stmt = $conn->prepare('DELETE FROM Lista_Evento WHERE id_evento = ? AND id_user = ?');
-        $stmt->execute([$idEvento, $idUsuario]);
-
-        vaga_flash(
-            $idEvento,
-            'sucesso',
-            $solicitacao['status_solicitacao'] === 'aprovada'
-                ? 'Você saiu do evento.'
-                : 'Sua solicitação foi cancelada.'
-        );
     }
 
     if (in_array($acao, ['aprovar', 'recusar', 'remover'], true)) {

@@ -43,6 +43,28 @@ include __DIR__ . '/../includes/head.php';
         </div>
     </section>
 
+    <section class="configuracoes-grupo" aria-labelledby="suporte-titulo">
+        <h2 id="suporte-titulo">Comunidade e suporte</h2>
+
+        <a class="configuracoes-item configuracoes-link" href="sugerir-esporte.php">
+            <span class="configuracoes-icone" aria-hidden="true">＋</span>
+            <span class="configuracoes-item-texto">
+                <strong>Sugerir esporte</strong>
+                <span>Envie uma modalidade para análise da administração</span>
+            </span>
+            <span class="configuracoes-seta" aria-hidden="true">›</span>
+        </a>
+
+        <a class="configuracoes-item configuracoes-link configuracoes-link-separado" href="fazer-denuncia.php">
+            <span class="configuracoes-icone" aria-hidden="true">!</span>
+            <span class="configuracoes-item-texto">
+                <strong>Fazer denúncia</strong>
+                <span>Envie uma situação para a central de denúncias do administrador</span>
+            </span>
+            <span class="configuracoes-seta" aria-hidden="true">›</span>
+        </a>
+    </section>
+
     <section class="configuracoes-grupo" aria-labelledby="conta-titulo">
         <h2 id="conta-titulo">Conta</h2>
         <form action="../auth/logout.php" method="post">

@@ -11,7 +11,6 @@ require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../config/mail.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
 
 $nome = trim($_POST['name-txt'] ?? '');
 $email = trim($_POST['email-txt'] ?? '');
@@ -56,7 +55,7 @@ $_SESSION['cadastro_pendente'] = [
 ];
 
 try {
-    $mail = new PHPMailer(true);
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
     zubbo_configurar_mail($mail);
     $mail->addAddress($email, $nome);
     $mail->Subject = 'Código de verificação - Zubbo';

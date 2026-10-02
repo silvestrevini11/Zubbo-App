@@ -5,7 +5,6 @@ require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../config/mail.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
 
 $mensagem = '';
 $erro = '';
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $link = $baseUrl . '/public/reset-password.php?token=' . urlencode($token);
 
                 try {
-                    $mail = new PHPMailer(true);
+                    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
                     zubbo_configurar_mail($mail);
                     $mail->addAddress($usuario['email_user'], $usuario['nome_user']);
                     $mail->Subject = 'Recuperação de senha - Zubbo';

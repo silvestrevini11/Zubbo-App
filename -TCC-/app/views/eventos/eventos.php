@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../usuario/form-usuario.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 require_once __DIR__ . '/../../../config/database.php';
@@ -97,6 +97,7 @@ function escaparEvento($valor) {
                             <dd><?= escaparEvento($evento['criador'] ?? 'Usuário indisponível') ?></dd>
                         </div>
                     </dl>
+                    <a class="eventos-criar evento-abrir" href="detalhes-evento.php?id_evento=<?= (int) $evento['id_evento'] ?>">Entrar no evento →</a>
                 </article>
             <?php endforeach; ?>
         </section>

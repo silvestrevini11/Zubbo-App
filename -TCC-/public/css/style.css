@@ -5939,6 +5939,8 @@ html.tema-escuro .evento-erro {
         font-size: 16px;
     }
 }
+'
+
 /* =========================================================
    ZUBBO - CRIAÇÃO E LISTAGEM DE GRUPOS
 ========================================================= */
@@ -6243,9 +6245,6 @@ html.tema-escuro .evento-erro {
     font-size: 10px;
     font-weight: 800;
 }
-html.tema-escuro .grupo-chat-total{
-    background: #272727;
-}
 
 .grupo-chat-header-info {
     display: flex;
@@ -6378,7 +6377,6 @@ html.tema-escuro .grupo-criador-badge {
 
 /* ==============================
    SELETOR PRIVADOS / GRUPOS
-============================== */
 
 .seletor-tipo {
     position: relative;
@@ -6453,7 +6451,6 @@ html.tema-escuro .grupo-criador-badge {
 
 /* =================================
    MOVE O LARANJA PARA GRUPOS
-================================= */
 
 .seletor-tipo:has(
     .opcao[data-tipo="grupos"].ativa

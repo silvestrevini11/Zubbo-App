@@ -1,14 +1,6 @@
 <?php
-
-session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../usuario/form-usuario.php');
-    exit;
-}
-
+require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../includes/head.php';
-include __DIR__ . '/../../../config/database.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 
@@ -151,7 +143,7 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-<script src="/../-TCC-/public/js/conversas.js"></script>
+<script src="/-TCC-/public/js/conversas.js"></script>
 
 </section>
 

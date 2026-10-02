@@ -24,7 +24,7 @@ A tabela `Administrador` funciona como registro de permissão: se o e-mail auten
 
 Para promover uma conta existente:
 
-`php database/scripts/criar-admin.php`
+`php database/tools/create-admin.php`
 
 O script pede apenas o e-mail de uma conta já cadastrada no Zubbo. O campo legado `senha_adm` é preenchido com um hash aleatório inutilizável e não participa mais da autenticação.
 
@@ -41,3 +41,17 @@ As páginas administrativas revalidam a permissão no servidor a cada acesso, po
 - uploads de imagem limitados e diretório sem execução de PHP;
 - headers de segurança, incluindo CSP e proteção contra framing;
 - tokens de recuperação de senha não são exibidos na interface.
+
+
+## Estrutura do projeto
+
+- app/middleware: autenticação e regras de acesso compartilhadas;
+- app/services: regras reutilizáveis de domínio, como administradores e locais;
+- app/views: somente páginas e componentes de interface;
+- database/schema: estrutura final do banco para instalações novas;
+- database/migrations: alterações incrementais para bancos já existentes;
+- database/seeds: dados iniciais idempotentes;
+- database/tools: utilitários de manutenção;
+- database/queries: consultas auxiliares de desenvolvimento.
+
+Para bancos existentes, aplique as migrations em ordem. A migration de locais consolida registros repetidos e cria uma restrição UNIQUE em nome + endereço.

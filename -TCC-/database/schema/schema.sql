@@ -10,6 +10,7 @@ USE app_zubbo;
 
 CREATE TABLE Administrador (
     id_adm INT PRIMARY KEY AUTO_INCREMENT,
+    id_user INT NULL UNIQUE,
     nome_adm VARCHAR(50) NOT NULL,
     email_adm VARCHAR(70) NOT NULL UNIQUE,
     senha_adm VARCHAR(255) NOT NULL,
@@ -28,6 +29,12 @@ CREATE TABLE Usuario (
     email_verificado BOOLEAN NOT NULL DEFAULT FALSE,
     status_user ENUM('ativo', 'suspenso', 'banido') NOT NULL DEFAULT 'ativo'
 );
+
+ALTER TABLE Administrador
+    ADD CONSTRAINT fk_admin_usuario
+    FOREIGN KEY (id_user)
+    REFERENCES Usuario(id_user)
+    ON DELETE CASCADE;
 
 CREATE TABLE Esporte (
     id_esporte INT PRIMARY KEY AUTO_INCREMENT,
@@ -50,6 +57,9 @@ CREATE TABLE LocalEsp (
         'rejeitado'
     ) NOT NULL DEFAULT 'aprovado',
     id_criador INT NULL,
+
+    CONSTRAINT uq_local_nome_endereco
+        UNIQUE (nome_local, endereco_local),
 
     CONSTRAINT fk_local_criador
         FOREIGN KEY (id_criador)
@@ -86,6 +96,25 @@ CREATE TABLE Verificacao_Email (
     expiracao DATETIME NOT NULL,
 
     CONSTRAINT fk_verificacao_usuario
+        FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user)
+        ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE Recuperacao_Senha (
+    id_recuperacao INT PRIMARY KEY AUTO_INCREMENT,
+    id_user INT NOT NULL,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    expiracao DATETIME NOT NULL,
+    usado BOOLEAN NOT NULL DEFAULT FALSE,
+    data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_recuperacao_usuario (id_user),
+    INDEX idx_recuperacao_expiracao (expiracao),
+
+    CONSTRAINT fk_recuperacao_usuario
         FOREIGN KEY (id_user)
         REFERENCES Usuario(id_user)
         ON DELETE CASCADE

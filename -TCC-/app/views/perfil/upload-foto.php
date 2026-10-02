@@ -1,19 +1,14 @@
 <?php
-require_once __DIR__ . '/../../../config/security.php';
-zubbo_start_session();
-include __DIR__ . '/../../../config/database.php';
-
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     exit('Método não permitido.');
 }
 
-$id_user = (int) $_SESSION['usuario']['id'];
+zubbo_require_csrf();
+
+$idUsuario = (int) $_SESSION['usuario']['id'];
 
 if (!isset($_FILES['fotoPerfil'])) {
     header('Location: perfil.php');
@@ -51,7 +46,7 @@ if (!is_dir($pasta) && !mkdir($pasta, 0755, true) && !is_dir($pasta)) {
 }
 
 $extensao = $tiposPermitidos[$tipo];
-$nomeArquivo = 'perfil_' . $id_user . '_' . bin2hex(random_bytes(8)) . '.' . $extensao;
+$nomeArquivo = 'perfil_' . $idUsuario . '_' . bin2hex(random_bytes(8)) . '.' . $extensao;
 $caminhoCompleto = $pasta . $nomeArquivo;
 
 if (!move_uploaded_file($arquivo['tmp_name'], $caminhoCompleto)) {
@@ -60,8 +55,20 @@ if (!move_uploaded_file($arquivo['tmp_name'], $caminhoCompleto)) {
 }
 
 $caminhoBanco = 'public/uploads/perfis/' . $nomeArquivo;
-$stmt = $conn->prepare('UPDATE Usuario SET foto_user = ? WHERE id_user = ?');
-$stmt->execute([$caminhoBanco, $id_user]);
 
-header('Location: perfil.php');
+$stmtAntiga = $conn->prepare('SELECT foto_user FROM Usuario WHERE id_user = ? LIMIT 1');
+$stmtAntiga->execute([$idUsuario]);
+$fotoAntiga = $stmtAntiga->fetchColumn();
+
+$stmt = $conn->prepare('UPDATE Usuario SET foto_user = ? WHERE id_user = ?');
+$stmt->execute([$caminhoBanco, $idUsuario]);
+
+if (is_string($fotoAntiga) && str_starts_with($fotoAntiga, 'public/uploads/perfis/')) {
+    $arquivoAntigo = __DIR__ . '/../../../' . $fotoAntiga;
+    if (is_file($arquivoAntigo) && $arquivoAntigo !== $caminhoCompleto) {
+        @unlink($arquivoAntigo);
+    }
+}
+
+header('Location: perfil.php', true, 303);
 exit;

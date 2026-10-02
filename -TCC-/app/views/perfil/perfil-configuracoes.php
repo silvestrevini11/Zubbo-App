@@ -9,10 +9,13 @@ if (!isset($_SESSION['usuario'])) {
 
 zubbo_csrf_token();
 require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../services/AdminService.php';
 
-$stmtAdmin = $conn->prepare('SELECT id_adm FROM Administrador WHERE email_adm = ? AND ativo = 1 LIMIT 1');
-$stmtAdmin->execute([$_SESSION['usuario']['email'] ?? '']);
-$adminDisponivel = (bool) $stmtAdmin->fetchColumn();
+$adminDisponivel = AdminService::buscarIdAtivo(
+    $conn,
+    (int) $_SESSION['usuario']['id'],
+    (string) ($_SESSION['usuario']['email'] ?? '')
+) !== null;
 
 include __DIR__ . '/../includes/head.php';
 ?>

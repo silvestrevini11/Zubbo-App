@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../../config/security.php';
 zubbo_start_session();
 require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../services/AdminService.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: login.php');
@@ -48,11 +49,7 @@ if (
 zubbo_rate_limit_reset('login_usuario');
 session_regenerate_id(true);
 
-unset(
-    $_SESSION['admin'],
-    $_SESSION['admin_csrf_token'],
-    $_SESSION['admin_flash']
-);
+unset($_SESSION['admin'], $_SESSION['admin_csrf_token'], $_SESSION['admin_flash']);
 
 $_SESSION['usuario'] = [
     'id' => (int) $usuario['id_user'],
@@ -62,19 +59,15 @@ $_SESSION['usuario'] = [
 
 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 
-$stmtAdmin = $conn->prepare(
-    'SELECT id_adm
-     FROM Administrador
-     WHERE email_adm = ?
-       AND ativo = 1
-     LIMIT 1'
+$idAdmin = AdminService::buscarIdAtivo(
+    $conn,
+    (int) $usuario['id_user'],
+    (string) $usuario['email_user']
 );
-$stmtAdmin->execute([$usuario['email_user']]);
-$idAdmin = $stmtAdmin->fetchColumn();
 
-if ($idAdmin !== false) {
+if ($idAdmin !== null) {
     $_SESSION['admin'] = [
-        'id' => (int) $idAdmin,
+        'id' => $idAdmin,
         'id_user' => (int) $usuario['id_user'],
         'nome' => $usuario['nome_user'],
         'email' => $usuario['email_user'],

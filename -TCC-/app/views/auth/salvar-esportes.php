@@ -1,189 +1,82 @@
 <?php
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
-session_start();
-
-if (
-    !isset($_SESSION['cadastro_pendente']) ||
-    !isset($_SESSION['email_verificado'])
-) {
+if (!isset($_SESSION['cadastro_pendente'], $_SESSION['email_verificado'])) {
     header('Location: cadastro.php');
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: escolher-esportes.php');
+    exit;
+}
+
+zubbo_require_csrf();
 require_once __DIR__ . '/../../../config/database.php';
 
-
-/*
-|--------------------------------------------------------------------------
-| PEGAR DADOS DO CADASTRO
-|--------------------------------------------------------------------------
-*/
-
 $cadastro = $_SESSION['cadastro_pendente'];
-
-
-/*
-|--------------------------------------------------------------------------
-| RECEBER ESPORTES
-|--------------------------------------------------------------------------
-*/
-
 $esportes = $_POST['esportes'] ?? [];
 
-
-/*
-|--------------------------------------------------------------------------
-| VERIFICAR SE ESCOLHEU PELO MENOS UM ESPORTE
-|--------------------------------------------------------------------------
-*/
-
-if (empty($esportes)) {
+if (!is_array($esportes) || !$esportes) {
     header('Location: escolher-esportes.php?erro=nenhum');
     exit;
 }
 
+$esportes = array_values(array_unique(array_filter(array_map('intval', $esportes), static fn($id) => $id > 0)));
 
-/*
-|--------------------------------------------------------------------------
-| LIMPAR IDs DOS ESPORTES
-|--------------------------------------------------------------------------
-*/
-
-$esportes = array_map('intval', $esportes);
-
-$esportes = array_unique($esportes);
-
-
-/*
-|--------------------------------------------------------------------------
-| CRIAR USUÁRIO + ESPORTES
-|--------------------------------------------------------------------------
-*/
+if (!$esportes) {
+    header('Location: escolher-esportes.php?erro=nenhum');
+    exit;
+}
 
 try {
+    $placeholders = implode(',', array_fill(0, count($esportes), '?'));
+    $validar = $conn->prepare("SELECT id_esporte FROM Esporte WHERE id_esporte IN ($placeholders)");
+    $validar->execute($esportes);
+    $validos = array_map('intval', $validar->fetchAll(PDO::FETCH_COLUMN));
 
-    /*
-    |--------------------------------------------------------------------------
-    | COMEÇAR TRANSAÇÃO
-    |--------------------------------------------------------------------------
-    */
+    sort($esportes);
+    sort($validos);
+    if ($esportes !== $validos) {
+        throw new RuntimeException('Esporte inválido.');
+    }
 
     $conn->beginTransaction();
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | CRIAR USUÁRIO
-    |--------------------------------------------------------------------------
-    */
-
-    $stmt = $conn->prepare("
-        INSERT INTO Usuario
-        (
-            nome_user,
-            email_user,
-            tel_user,
-            senha_user,
-            date_user,
-            email_verificado
-        )
-        VALUES (?, ?, ?, ?, ?, TRUE)
-    ");
-
+    $stmt = $conn->prepare(
+        'INSERT INTO Usuario
+            (nome_user, email_user, tel_user, senha_user, date_user, email_verificado)
+         VALUES (?, ?, ?, ?, ?, TRUE)'
+    );
     $stmt->execute([
         $cadastro['nome'],
         $cadastro['email'],
         $cadastro['telefone'],
         $cadastro['senha'],
-        $cadastro['data_nascimento']
+        $cadastro['data_nascimento'],
     ]);
 
+    $idUsuario = (int) $conn->lastInsertId();
+    $stmtEsporte = $conn->prepare(
+        'INSERT INTO Usuario_Esporte (id_user, id_esporte) VALUES (?, ?)'
+    );
 
-    /*
-    |--------------------------------------------------------------------------
-    | PEGAR ID DO USUÁRIO CRIADO
-    |--------------------------------------------------------------------------
-    */
-
-    $id_user = (int) $conn->lastInsertId();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SALVAR ESPORTES
-    |--------------------------------------------------------------------------
-    */
-
-    $stmt = $conn->prepare("
-        INSERT INTO Usuario_Esporte
-        (
-            id_user,
-            id_esporte
-        )
-        VALUES (?, ?)
-    ");
-
-
-    foreach ($esportes as $id_esporte) {
-
-        $stmt->execute([
-            $id_user,
-            $id_esporte
-        ]);
+    foreach ($esportes as $idEsporte) {
+        $stmtEsporte->execute([$idUsuario, $idEsporte]);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | FINALIZAR TRANSAÇÃO
-    |--------------------------------------------------------------------------
-    */
-
     $conn->commit();
-
-
-} catch (PDOException $e) {
-
-    /*
-    |--------------------------------------------------------------------------
-    | DESFAZER TUDO SE DER ERRO
-    |--------------------------------------------------------------------------
-    */
-
+} catch (Throwable $e) {
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
-
+    error_log('Erro ao concluir cadastro: ' . $e->getMessage());
     header('Location: escolher-esportes.php?erro=salvar');
     exit;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| LIMPAR SESSÃO DO CADASTRO
-|--------------------------------------------------------------------------
-*/
-
-unset($_SESSION['cadastro_pendente']);
-unset($_SESSION['email_verificado']);
-
-
-/*
-|--------------------------------------------------------------------------
-| MENSAGEM DE SUCESSO
-|--------------------------------------------------------------------------
-*/
-
-$_SESSION['sucesso_login'] =
-    'Cadastro concluído! Agora você pode entrar.';
-
-
-/*
-|--------------------------------------------------------------------------
-| IR PARA LOGIN
-|--------------------------------------------------------------------------
-*/
-
-header('Location:login.php');
+unset($_SESSION['cadastro_pendente'], $_SESSION['email_verificado']);
+$_SESSION['sucesso_login'] = 'Cadastro concluído! Agora você pode entrar.';
+header('Location: login.php', true, 303);
 exit;

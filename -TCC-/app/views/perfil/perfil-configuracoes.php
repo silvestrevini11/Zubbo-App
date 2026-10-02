@@ -1,14 +1,18 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../auth/login.php');
     exit;
 }
 
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+zubbo_csrf_token();
+require_once __DIR__ . '/../../../config/database.php';
+
+$stmtAdmin = $conn->prepare('SELECT id_adm FROM Administrador WHERE email_adm = ? AND ativo = 1 LIMIT 1');
+$stmtAdmin->execute([$_SESSION['usuario']['email'] ?? '']);
+$adminDisponivel = (bool) $stmtAdmin->fetchColumn();
 
 include __DIR__ . '/../includes/head.php';
 ?>
@@ -45,6 +49,13 @@ include __DIR__ . '/../includes/head.php';
 
     <section class="configuracoes-grupo" aria-labelledby="conta-titulo">
         <h2 id="conta-titulo">Conta</h2>
+        <?php if ($adminDisponivel): ?>
+            <a class="configuracoes-item configuracoes-botao" href="../admin/login.php">
+                <span class="configuracoes-icone" aria-hidden="true">🛡</span>
+                <span class="configuracoes-item-texto"><strong>Painel administrativo</strong><span>Acesso restrito a administradores</span></span>
+                <span class="configuracoes-seta" aria-hidden="true">›</span>
+            </a>
+        <?php endif; ?>
         <form action="../auth/logout.php" method="post">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
             <button class="configuracoes-item configuracoes-botao" type="submit">

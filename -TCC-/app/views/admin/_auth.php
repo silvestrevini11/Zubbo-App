@@ -1,7 +1,6 @@
 <?php
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (empty($_SESSION['admin']['id'])) {
     header('Location: login.php');

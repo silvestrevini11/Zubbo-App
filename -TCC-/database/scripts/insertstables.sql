@@ -7,15 +7,8 @@ INSERT INTO Esporte (nome_esporte) VALUES
 ('Corrida'),
 ('Handebol');
 
-INSERT INTO Administrador (
-    nome_adm,
-    email_adm,
-    senha_adm
-) VALUES (
-    'Administrador Zubbo',
-    'zubbosupport@gmail.com',
-    'admin'
-);
+-- Administradores não recebem credenciais padrão.
+-- Crie a primeira conta com: php database/scripts/criar-admin.php
 
 -- Local para testar a criação de eventos.
 USE app_zubbo;

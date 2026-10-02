@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../config/security.php';
+zubbo_start_session();
 
 if (isset($_SESSION['usuario'])) {
     header("Location: ../app/views/painel/painel-inicial.php");

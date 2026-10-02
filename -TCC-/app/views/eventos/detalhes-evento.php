@@ -1,23 +1,32 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['usuario']['id'])) {
     header('Location: ../auth/login.php');
     exit;
 }
+
 require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/_regras-equipes.php';
+
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $idEvento = filter_var($_GET['id_evento'] ?? null, FILTER_VALIDATE_INT);
+
 if (!$idEvento || $idEvento < 1) {
     http_response_code(404);
     exit('Evento não encontrado.');
 }
+
 if (empty($_SESSION['csrf_eventos'])) {
     $_SESSION['csrf_eventos'] = bin2hex(random_bytes(32));
 }
-function escaparDetalhe($valor) {
+
+function escaparDetalhe($valor): string
+{
     return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 }
-function carregarEvento($conn, $id) {
+
+try {
     $stmt = $conn->prepare("
         SELECT ev.*, e.nome_esporte, l.nome_local, l.endereco_local,
                u.nome_user AS criador,
@@ -27,139 +36,63 @@ function carregarEvento($conn, $id) {
         INNER JOIN LocalEsp l ON l.id_local = ev.id_local
         LEFT JOIN Usuario u ON u.id_user = ev.id_criador
         WHERE ev.id_evento = ? AND ev.status_evento <> 'removido'
-    ");
-    $stmt->execute([$id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-try {
-    $evento = carregarEvento($conn, $idEvento);
-} catch (PDOException $e) {
-    error_log('Erro ao abrir evento: ' . $e->getMessage());
-    http_response_code(503);
-    exit('Não foi possível carregar o evento. Tente novamente.');
-}
-if (!$evento) {
-    http_response_code(404);
-    exit('Evento não encontrado.');
-}
-$organizador = (int) $evento['id_criador'] === $idUsuario;
-$erro = '';
-$sucesso = $_SESSION['flash_evento'][$idEvento] ?? '';
-unset($_SESSION['flash_evento'][$idEvento]);
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $csrf = $_POST['csrf'] ?? '';
-    $acao = $_POST['acao'] ?? '';
-    if (!is_string($csrf) || !hash_equals($_SESSION['csrf_eventos'], $csrf)) {
-        http_response_code(403);
-        $erro = 'A sessão do formulário expirou. Atualize a página.';
-    } elseif (!in_array($acao, ['participar', 'sair', 'adicionar'], true)) {
-        http_response_code(400);
-        $erro = 'Ação inválida.';
-    } else {
-        try {
-            $conn->beginTransaction();
-            // Serializa inscrições no mesmo evento e verifica novamente seu estado.
-            $lock = $conn->prepare("
-                SELECT id_criador, status_evento,
-                       (TIMESTAMP(data_evento, horario_evento) >= NOW()) AS aberto
-                FROM Evento WHERE id_evento = ? FOR UPDATE
-            ");
-            $lock->execute([$idEvento]);
-            $estado = $lock->fetch(PDO::FETCH_ASSOC);
-            if (!$estado || $estado['status_evento'] !== 'ativo' || !$estado['aberto']) {
-                throw new RuntimeException('As inscrições para este evento estão encerradas.');
-            }
-            if ($acao === 'sair') {
-                $stmt = $conn->prepare('DELETE FROM Lista_Evento WHERE id_evento = ? AND id_user = ?');
-                $stmt->execute([$idEvento, $idUsuario]);
-                $mensagem = 'Sua participação foi cancelada.';
-            } else {
-                if ($acao === 'adicionar') {
-                    if ((int) $estado['id_criador'] !== $idUsuario) {
-                        throw new RuntimeException('Somente o organizador pode adicionar integrantes.');
-                    }
-                    $selecionados = $_POST['integrantes'] ?? [];
-                    if (!is_array($selecionados) || !$selecionados || count($selecionados) > 100) {
-                        throw new RuntimeException('Selecione entre 1 e 100 integrantes.');
-                    }
-                } else {
-                    $selecionados = [$idUsuario];
-                }
-                $ids = [];
-                foreach ($selecionados as $valor) {
-                    $id = filter_var($valor, FILTER_VALIDATE_INT);
-                    if (!$id || $id < 1) {
-                        throw new RuntimeException('Integrante inválido.');
-                    }
-                    $ids[$id] = $id;
-                }
-                $validar = $conn->prepare("SELECT id_user FROM Usuario WHERE id_user = ? AND status_user = 'ativo'");
-                $existe = $conn->prepare('SELECT 1 FROM Lista_Evento WHERE id_evento = ? AND id_user = ?');
-                $inserir = $conn->prepare('INSERT INTO Lista_Evento (id_user, id_evento) VALUES (?, ?)');
-                $novos = 0;
-                foreach ($ids as $id) {
-                    $validar->execute([$id]);
-                    if (!$validar->fetchColumn()) {
-                        throw new RuntimeException('Um dos integrantes não possui uma conta ativa.');
-                    }
-                    $existe->execute([$idEvento, $id]);
-                    if (!$existe->fetchColumn()) {
-                        $inserir->execute([$id, $idEvento]);
-                        $novos++;
-                    }
-                }
-                $mensagem = $acao === 'participar'
-                    ? 'Sua participação está confirmada!'
-                    : ($novos . ' integrante(s) adicionado(s).');
-            }
-            $conn->commit();
-            $_SESSION['flash_evento'][$idEvento] = $mensagem;
-            header('Location: detalhes-evento.php?id_evento=' . $idEvento, true, 303);
-            exit;
-        } catch (RuntimeException $e) {
-            if ($conn->inTransaction()) $conn->rollBack();
-            $erro = $e instanceof PDOException
-                ? 'Não foi possível salvar a participação. Tente novamente.'
-                : $e->getMessage();
-            if ($e instanceof PDOException) error_log('Erro de participação: ' . $e->getMessage());
-        } catch (Throwable $e) {
-            if ($conn->inTransaction()) $conn->rollBack();
-            error_log('Erro de participação: ' . $e->getMessage());
-            $erro = 'Não foi possível salvar a participação. Tente novamente.';
-        }
-    }
-}
-$participantes = [];
-$disponiveis = [];
-$erroLista = false;
-try {
-    $stmt = $conn->prepare("
-        SELECT u.id_user, u.nome_user FROM Lista_Evento le
-        INNER JOIN Usuario u ON u.id_user = le.id_user
-        WHERE le.id_evento = ? ORDER BY u.nome_user, u.id_user
+        LIMIT 1
     ");
     $stmt->execute([$idEvento]);
-    $participantes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    if ($organizador) {
-        $stmt = $conn->prepare("
-            SELECT u.id_user, u.nome_user FROM Usuario u
-            WHERE u.status_user = 'ativo'
-              AND NOT EXISTS (
-                SELECT 1 FROM Lista_Evento le
-                WHERE le.id_evento = ? AND le.id_user = u.id_user
-              )
-            ORDER BY u.nome_user, u.id_user
-        ");
-        $stmt->execute([$idEvento]);
-        $disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $evento = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$evento) {
+        http_response_code(404);
+        exit('Evento não encontrado.');
     }
+
+    $stmt = $conn->prepare("
+        SELECT s.id_solicitacao, s.id_user, s.time_num, s.numero_vaga,
+               s.status_solicitacao, s.data_solicitacao,
+               u.nome_user
+        FROM Solicitacao_Vaga_Evento s
+        INNER JOIN Usuario u ON u.id_user = s.id_user
+        WHERE s.id_evento = ?
+          AND s.status_solicitacao IN ('pendente', 'aprovada')
+        ORDER BY s.time_num, s.numero_vaga
+    ");
+    $stmt->execute([$idEvento]);
+    $solicitacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    error_log('Erro ao listar participantes: ' . $e->getMessage());
-    $erroLista = true;
+    error_log('Erro ao carregar detalhes do evento: ' . $e->getMessage());
+    http_response_code(503);
+    exit('Não foi possível carregar o evento. Verifique se a atualização do banco foi executada.');
 }
-$inscrito = in_array($idUsuario, array_map('intval', array_column($participantes, 'id_user')), true);
+
+$organizador = (int) $evento['id_criador'] === $idUsuario;
 $aberto = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
+$limite = evento_vagas_por_time((string) $evento['nome_esporte']);
+$times = [1 => [], 2 => []];
+$pendentes = [];
+$confirmados = 0;
+$minhaSolicitacao = null;
+
+foreach ($solicitacoes as $solicitacao) {
+    $time = (int) $solicitacao['time_num'];
+    $vaga = (int) $solicitacao['numero_vaga'];
+
+    if (isset($times[$time])) {
+        $times[$time][$vaga] = $solicitacao;
+    }
+
+    if ($solicitacao['status_solicitacao'] === 'aprovada') {
+        $confirmados++;
+    } else {
+        $pendentes[] = $solicitacao;
+    }
+
+    if ((int) $solicitacao['id_user'] === $idUsuario) {
+        $minhaSolicitacao = $solicitacao;
+    }
+}
+
+$flash = $_SESSION['flash_vaga_evento'][$idEvento] ?? null;
+unset($_SESSION['flash_vaga_evento'][$idEvento]);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -167,70 +100,169 @@ $aberto = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= escaparDetalhe($evento['nome_evento']) ?> | Zubbo</title>
-    <script>if (localStorage.getItem('zubbo-tema') === 'escuro') document.documentElement.classList.add('tema-escuro');</script>
+    <script>
+        if (localStorage.getItem('zubbo-tema') === 'escuro') {
+            document.documentElement.classList.add('tema-escuro');
+        }
+    </script>
     <link rel="stylesheet" href="../../../public/css/style.css">
     <link rel="stylesheet" href="../../../public/css/eventos.css">
 </head>
 <body>
-<main class="eventos-container">
+<main class="eventos-container evento-detalhes-shell">
     <a class="eventos-voltar" href="eventos.php">← Voltar aos eventos</a>
-    <header class="eventos-topo">
-        <div>
-            <p class="eventos-marca"><?= escaparDetalhe($evento['nome_esporte']) ?></p>
-            <h1><?= escaparDetalhe($evento['nome_evento']) ?></h1>
+
+    <section class="evento-score-hero">
+        <div class="evento-score-faixa">
+            <div>
+                <p class="eventos-marca"><?= escaparDetalhe($evento['nome_esporte']) ?></p>
+                <h1><?= escaparDetalhe($evento['nome_evento']) ?></h1>
+                <p><?= escaparDetalhe($evento['nome_local']) ?> · <?= escaparDetalhe(date('d/m/Y', strtotime($evento['data_evento']))) ?> às <?= escaparDetalhe(substr($evento['horario_evento'], 0, 5)) ?></p>
+            </div>
+            <span class="evento-score-status <?= !$aberto ? 'fechado' : '' ?>">
+                <?= $evento['status_evento'] === 'cancelado' ? 'CANCELADO' : ($aberto ? 'ABERTO' : 'ENCERRADO') ?>
+            </span>
         </div>
-    </header>
-    <?php if ($sucesso): ?><p class="evento-aviso evento-aviso-sucesso" role="status"><?= escaparDetalhe($sucesso) ?></p><?php endif; ?>
-    <?php if ($erro): ?><p class="evento-aviso" role="alert"><?= escaparDetalhe($erro) ?></p><?php endif; ?>
-    <section class="eventos-card evento-detalhes">
-        <h2>Sobre o encontro</h2>
-        <dl class="eventos-dados">
-            <div><dt>Data e horário</dt><dd><?= escaparDetalhe(date('d/m/Y', strtotime($evento['data_evento']))) ?> às <?= escaparDetalhe(substr($evento['horario_evento'], 0, 5)) ?></dd></div>
-            <div><dt>Local</dt><dd><?= escaparDetalhe($evento['nome_local']) ?></dd><dd class="eventos-endereco"><?= escaparDetalhe($evento['endereco_local']) ?></dd></div>
-            <div><dt>Organizador</dt><dd><?= escaparDetalhe($evento['criador'] ?? 'Usuário indisponível') ?></dd></div>
-            <div><dt>Status</dt><dd><?= $evento['status_evento'] === 'cancelado' ? 'Cancelado' : ($aberto ? 'Inscrições abertas' : 'Inscrições encerradas') ?></dd></div>
-        </dl>
-        <div class="evento-lista-presenca-atalho">
-            <a class="eventos-criar" href="lista-presenca.php?id_evento=<?= (int) $idEvento ?>">Ver lista de presença</a>
+
+        <div class="evento-score-resumo">
+            <div><span>ORGANIZADOR</span><strong><?= escaparDetalhe($evento['criador'] ?? 'Indisponível') ?></strong></div>
+            <div><span>CONFIRMADOS</span><strong><?= $confirmados ?><?= $limite ? ' / ' . ($limite * 2) : '' ?></strong></div>
+            <div><span>SOLICITAÇÕES</span><strong><?= count($pendentes) ?></strong></div>
+            <div><span>LOCAL</span><strong><?= escaparDetalhe($evento['endereco_local']) ?></strong></div>
         </div>
-        <?php if ($aberto && !$erroLista): ?>
-            <form method="post" class="evento-participar">
-                <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
-                <input type="hidden" name="acao" value="<?= $inscrito ? 'sair' : 'participar' ?>">
-                <button class="eventos-criar" type="submit"><?= $inscrito ? 'Cancelar minha participação' : 'Quero participar' ?></button>
-            </form>
-        <?php endif; ?>
     </section>
-    <section class="eventos-card evento-detalhes">
-        <h2>Integrantes<?= !$erroLista ? ' (' . count($participantes) . ')' : '' ?></h2>
-        <?php if ($erroLista): ?><p role="alert">Não foi possível carregar os integrantes. Atualize a página.</p>
-        <?php elseif (!$participantes): ?><p>Ninguém confirmou presença ainda.</p>
-        <?php else: ?>
-            <ul class="evento-integrantes">
-                <?php foreach ($participantes as $p): ?><li><?= escaparDetalhe($p['nome_user']) ?><?= (int) $p['id_user'] === $idUsuario ? ' (você)' : '' ?></li><?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-    </section>
-    <?php if ($organizador && $aberto && !$erroLista): ?>
+
+    <?php if ($flash): ?>
+        <p class="evento-aviso <?= $flash['tipo'] === 'sucesso' ? 'evento-aviso-sucesso' : '' ?>" role="status">
+            <?= escaparDetalhe($flash['mensagem']) ?>
+        </p>
+    <?php endif; ?>
+
+    <?php if ($limite === null): ?>
         <section class="eventos-card evento-detalhes">
-            <h2>Adicionar integrantes</h2>
-            <p class="eventos-subtitulo">Selecione pessoas cadastradas no app para este encontro.</p>
-            <?php if (!$disponiveis): ?><p>Todos os usuários ativos já estão inscritos.</p>
-            <?php else: ?>
-                <form method="post" class="evento-adicionar">
-                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
-                    <input type="hidden" name="acao" value="adicionar">
-                    <fieldset><legend>Quem vai participar?</legend>
-                    <div class="evento-selecao">
-                        <?php foreach ($disponiveis as $p): ?>
-                        <label><input type="checkbox" name="integrantes[]" value="<?= (int) $p['id_user'] ?>"> <span><?= escaparDetalhe($p['nome_user']) ?> <small>#<?= (int) $p['id_user'] ?></small></span></label>
-                        <?php endforeach; ?>
-                    </div>
-                    </fieldset>
-                    <button class="eventos-criar" type="submit">Cadastrar selecionados</button>
-                </form>
-            <?php endif; ?>
+            <h2>Escalação não disponível</h2>
+            <p class="eventos-subtitulo">
+                <?= escaparDetalhe($evento['nome_esporte']) ?> não possui uma formação fixa de dois times configurada.
+            </p>
         </section>
+    <?php else: ?>
+        <div class="evento-score-acoes">
+            <div>
+                <strong>Escalação <?= $limite ?> x <?= $limite ?></strong>
+                <span>Escolha uma vaga livre e envie sua solicitação ao organizador.</span>
+            </div>
+            <a class="eventos-criar" href="lista-presenca.php?id_evento=<?= $idEvento ?>">Abrir escalação completa</a>
+        </div>
+
+        <?php if ($minhaSolicitacao): ?>
+            <section class="evento-minha-vaga <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada' ? 'confirmada' : '' ?>">
+                <div>
+                    <span>SUA VAGA</span>
+                    <strong>
+                        Time <?= (int) $minhaSolicitacao['time_num'] ?> · #<?= str_pad((string) $minhaSolicitacao['numero_vaga'], 2, '0', STR_PAD_LEFT) ?>
+                    </strong>
+                    <small><?= $minhaSolicitacao['status_solicitacao'] === 'aprovada' ? 'Confirmado pelo organizador' : 'Aguardando aprovação' ?></small>
+                </div>
+                <form action="vaga-evento-acao.php" method="post">
+                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
+                    <input type="hidden" name="acao" value="cancelar">
+                    <input type="hidden" name="origem" value="detalhes">
+                    <button class="evento-botao-secundario" type="submit">
+                        <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada' ? 'Sair da escalação' : 'Cancelar solicitação' ?>
+                    </button>
+                </form>
+            </section>
+        <?php endif; ?>
+
+        <section class="evento-times-preview">
+            <?php foreach ([1, 2] as $time): ?>
+                <article class="evento-time-preview evento-time-<?= $time ?>">
+                    <header>
+                        <div>
+                            <span>TEAM</span>
+                            <h2>TIME <?= $time ?></h2>
+                        </div>
+                        <strong>
+                            <?= count(array_filter($times[$time], fn($vaga) => $vaga['status_solicitacao'] === 'aprovada')) ?>
+                            / <?= $limite ?>
+                        </strong>
+                    </header>
+
+                    <ol>
+                        <?php for ($vaga = 1; $vaga <= $limite; $vaga++): ?>
+                            <?php $ocupante = $times[$time][$vaga] ?? null; ?>
+                            <li class="<?= $ocupante ? 'ocupada status-' . escaparDetalhe($ocupante['status_solicitacao']) : 'livre' ?>">
+                                <span class="evento-slot-numero"><?= str_pad((string) $vaga, 2, '0', STR_PAD_LEFT) ?></span>
+
+                                <?php if ($ocupante): ?>
+                                    <span class="evento-slot-avatar"><?= escaparDetalhe(evento_iniciais($ocupante['nome_user'])) ?></span>
+                                    <span class="evento-slot-jogador">
+                                        <strong>
+                                            <?= $ocupante['status_solicitacao'] === 'aprovada'
+                                                ? escaparDetalhe($ocupante['nome_user'])
+                                                : ($organizador || (int) $ocupante['id_user'] === $idUsuario
+                                                    ? escaparDetalhe($ocupante['nome_user'])
+                                                    : 'Solicitação em análise') ?>
+                                        </strong>
+                                        <small><?= $ocupante['status_solicitacao'] === 'aprovada' ? 'CONFIRMADO' : 'PENDENTE' ?></small>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="evento-slot-avatar evento-slot-vazio">+</span>
+                                    <span class="evento-slot-jogador"><strong>Vaga livre</strong><small>DISPONÍVEL</small></span>
+                                <?php endif; ?>
+                            </li>
+                        <?php endfor; ?>
+                    </ol>
+                </article>
+            <?php endforeach; ?>
+        </section>
+
+        <?php if ($organizador && $pendentes): ?>
+            <section class="evento-solicitacoes-card">
+                <div class="evento-solicitacoes-titulo">
+                    <div>
+                        <span>ORGANIZADOR</span>
+                        <h2>Solicitações pendentes</h2>
+                    </div>
+                    <strong><?= count($pendentes) ?></strong>
+                </div>
+
+                <div class="evento-solicitacoes-lista">
+                    <?php foreach ($pendentes as $solicitacao): ?>
+                        <article>
+                            <span class="evento-slot-avatar"><?= escaparDetalhe(evento_iniciais($solicitacao['nome_user'])) ?></span>
+                            <div>
+                                <strong><?= escaparDetalhe($solicitacao['nome_user']) ?></strong>
+                                <small>Time <?= (int) $solicitacao['time_num'] ?> · vaga #<?= (int) $solicitacao['numero_vaga'] ?></small>
+                            </div>
+                            <div class="evento-solicitacao-acoes">
+                                <form action="vaga-evento-acao.php" method="post">
+                                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                                    <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
+                                    <input type="hidden" name="id_solicitacao" value="<?= (int) $solicitacao['id_solicitacao'] ?>">
+                                    <input type="hidden" name="acao" value="aprovar">
+                                    <input type="hidden" name="origem" value="detalhes">
+                                    <button class="evento-aprovar" type="submit">Aceitar</button>
+                                </form>
+                                <form action="vaga-evento-acao.php" method="post">
+                                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                                    <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
+                                    <input type="hidden" name="id_solicitacao" value="<?= (int) $solicitacao['id_solicitacao'] ?>">
+                                    <input type="hidden" name="acao" value="recusar">
+                                    <input type="hidden" name="origem" value="detalhes">
+                                    <button class="evento-recusar" type="submit">Recusar</button>
+                                </form>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
     <?php endif; ?>
 </main>
-<?php require __DIR__ . '/../includes/under-bar.php'; require __DIR__ . '/../includes/footer.php'; ?>
+
+<?php
+require __DIR__ . '/../includes/under-bar.php';
+require __DIR__ . '/../includes/footer.php';
+?>

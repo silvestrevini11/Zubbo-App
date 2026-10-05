@@ -1,16 +1,12 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../middleware/auth.php';
 
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: chats-grupos.php');
     exit;
 }
 
-include __DIR__ . '/../../../config/database.php';
+zubbo_require_csrf();
 
 $id_usuario = (int)$_SESSION['usuario']['id'];
 $id_grupo = (int)($_POST['id_grupo'] ?? 0);
@@ -67,7 +63,7 @@ if (isset($_FILES['foto_grupo']) && $_FILES['foto_grupo']['error'] !== UPLOAD_ER
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file($_FILES['foto_grupo']['tmp_name']);
     $ext = ['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp'];
 
-    if (!isset($ext[$mime])) {
+    if (!isset($ext[$mime]) || @getimagesize($_FILES['foto_grupo']['tmp_name']) === false) {
         voltarEdicao($id_grupo, 'A foto deve ser JPG, PNG ou WEBP.');
     }
 

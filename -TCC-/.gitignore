@@ -1,0 +1,13 @@
+# Segredos e configuração local
+.env
+.env.*
+!.env.example
+config/env.php
+
+# Logs
+*.log
+
+# Uploads gerados por usuários
+public/uploads/perfis/*
+public/uploads/grupos/*
+!public/uploads/.htaccess

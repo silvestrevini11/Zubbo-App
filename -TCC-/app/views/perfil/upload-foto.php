@@ -1,68 +1,75 @@
 <?php
+require_once __DIR__ . '/../../middleware/auth.php';
 
-session_start();
-
-include __DIR__ . '/../../../config/database.php';
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: form-usuario.php');
-    exit;
-}
-
-$id_user = $_SESSION['usuario']['id'];
-
-if (!isset($_FILES['fotoPerfil'])) {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: perfil.php');
     exit;
 }
 
-$arquivo = $_FILES['fotoPerfil'];
+zubbo_require_csrf();
 
-if ($arquivo['error'] !== UPLOAD_ERR_OK) {
+$idUser = (int) $_SESSION['usuario']['id'];
+$arquivo = $_FILES['fotoPerfil'] ?? null;
+
+if (
+    !is_array($arquivo)
+    || ($arquivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK
+    || (int) ($arquivo['size'] ?? 0) <= 0
+    || (int) ($arquivo['size'] ?? 0) > 4 * 1024 * 1024
+) {
     header('Location: perfil.php');
     exit;
 }
 
+$finfo = new finfo(FILEINFO_MIME_TYPE);
+$tipo = $finfo->file((string) $arquivo['tmp_name']);
 $tiposPermitidos = [
     'image/jpeg' => 'jpg',
-    'image/png'  => 'png',
-    'image/webp' => 'webp'
+    'image/png' => 'png',
+    'image/webp' => 'webp',
 ];
 
-$tipo = mime_content_type($arquivo['tmp_name']);
-
-if (!isset($tiposPermitidos[$tipo])) {
-    die('Tipo de imagem não permitido.');
+if (!isset($tiposPermitidos[$tipo]) || @getimagesize((string) $arquivo['tmp_name']) === false) {
+    http_response_code(400);
+    exit('Imagem inválida.');
 }
 
 $pasta = __DIR__ . '/../../../public/uploads/perfis/';
-
-if (!is_dir($pasta)) {
-    mkdir($pasta, 0755, true);
+if (!is_dir($pasta) && !mkdir($pasta, 0755, true) && !is_dir($pasta)) {
+    http_response_code(500);
+    exit('Não foi possível preparar o diretório de upload.');
 }
 
-$extensao = $tiposPermitidos[$tipo];
-
-$nomeArquivo = 'perfil_' . $id_user . '_' . time() . '.' . $extensao;
-
+$nomeArquivo = 'perfil_' . $idUser . '_' . bin2hex(random_bytes(12)) . '.' . $tiposPermitidos[$tipo];
 $caminhoCompleto = $pasta . $nomeArquivo;
 
-if (!move_uploaded_file($arquivo['tmp_name'], $caminhoCompleto)) {
-    die('Não foi possível salvar a imagem.');
+$stmt = $conn->prepare('SELECT foto_user FROM Usuario WHERE id_user = ? LIMIT 1');
+$stmt->execute([$idUser]);
+$fotoAnterior = (string) ($stmt->fetchColumn() ?: '');
+
+if (!move_uploaded_file((string) $arquivo['tmp_name'], $caminhoCompleto)) {
+    http_response_code(500);
+    exit('Não foi possível salvar a imagem.');
 }
 
 $caminhoBanco = 'public/uploads/perfis/' . $nomeArquivo;
 
-$stmt = $conn->prepare("
-    UPDATE Usuario
-    SET foto_user = ?
-    WHERE id_user = ?
-");
+try {
+    $stmt = $conn->prepare('UPDATE Usuario SET foto_user = ? WHERE id_user = ?');
+    $stmt->execute([$caminhoBanco, $idUser]);
+} catch (Throwable $e) {
+    @unlink($caminhoCompleto);
+    error_log('Falha ao atualizar foto de perfil: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Não foi possível atualizar a foto.');
+}
 
-$stmt->execute([
-    $caminhoBanco,
-    $id_user
-]);
+if (str_starts_with($fotoAnterior, 'public/uploads/perfis/')) {
+    $antiga = __DIR__ . '/../../../' . $fotoAnterior;
+    if (is_file($antiga) && realpath(dirname($antiga)) === realpath($pasta)) {
+        @unlink($antiga);
+    }
+}
 
-header('Location: perfil.php');
+header('Location: perfil.php', true, 303);
 exit;

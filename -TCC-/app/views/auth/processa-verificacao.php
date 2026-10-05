@@ -1,106 +1,60 @@
 <?php
-
-session_start();
-
-
-/*
-|--------------------------------------------------------------------------
-| VERIFICAR SE EXISTE CADASTRO PENDENTE
-|--------------------------------------------------------------------------
-*/
-
-if (!isset($_SESSION['cadastro_pendente'])) {
-    header('Location: cadastro.php');
-    exit;
-}
-
-
-$cadastro = $_SESSION['cadastro_pendente'];
-
-
-/*
-|--------------------------------------------------------------------------
-| VERIFICAR SE O FORMULÁRIO FOI ENVIADO
-|--------------------------------------------------------------------------
-*/
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: verificar-email.php');
     exit;
 }
 
+zubbo_require_csrf();
 
-/*
-|--------------------------------------------------------------------------
-| PEGAR CÓDIGO
-|--------------------------------------------------------------------------
-*/
+$cadastro = $_SESSION['cadastro_pendente'] ?? null;
+if (!is_array($cadastro)) {
+    header('Location: cadastro.php');
+    exit;
+}
 
-$codigo = trim($_POST['codigo'] ?? '');
+$email = strtolower((string) ($cadastro['email'] ?? ''));
+$codigo = trim((string) ($_POST['codigo'] ?? ''));
 
-
-/*
-|--------------------------------------------------------------------------
-| VALIDAR FORMATO
-|--------------------------------------------------------------------------
-*/
+if (zubbo_rate_limit_exceeded('verificacao_email', 8, 600, $email)) {
+    $_SESSION['erro_verificacao'] = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+    header('Location: verificar-email.php');
+    exit;
+}
 
 if (!preg_match('/^[0-9]{6}$/', $codigo)) {
-
-    $_SESSION['erro_verificacao'] =
-        'Digite um código válido de 6 números.';
-
+    zubbo_rate_limit_hit('verificacao_email', 600, $email);
+    $_SESSION['erro_verificacao'] = 'Digite um código válido de 6 números.';
     header('Location: verificar-email.php');
     exit;
 }
 
+$expiracao = $cadastro['expiracao'] ?? 0;
+$expiraEm = is_numeric($expiracao)
+    ? (int) $expiracao
+    : (int) strtotime((string) $expiracao);
 
-/*
-|--------------------------------------------------------------------------
-| VERIFICAR CÓDIGO
-|--------------------------------------------------------------------------
-*/
+$codigoEsperado = (string) ($cadastro['codigo'] ?? '');
 
-if ($codigo !== $cadastro['codigo']) {
+if ($expiraEm <= 0 || $expiraEm < time()) {
+    unset($_SESSION['cadastro_pendente']);
+    $_SESSION['erro_verificacao'] = 'Esse código expirou. Faça o cadastro novamente.';
+    header('Location: cadastro.php?erro=codigo_expirado');
+    exit;
+}
 
-    $_SESSION['erro_verificacao'] =
-        'Código de verificação incorreto.';
-
+if ($codigoEsperado === '' || !hash_equals($codigoEsperado, $codigo)) {
+    zubbo_rate_limit_hit('verificacao_email', 600, $email);
+    $_SESSION['cadastro_pendente']['tentativas_codigo'] =
+        (int) ($_SESSION['cadastro_pendente']['tentativas_codigo'] ?? 0) + 1;
+    $_SESSION['erro_verificacao'] = 'Código de verificação incorreto.';
     header('Location: verificar-email.php');
     exit;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| VERIFICAR EXPIRAÇÃO
-|--------------------------------------------------------------------------
-*/
-
-if (strtotime($cadastro['expiracao']) < time()) {
-
-    $_SESSION['erro_verificacao'] =
-        'Esse código expirou. Solicite um novo código.';
-
-    header('Location: verificar-email.php');
-    exit;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| E-MAIL VERIFICADO
-|--------------------------------------------------------------------------
-*/
-
+zubbo_rate_limit_reset('verificacao_email', $email);
 $_SESSION['email_verificado'] = true;
-
-
-/*
-|--------------------------------------------------------------------------
-| IR PARA ESCOLHA DOS ESPORTES
-|--------------------------------------------------------------------------
-*/
-
 header('Location: escolher-esportes.php');
 exit;

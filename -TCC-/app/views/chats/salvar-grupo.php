@@ -1,14 +1,12 @@
 <?php
-session_start();
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: criar-grupos.php');
     exit;
 }
-include __DIR__ . '/../../../config/database.php';
+
+zubbo_require_csrf();
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 $nome = trim($_POST['nome_grupo'] ?? '');
@@ -53,7 +51,7 @@ if (isset($_FILES['foto_grupo']) && $_FILES['foto_grupo']['error'] !== UPLOAD_ER
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file($_FILES['foto_grupo']['tmp_name']);
     $extensoes = ['image/jpeg'=>'jpg', 'image/png'=>'png', 'image/webp'=>'webp'];
 
-    if (!isset($extensoes[$mime])) {
+    if (!isset($extensoes[$mime]) || @getimagesize($_FILES['foto_grupo']['tmp_name']) === false) {
         $_SESSION['grupo_erro'] = 'A foto deve ser JPG, PNG ou WEBP.';
         header('Location: criar-grupos.php');
         exit;

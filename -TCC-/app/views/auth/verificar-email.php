@@ -1,25 +1,19 @@
 <?php
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
-session_start();
-
-if (!isset($_SESSION['cadastro_pendente'])) {
+if (empty($_SESSION['cadastro_pendente']) || !is_array($_SESSION['cadastro_pendente'])) {
     header('Location: cadastro.php');
     exit;
 }
 
-include __DIR__.'/../includes/head.php';
+include __DIR__ . '/../includes/head.php';
 
 $erro = $_SESSION['erro_verificacao'] ?? null;
-
 unset($_SESSION['erro_verificacao']);
-
 ?>
-
 <main class="verificar-container">
-
-    <h1 class="verificar-titulo">
-        Verifique seu e-mail
-    </h1>
+    <h1 class="verificar-titulo">Verifique seu e-mail</h1>
 
     <p class="verificar-text">
         Enviamos um código de 6 dígitos para o seu e-mail.
@@ -27,18 +21,13 @@ unset($_SESSION['erro_verificacao']);
     </p>
 
     <?php if ($erro): ?>
-
         <p class="verificar-mensagem-erro">
-            <?= htmlspecialchars($erro) ?>
+            <?= htmlspecialchars((string) $erro, ENT_QUOTES, 'UTF-8') ?>
         </p>
-
     <?php endif; ?>
 
-    <form 
-        class="verificar-form"
-        action="processa-verificacao.php" 
-        method="POST"
-    >
+    <form class="verificar-form" action="processa-verificacao.php" method="POST">
+        <?= zubbo_csrf_input() ?>
 
         <input
             class="verificar-caixa"
@@ -54,13 +43,7 @@ unset($_SESSION['erro_verificacao']);
             required
         >
 
-        <button 
-            class="verificar-btn" 
-            type="submit"
-        >
-            Verificar e-mail
-        </button>
-
+        <button type="submit" class="verificar-botao">Verificar</button>
     </form>
-
 </main>
+<?php include __DIR__ . '/../includes/footer.php'; ?>

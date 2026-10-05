@@ -1,110 +1,55 @@
 <?php
-
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: cadastro.php');
     exit;
 }
 
+zubbo_require_csrf();
+
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../config/mail.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+$nome = trim((string) ($_POST['name-txt'] ?? ''));
+$email = strtolower(trim((string) ($_POST['email-txt'] ?? '')));
+$telefone = preg_replace('/\D/', '', (string) ($_POST['telefone-tel'] ?? ''));
+$senha = (string) ($_POST['Senha-pass'] ?? '');
+$confirmarSenha = (string) ($_POST['confirmar-senha'] ?? '');
+$dataNascimento = (string) ($_POST['data-nasc'] ?? '');
 
-
-/*
-|--------------------------------------------------------------------------
-| RECEBER DADOS
-|--------------------------------------------------------------------------
-*/
-
-$nome = trim($_POST['name-txt'] ?? '');
-$email = trim($_POST['email-txt'] ?? '');
-$telefone = preg_replace('/\D/', '', $_POST['telefone-tel'] ?? '');
-
-$senha = $_POST['Senha-pass'] ?? '';
-$confirmarSenha = $_POST['confirmar-senha'] ?? '';
-
-$dataNascimento = $_POST['data-nasc'] ?? '';
-
-
-/*
-|--------------------------------------------------------------------------
-| VALIDAR DADOS
-|--------------------------------------------------------------------------
-*/
+if (zubbo_rate_limit_exceeded('cadastro', 5, 3600, $email)) {
+    header('Location: cadastro.php?erro=limite');
+    exit;
+}
 
 if (
-    $nome === '' ||
-    !filter_var($email, FILTER_VALIDATE_EMAIL) ||
-    strlen($telefone) !== 11 ||
-    $senha === '' ||
-    $senha !== $confirmarSenha ||
-    $dataNascimento === ''
+    $nome === ''
+    || mb_strlen($nome) > 100
+    || !filter_var($email, FILTER_VALIDATE_EMAIL)
+    || strlen($telefone) !== 11
+    || strlen($senha) < 8
+    || strlen($senha) > 255
+    || $senha !== $confirmarSenha
+    || $dataNascimento === ''
 ) {
+    zubbo_rate_limit_hit('cadastro', 3600, $email);
     header('Location: cadastro.php?erro=dados');
     exit;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| VERIFICAR SE E-MAIL JÁ EXISTE
-|--------------------------------------------------------------------------
-*/
-
-$stmt = $conn->prepare("
-    SELECT id_user
-    FROM Usuario
-    WHERE email_user = ?
-    LIMIT 1
-");
-
+$stmt = $conn->prepare('SELECT id_user FROM Usuario WHERE email_user = ? LIMIT 1');
 $stmt->execute([$email]);
 
 if ($stmt->fetch()) {
+    zubbo_rate_limit_hit('cadastro', 3600, $email);
     header('Location: cadastro.php?erro=email');
     exit;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| GERAR CÓDIGO
-|--------------------------------------------------------------------------
-*/
-
-$codigo = str_pad(
-    random_int(0, 999999),
-    6,
-    '0',
-    STR_PAD_LEFT
-);
-
-
-/*
-|--------------------------------------------------------------------------
-| CÓDIGO EXPIRA EM 10 MINUTOS
-|--------------------------------------------------------------------------
-*/
-
-$expiracao = date(
-    'Y-m-d H:i:s',
-    strtotime('+10 minutes')
-);
-
-
-/*
-|--------------------------------------------------------------------------
-| GUARDAR CADASTRO TEMPORARIAMENTE NA SESSÃO
-|--------------------------------------------------------------------------
-|
-| IMPORTANTE:
-| O usuário ainda NÃO foi criado no banco.
-|
-*/
+$codigo = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
 $_SESSION['cadastro_pendente'] = [
     'nome' => $nome,
@@ -113,185 +58,36 @@ $_SESSION['cadastro_pendente'] = [
     'senha' => password_hash($senha, PASSWORD_DEFAULT),
     'data_nascimento' => $dataNascimento,
     'codigo' => $codigo,
-    'expiracao' => $expiracao
+    'expiracao' => time() + 600,
+    'tentativas_codigo' => 0,
 ];
 
-
-/*
-|--------------------------------------------------------------------------
-| CONFIGURAR PHPMailer
-|--------------------------------------------------------------------------
-*/
-
-$mail = new PHPMailer(true);
-
 try {
-
-    $mail->isSMTP();
-
-    $mail->Host = 'smtp.gmail.com';
-
-    $mail->SMTPAuth = true;
-
-    $mail->Username = 'zubbosupport@gmail.com';
-
-    $mail->Password = 'xqyp cdic ldtg asyc';
-
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-
-    $mail->Port = 587;
-
-    $mail->CharSet = 'UTF-8';
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | REMETENTE
-    |--------------------------------------------------------------------------
-    */
-
-    $mail->setFrom(
-        'zubbosupport@gmail.com',
-        'Zubbo'
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DESTINATÁRIO
-    |--------------------------------------------------------------------------
-    */
-
-    $mail->addAddress(
-        $email,
-        $nome
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ASSUNTO
-    |--------------------------------------------------------------------------
-    */
-
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    zubbo_configurar_mail($mail);
+    $mail->addAddress($email, $nome);
     $mail->Subject = 'Código de verificação - Zubbo';
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | E-MAIL HTML
-    |--------------------------------------------------------------------------
-    */
-
     $mail->isHTML(true);
 
-    $mail->Body = "
-        <div style='
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: auto;
-            padding: 30px;
-        '>
+    $nomeSeguro = htmlspecialchars($nome, ENT_QUOTES, 'UTF-8');
+    $codigoSeguro = htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8');
 
-            <h2 style='color: #222;'>
-                Verifique seu e-mail
-            </h2>
-
-            <p>
-                Olá, <strong>" .
-                htmlspecialchars($nome, ENT_QUOTES, 'UTF-8') .
-                "</strong>!
-            </p>
-
-            <p>
-                Obrigado por criar sua conta no Zubbo.
-            </p>
-
-            <p>
-                Use o código abaixo para confirmar seu e-mail:
-            </p>
-
-            <div style='
-                background: #f3f4f6;
-                padding: 20px;
-                text-align: center;
-                margin: 25px 0;
-            '>
-
-                <span style='
-                    font-size: 36px;
-                    font-weight: bold;
-                    letter-spacing: 8px;
-                    color: #2563eb;
-                '>
-                    {$codigo}
-                </span>
-
-            </div>
-
-            <p>
-                Este código é válido por
-                <strong>10 minutos</strong>.
-            </p>
-
-            <p>
-                Se você não criou uma conta no Zubbo,
-                ignore este e-mail.
-            </p>
-
-            <br>
-
-            <p>
-                Atenciosamente,<br>
-                <strong>Equipe Zubbo</strong>
-            </p>
-
-        </div>
-    ";
-
-    /*
-    |--------------------------------------------------------------------------
-    | VERSÃO TEXTO
-    |--------------------------------------------------------------------------
-    */
-
-    $mail->AltBody =
-        "Olá, {$nome}!\n\n" .
-        "Seu código de verificação do Zubbo é: {$codigo}\n\n" .
-        "Este código é válido por 10 minutos.\n\n" .
-        "Equipe Zubbo";
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ENVIAR
-    |--------------------------------------------------------------------------
-    */
-
+    $mail->Body =
+        '<h2>Verifique seu e-mail</h2>' .
+        '<p>Olá, <strong>' . $nomeSeguro . '</strong>.</p>' .
+        '<p>Seu código de verificação é <strong>' . $codigoSeguro . '</strong>.</p>' .
+        '<p>Ele expira em 10 minutos.</p>';
+    $mail->AltBody = 'Seu código de verificação do Zubbo é: ' . $codigo . '. Ele expira em 10 minutos.';
     $mail->send();
 
-} catch (Exception $e) {
-
-    /*
-    |--------------------------------------------------------------------------
-    | SE O E-MAIL FALHAR, CANCELAR CADASTRO TEMPORÁRIO
-    |--------------------------------------------------------------------------
-    */
-
+    zubbo_rate_limit_reset('cadastro', $email);
+} catch (Throwable $e) {
+    error_log('Falha ao enviar verificação: ' . $e->getMessage());
     unset($_SESSION['cadastro_pendente']);
-
-    die(
-        'Erro ao enviar o e-mail: ' .
-        htmlspecialchars($mail->ErrorInfo)
-    );
+    zubbo_rate_limit_hit('cadastro', 3600, $email);
+    header('Location: cadastro.php?erro=email_envio');
+    exit;
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| IR PARA VERIFICAÇÃO
-|--------------------------------------------------------------------------
-*/
 
 header('Location: verificar-email.php');
 exit;

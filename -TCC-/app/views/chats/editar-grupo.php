@@ -1,13 +1,6 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
-
+require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../includes/head.php';
-include __DIR__ . '/../../../config/database.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 $id_grupo = (int) ($_GET['id_grupo'] ?? 0);
@@ -117,7 +110,7 @@ $fotoGrupo = $grupo['foto_grupo']
         <div class="grupo-amigos-lista">
             <?php foreach ($participantes as $p): ?>
                 <?php
-                    $foto = $p['foto_user'] ? '/-TCC-/'.$p['foto_user'] : '/-TCC-/public/imagem/blank.png';
+                    $foto = $p['foto_user'] ? zubbo_url('/' . ltrim((string) $p['foto_user'], '/')) : zubbo_url('/public/imagem/blank.png');
                     $criador = (int)$p['id_user'] === $id_usuario;
                 ?>
                 <label class="grupo-amigo-item <?= $criador ? 'grupo-criador-item' : '' ?>">
@@ -150,7 +143,7 @@ $fotoGrupo = $grupo['foto_grupo']
         <?php else: ?>
             <div class="grupo-amigos-lista">
                 <?php foreach ($amigosDisponiveis as $amigo): ?>
-                    <?php $foto = $amigo['foto_user'] ? '/-TCC-/'.$amigo['foto_user'] : '/-TCC-/public/imagem/blank.png'; ?>
+                    <?php $foto = $amigo['foto_user'] ? zubbo_url('/' . ltrim((string) $amigo['foto_user'], '/')) : zubbo_url('/public/imagem/blank.png'); ?>
                     <label class="grupo-amigo-item">
                         <input type="checkbox" name="adicionar[]" value="<?= (int)$amigo['id_user'] ?>">
                         <img src="<?= htmlspecialchars($foto) ?>" alt="" class="grupo-amigo-foto">

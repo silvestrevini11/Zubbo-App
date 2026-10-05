@@ -76,6 +76,7 @@ $fotoGrupo = $grupo['foto_grupo']
     <?php endif; ?>
 
     <form action="salvar-edicao-grupo.php" method="POST" enctype="multipart/form-data" class="grupo-criar-form">
+        <?= zubbo_csrf_input() ?>
         <input type="hidden" name="id_grupo" value="<?= $id_grupo ?>">
 
         <div class="grupo-foto-wrap">

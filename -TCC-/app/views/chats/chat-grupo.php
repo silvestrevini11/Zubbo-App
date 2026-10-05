@@ -67,6 +67,7 @@ $foto = $grupo['foto_grupo']
     </div>
 
     <form action="enviar-mensagem-grupo.php" method="POST" class="chat-form">
+        <?= zubbo_csrf_input() ?>
         <input type="hidden" name="id_conversa" value="<?= $id_conversa ?>">
         <input type="text" name="mensagem" class="chat-input" placeholder="Digite uma mensagem..." autocomplete="off" required>
         <button type="submit" class="chat-enviar">➤</button>

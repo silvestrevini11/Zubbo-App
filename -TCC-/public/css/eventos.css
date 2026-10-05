@@ -77,8 +77,8 @@ html.tema-escuro .evento-aviso-sucesso { background:#203526; color:#98dfaa; }
 .evento-times-preview { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); overflow:hidden; margin-bottom:18px; border:1px solid #252d34; border-radius:18px; background:#151b21; }
 .evento-time-preview + .evento-time-preview { border-left:1px solid rgba(255,255,255,.17); }
 .evento-time-preview > header { display:flex; align-items:center; justify-content:space-between; padding:15px 17px; color:#fff; }
-.evento-time-1 > header { background:linear-gradient(90deg,#237e78,#315c5b); }
-.evento-time-2 > header { background:linear-gradient(90deg,#754141,#a64646); }
+.evento-time-1 > header { background: #ef4b25; color: #ffffff;}
+.evento-time-2 > header { background: #11161b; color: #ffffff;}
 .evento-time-preview header span { display:block; font-size:7px; font-weight:900; letter-spacing:.18em; opacity:.7; }
 .evento-time-preview header h2 { margin:1px 0 0; font-size:16px; }
 .evento-time-preview header > strong { font-size:15px; }
@@ -437,4 +437,69 @@ html.tema-escuro .evento-slot-jogador strong {
 
 html.tema-escuro .evento-slot-jogador small {
     color: #788591;
+}
+
+
+html.tema-escuro .evento-time-1 > header {
+    background: #ef4b25;
+    color: #ffffff;
+}
+
+html.tema-escuro .evento-time-2 > header {
+    background: #11161b;
+    color: #ffffff;
+}
+
+/* =========================================
+   SUA PARTICIPAÇÃO - CONFIRMADA
+   LARANJA ESCURO / TRANSPARENTE
+   ========================================= */
+
+.evento-minha-vaga.confirmada {
+    border-color: rgba(239, 75, 37, 0.45);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(239, 75, 37, 0.16),
+            rgba(154, 48, 23, 0.08)
+        );
+}
+
+.evento-minha-vaga.confirmada span {
+    color: #c94727;
+}
+
+.evento-minha-vaga.confirmada strong {
+    color: #2d2d2d;
+}
+
+.evento-minha-vaga.confirmada small {
+    color: #777;
+}
+
+
+/* TEMA ESCURO */
+
+html.tema-escuro .evento-minha-vaga.confirmada {
+    border-color: rgba(239, 75, 37, 0.45);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(239, 75, 37, 0.18),
+            rgba(89, 32, 20, 0.18)
+        );
+}
+
+html.tema-escuro .evento-minha-vaga.confirmada span {
+    color: #ff7655;
+}
+
+html.tema-escuro .evento-minha-vaga.confirmada strong {
+    color: #f5f5f5;
+}
+
+html.tema-escuro .evento-minha-vaga.confirmada small {
+    color: #a9a9ae;
 }

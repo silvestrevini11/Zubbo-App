@@ -1,17 +1,10 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     exit('Método não permitido.');
 }
-
-require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/_regras-equipes.php';
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
@@ -409,6 +402,7 @@ try {
     }
 
     $conn->commit();
+    $_SESSION['csrf_eventos'] = bin2hex(random_bytes(32));
 } catch (PDOException $e) {
     if ($conn->inTransaction()) {
         $conn->rollBack();

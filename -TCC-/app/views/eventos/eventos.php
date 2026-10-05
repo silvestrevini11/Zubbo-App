@@ -1,12 +1,5 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
-
-require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../middleware/auth.php';
 require_once __DIR__ . '/_regras-equipes.php';
 
 $eventos = [];

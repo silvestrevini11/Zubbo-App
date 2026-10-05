@@ -1,15 +1,44 @@
-/* Escalação interativa inspirada em placares competitivos */
+/* =========================================================
+   LISTA DE PRESENÇA / ESCALAÇÃO
+   TEMA CLARO COMO PADRÃO
+   ========================================================= */
+
 .presenca-container {
     max-width: 1180px;
+
+    /* Tema claro */
+    --score-bg: #ffffff;
+    --score-panel: #f7f7f9;
+    --score-line: #e2e3e7;
+    --score-text: #232328;
+    --score-muted: #717780;
+
+    --time-1: #237e78;
+    --time-1-soft: rgba(35,126,120,.10);
+
+    --time-2: #a64646;
+    --time-2-soft: rgba(166,70,70,.10);
+
+    --pending: #d8a72e;
+    --confirmed: #42a36d;
+}
+
+
+/* Tema escuro */
+
+html.tema-escuro .presenca-container {
     --score-bg: #11161b;
     --score-panel: #1a2128;
     --score-line: rgba(255,255,255,.09);
     --score-text: #f8fafc;
     --score-muted: #9ba6b2;
+
     --time-1: #237e78;
     --time-1-soft: rgba(35,126,120,.22);
+
     --time-2: #a64646;
     --time-2-soft: rgba(166,70,70,.22);
+
     --pending: #d8a72e;
     --confirmed: #6fd09b;
 }
@@ -648,3 +677,294 @@ html.tema-escuro .presenca-legado { border-color:#665a2b; background:#302b1d; co
 
 .presenca-legado form { margin-top:9px; }
 .presenca-legado button { padding:7px 10px; border:1px solid #c9ad50; border-radius:7px; background:transparent; color:inherit; font:inherit; font-size:9px; font-weight:800; cursor:pointer; }
+
+/* =========================================================
+   CORREÇÕES VISUAIS - TEMA CLARO
+   ========================================================= */
+
+.presenca-score-topo {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(239, 75, 37, 0.05),
+            transparent 45%
+        ),
+        var(--score-bg);
+
+    color: var(--score-text);
+}
+
+.presenca-score-numeros span {
+    background: #f6f6f8;
+}
+
+.presenca-instrucoes,
+.presenca-minha-solicitacao {
+    background: var(--score-panel);
+    color: var(--score-text);
+}
+
+.presenca-legenda .livre {
+    background: #ededf0;
+    color: #555b62;
+}
+
+.presenca-legenda .pendente {
+    background: #fff3d2;
+    color: #8c6711;
+}
+
+.presenca-legenda .confirmado {
+    background: #e7f7ed;
+    color: #267846;
+}
+
+
+/* Minha solicitação */
+
+.presenca-minha-solicitacao {
+    background: #fff8e3;
+}
+
+.presenca-minha-solicitacao.confirmada {
+    background: #ebf8ef;
+}
+
+.presenca-minha-solicitacao > div > span {
+    color: #927018;
+}
+
+.presenca-minha-solicitacao.confirmada > div > span {
+    color: #287648;
+}
+
+.presenca-minha-solicitacao button {
+    border-color: #d8d8dd;
+    color: #555;
+}
+
+.presenca-minha-solicitacao button:hover {
+    background: #ededf0;
+}
+
+
+/* Times */
+
+.presenca-times {
+    background: var(--score-bg);
+}
+
+.presenca-time + .presenca-time {
+    border-left-color: #dedfe3;
+}
+
+.presenca-colunas {
+    color: #777e86;
+}
+
+.presenca-slot {
+    color: var(--score-text);
+}
+
+.presenca-slot-numero {
+    color: #808791;
+}
+
+.presenca-slot-avatar {
+    background: #e3e5e8;
+    color: #ffffff;
+}
+
+.presenca-slot-avatar.vazio {
+    border-color: #b9bec4;
+    background: #f8f8fa;
+    color: #858b92;
+}
+
+.presenca-slot-nome strong {
+    color: #28282d;
+}
+
+.presenca-slot-nome small {
+    color: #767d85;
+}
+
+.presenca-slot-status.confirmado {
+    background: #e5f7ec;
+    color: #247445;
+}
+
+.presenca-slot-status.pendente {
+    background: #fff3d4;
+    color: #8b6815;
+}
+
+.presenca-slot-status.livre {
+    background: #eeeeF1;
+    color: #696f76;
+}
+
+.presenca-solicitar {
+    background: #ffffff;
+    color: #52575d;
+    border-color: #d8dade;
+}
+
+.presenca-solicitar:hover {
+    background: #f0f1f3;
+}
+
+
+/* Moderação */
+
+.presenca-moderacao {
+    background: #ffffff;
+    color: #27272c;
+}
+
+.presenca-fila article {
+    border-color: #eceef0;
+}
+
+
+/* =========================================================
+   TEMA ESCURO
+   ========================================================= */
+
+html.tema-escuro .presenca-score-topo {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.05),
+            transparent 45%
+        ),
+        var(--score-bg);
+
+    color: var(--score-text);
+}
+
+html.tema-escuro .presenca-score-numeros span {
+    background: rgba(255,255,255,.04);
+}
+
+html.tema-escuro .presenca-instrucoes {
+    background: #252c33;
+    color: var(--score-text);
+}
+
+html.tema-escuro .presenca-legenda .livre {
+    background: rgba(255,255,255,.08);
+    color: #c8d0d8;
+}
+
+html.tema-escuro .presenca-legenda .pendente {
+    background: rgba(216,167,46,.18);
+    color: #f2cc69;
+}
+
+html.tema-escuro .presenca-legenda .confirmado {
+    background: rgba(111,208,155,.15);
+    color: #8ae4b2;
+}
+
+
+/* Solicitação */
+
+html.tema-escuro .presenca-minha-solicitacao {
+    background: #322c1d;
+    border-color: rgba(216,167,46,.3);
+}
+
+html.tema-escuro .presenca-minha-solicitacao.confirmada {
+    background: #1f3028;
+    border-color: rgba(111,208,155,.3);
+}
+
+html.tema-escuro .presenca-minha-solicitacao > div > span {
+    color: #f2cc69;
+}
+
+html.tema-escuro
+.presenca-minha-solicitacao.confirmada > div > span {
+    color: #8ae4b2;
+}
+
+html.tema-escuro .presenca-minha-solicitacao button {
+    border-color: rgba(255,255,255,.16);
+    color: #ffffff;
+}
+
+html.tema-escuro .presenca-minha-solicitacao button:hover {
+    background: rgba(255,255,255,.07);
+}
+
+
+/* Times */
+
+html.tema-escuro .presenca-time + .presenca-time {
+    border-left-color: rgba(255,255,255,.18);
+}
+
+html.tema-escuro .presenca-colunas {
+    color: #7f8b96;
+}
+
+html.tema-escuro .presenca-slot-numero {
+    color: #80909d;
+}
+
+html.tema-escuro .presenca-slot-avatar {
+    background: #303942;
+}
+
+html.tema-escuro .presenca-slot-avatar.vazio {
+    border-color: #65717b;
+    background: transparent;
+    color: #8b98a3;
+}
+
+html.tema-escuro .presenca-slot-nome strong {
+    color: #f3f5f7;
+}
+
+html.tema-escuro .presenca-slot-nome small {
+    color: #74818c;
+}
+
+html.tema-escuro .presenca-slot-status.confirmado {
+    background: rgba(111,208,155,.15);
+    color: #8ae4b2;
+}
+
+html.tema-escuro .presenca-slot-status.pendente {
+    background: rgba(216,167,46,.17);
+    color: #f2cc69;
+}
+
+html.tema-escuro .presenca-slot-status.livre {
+    background: rgba(255,255,255,.05);
+    color: #84919c;
+}
+
+html.tema-escuro .presenca-solicitar {
+    border-color: rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    color: #e6ebef;
+}
+
+html.tema-escuro .presenca-solicitar:hover {
+    background: rgba(255,255,255,.12);
+}
+
+
+/* Moderação */
+
+html.tema-escuro .presenca-moderacao {
+    background: #222;
+    color: #eee;
+    border-color: #3a3d42;
+}
+
+html.tema-escuro .presenca-fila article {
+    border-color: #383b40;
+}

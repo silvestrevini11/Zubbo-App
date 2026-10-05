@@ -145,3 +145,296 @@ html.tema-escuro .evento-legado-aviso { border-color:#665a2b; background:#302b1d
 @media(max-width:600px) { .eventos-card-rodape,.evento-individual-card { align-items:flex-start; flex-direction:column; } .evento-individual-status { justify-items:start; } }
 
 .evento-legado-aviso form { margin-top:10px; }
+
+/* =========================================================
+   DETALHES DO EVENTO - TEMA CLARO / ESCURO
+   ========================================================= */
+
+/* =========================
+   TEMA CLARO
+   ========================= */
+
+.evento-detalhes-shell {
+    background: #ffffff;
+    color: #202024;
+}
+
+/* Cabeçalho principal */
+
+.evento-score-hero {
+    background: #ffffff;
+    color: #202024;
+
+    border: 1px solid #e6e6eb;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+.evento-score-faixa {
+    background:
+        linear-gradient(
+            130deg,
+            rgba(239, 75, 37, 0.06),
+            transparent 55%
+        );
+
+    border-bottom: 1px solid #e8e8ed;
+}
+
+.evento-score-faixa h1 {
+    color: #202024;
+}
+
+.evento-score-faixa p:last-child {
+    color: #6f7379;
+}
+
+.evento-score-resumo {
+    background: #fafafa;
+}
+
+.evento-score-resumo > div {
+    border-right-color: #e8e8ed;
+}
+
+.evento-score-resumo span {
+    color: #7b7f86;
+}
+
+.evento-score-resumo strong {
+    color: #252529;
+}
+
+
+/* Status */
+
+.evento-score-status {
+    background: #e8f7ed;
+    color: #267843;
+}
+
+.evento-score-status.fechado {
+    background: #fff0ef;
+    color: #b23a32;
+}
+
+
+/* Área da escalação */
+
+.evento-score-acoes {
+    background: #ffffff;
+    border-color: #e3e3e8;
+}
+
+.evento-score-acoes strong {
+    color: #202024;
+}
+
+.evento-score-acoes span {
+    color: #71717a;
+}
+
+
+/* Minha vaga */
+
+.evento-minha-vaga {
+    background: #fff9e8;
+    border-color: #e7ca70;
+}
+
+.evento-minha-vaga strong {
+    color: #252525;
+}
+
+.evento-minha-vaga small {
+    color: #727272;
+}
+
+.evento-minha-vaga.confirmada {
+    background: #effaf2;
+    border-color: #9fd3af;
+}
+
+
+/* Botão secundário */
+
+.evento-botao-secundario {
+    background: #ffffff;
+    color: #555;
+    border-color: #d8d8dd;
+}
+
+.evento-botao-secundario:hover {
+    background: #f5f5f7;
+}
+
+
+/* =========================
+   TIMES - TEMA CLARO
+   ========================= */
+
+.evento-times-preview {
+    background: #ffffff;
+    border-color: #dedee4;
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+.evento-time-preview + .evento-time-preview {
+    border-left-color: #dedee4;
+}
+
+/* Cabeçalhos continuam coloridos */
+
+.evento-time-preview > header {
+    color: #ffffff;
+}
+
+.evento-time-preview li {
+    color: #26262b;
+    border-bottom-color: #ececf0;
+}
+
+.evento-time-preview li.status-pendente {
+    background: #fffaf0;
+}
+
+.evento-time-preview li.status-aprovada {
+    background: #f2faf5;
+}
+
+.evento-slot-numero {
+    color: #81858d;
+}
+
+.evento-slot-avatar {
+    color: #ffffff;
+}
+
+.evento-slot-vazio {
+    background: #f7f7f9;
+    border-color: #c5c8cd;
+    color: #858b92;
+}
+
+.evento-slot-jogador strong {
+    color: #28282d;
+}
+
+.evento-slot-jogador small {
+    color: #777d84;
+}
+
+
+/* =========================================================
+   TEMA ESCURO
+   ========================================================= */
+
+html.tema-escuro .evento-detalhes-shell {
+    background: #171717;
+    color: #f5f5f5;
+}
+
+html.tema-escuro .evento-score-hero {
+    background: #11161b;
+    color: #f7f9fb;
+
+    border-color: #2d343b;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.30);
+}
+
+html.tema-escuro .evento-score-faixa {
+    background:
+        linear-gradient(
+            130deg,
+            rgba(255, 255, 255, 0.05),
+            transparent 55%
+        );
+
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+html.tema-escuro .evento-score-faixa h1 {
+    color: #f7f9fb;
+}
+
+html.tema-escuro .evento-score-faixa p:last-child {
+    color: #9eabb6;
+}
+
+html.tema-escuro .evento-score-resumo {
+    background: #151b21;
+}
+
+html.tema-escuro .evento-score-resumo > div {
+    border-right-color: rgba(255, 255, 255, 0.08);
+}
+
+html.tema-escuro .evento-score-resumo span {
+    color: #778591;
+}
+
+html.tema-escuro .evento-score-resumo strong {
+    color: #f6f8f9;
+}
+
+
+/* Ações */
+
+html.tema-escuro .evento-score-acoes {
+    background: #232323;
+    border-color: #383838;
+}
+
+html.tema-escuro .evento-score-acoes strong {
+    color: #f5f5f5;
+}
+
+html.tema-escuro .evento-score-acoes span {
+    color: #b1b1ba;
+}
+
+
+/* Times */
+
+html.tema-escuro .evento-times-preview {
+    background: #151b21;
+    border-color: #252d34;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+html.tema-escuro .evento-time-preview + .evento-time-preview {
+    border-left-color: rgba(255, 255, 255, 0.17);
+}
+
+html.tema-escuro .evento-time-preview li {
+    color: #f3f6f8;
+    border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+
+html.tema-escuro .evento-time-preview li.status-pendente {
+    background: rgba(205, 157, 39, 0.08);
+}
+
+html.tema-escuro .evento-time-preview li.status-aprovada {
+    background: rgba(84, 181, 126, 0.05);
+}
+
+html.tema-escuro .evento-slot-numero {
+    color: #74818c;
+}
+
+html.tema-escuro .evento-slot-vazio {
+    background: transparent;
+    border-color: #586570;
+    color: #7e8b96;
+}
+
+html.tema-escuro .evento-slot-jogador strong {
+    color: #f3f6f8;
+}
+
+html.tema-escuro .evento-slot-jogador small {
+    color: #788591;
+}

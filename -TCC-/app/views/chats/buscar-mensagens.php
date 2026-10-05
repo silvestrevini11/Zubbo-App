@@ -1,85 +1,41 @@
 <?php
+require_once __DIR__ . '/../../middleware/auth.php';
 
-session_start();
+$idUsuario = (int) $_SESSION['usuario']['id'];
+$idConversa = filter_var($_GET['id_conversa'] ?? null, FILTER_VALIDATE_INT);
 
-if (!isset($_SESSION['usuario'])) {
-    http_response_code(401);
-    exit;
-}
-
-include __DIR__ . '/../../../config/database.php';
-
-$id_usuario = (int) $_SESSION['usuario']['id'];
-$id_conversa = (int) ($_GET['id_conversa'] ?? 0);
-
-if ($id_conversa <= 0) {
+if (!$idConversa || $idConversa < 1) {
     http_response_code(400);
     exit;
 }
 
+$stmt = $conn->prepare(
+    'SELECT 1
+     FROM Participantes_Conversa
+     WHERE id_conversa = ? AND id_user = ?
+     LIMIT 1'
+);
+$stmt->execute([$idConversa, $idUsuario]);
 
-/*
-    Verifica se o usuário pertence à conversa
-*/
-
-$stmt = $conn->prepare("
-    SELECT c.id_conversa
-    FROM Conversa c
-    INNER JOIN Participantes_Conversa pc
-        ON pc.id_conversa = c.id_conversa
-    WHERE c.id_conversa = ?
-      AND pc.id_user = ?
-");
-
-$stmt->execute([
-    $id_conversa,
-    $id_usuario
-]);
-
-if (!$stmt->fetch()) {
+if (!$stmt->fetchColumn()) {
     http_response_code(403);
     exit;
 }
 
-
-/*
-    Busca as mensagens
-*/
-
-$stmt = $conn->prepare("
-    SELECT
-        id_mensagem,
-        id_remetente,
-        mensagem,
-        data_envio
-    FROM Mensagem
-    WHERE id_conversa = ?
-    ORDER BY data_envio ASC, id_mensagem ASC
-");
-
-$stmt->execute([$id_conversa]);
-
+$stmt = $conn->prepare(
+    'SELECT m.id_mensagem, m.id_remetente, m.mensagem, m.data_envio, u.nome_user
+     FROM Mensagem m
+     INNER JOIN Usuario u ON u.id_user = m.id_remetente
+     WHERE m.id_conversa = ?
+     ORDER BY m.data_envio ASC, m.id_mensagem ASC'
+);
+$stmt->execute([$idConversa]);
 $mensagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-/*
-    Informa ao JavaScript quem está logado
-*/
-
 foreach ($mensagens as &$msg) {
-
-    $msg['minha'] =
-        (int) $msg['id_remetente'] === $id_usuario;
-
+    $msg['minha'] = (int) $msg['id_remetente'] === $idUsuario;
 }
-
 unset($msg);
 
-
-/*
-    Retorna JSON
-*/
-
 header('Content-Type: application/json; charset=utf-8');
-
-echo json_encode($mensagens);
+echo json_encode($mensagens, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

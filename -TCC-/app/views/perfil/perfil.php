@@ -1,9 +1,6 @@
-<?php 
-
-include __DIR__ .'/../includes/head.php';
-include __DIR__.'/../../../config/database.php';
-
-session_start();
+<?php
+require_once __DIR__ . '/../../middleware/auth.php';
+include __DIR__ . '/../includes/head.php';
 
 $id_user = (int) $_SESSION['usuario']['id'];
 
@@ -52,8 +49,7 @@ $stmt->execute([$id_user]);
 
 $esportes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-<section style="padding-bottom: 80px;
-}">
+<section style="padding-bottom: 80px;">
 
 <button onclick="window.location.href='./perfil-configuracoes.php';" class="perfil-config"></button>
 <button onclick="window.location.href='./perfil-editar.php';" class="perfil-editar"></button>
@@ -70,11 +66,12 @@ $stmtFoto->execute([$id_user]);
 $usuarioFoto = $stmtFoto->fetch(PDO::FETCH_ASSOC);
 
 $fotoPerfil = !empty($usuarioFoto['foto_user'])
-    ? '/-TCC-/' . $usuarioFoto['foto_user']
-    : '/-TCC-/public/imagem/blank.png';
+    ? zubbo_url('/' . ltrim((string) $usuarioFoto['foto_user'], '/'))
+    : zubbo_url('/public/imagem/blank.png');
 ?>
 
 <form action="upload-foto.php" method="POST" enctype="multipart/form-data">
+    <?= zubbo_csrf_input() ?>
 
     <label for="fotoPerfil" class="perfil-pic-label">
 

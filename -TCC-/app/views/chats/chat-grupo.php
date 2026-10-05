@@ -1,11 +1,6 @@
 <?php
-session_start();
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../includes/head.php';
-include __DIR__ . '/../../../config/database.php';
 
 $id_usuario = (int)$_SESSION['usuario']['id'];
 $id_conversa = (int)($_GET['id_conversa'] ?? 0);
@@ -37,7 +32,9 @@ $stmt = $conn->prepare("
 $stmt->execute([$id_conversa]);
 $mensagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$foto = $grupo['foto_grupo'] ? '/-TCC-/'.$grupo['foto_grupo'] : '/-TCC-/public/imagem/blank.png';
+$foto = $grupo['foto_grupo']
+    ? zubbo_url('/' . ltrim((string) $grupo['foto_grupo'], '/'))
+    : zubbo_url('/public/imagem/blank.png');
 ?>
 <section class="chat-container">
     <header class="chat-header">
@@ -70,6 +67,7 @@ $foto = $grupo['foto_grupo'] ? '/-TCC-/'.$grupo['foto_grupo'] : '/-TCC-/public/i
     </div>
 
     <form action="enviar-mensagem-grupo.php" method="POST" class="chat-form">
+        <?= zubbo_csrf_input() ?>
         <input type="hidden" name="id_conversa" value="<?= $id_conversa ?>">
         <input type="text" name="mensagem" class="chat-input" placeholder="Digite uma mensagem..." autocomplete="off" required>
         <button type="submit" class="chat-enviar">➤</button>

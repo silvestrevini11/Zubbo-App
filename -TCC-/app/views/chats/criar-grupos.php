@@ -1,11 +1,6 @@
 <?php
-session_start();
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../includes/head.php';
-include __DIR__ . '/../../../config/database.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 $erro = $_SESSION['grupo_erro'] ?? '';
@@ -38,9 +33,10 @@ $amigos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endif; ?>
 
     <form action="salvar-grupo.php" method="POST" enctype="multipart/form-data" class="grupo-criar-form">
+        <?= zubbo_csrf_input() ?>
         <div class="grupo-foto-wrap">
             <label for="foto_grupo" class="grupo-foto-label">
-                <img id="preview-grupo" src="/-TCC-/public/imagem/blank.png" alt="Foto do grupo">
+                <img id="preview-grupo" src="<?= htmlspecialchars(zubbo_url('/public/imagem/blank.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Foto do grupo">
                 <span>Adicionar foto</span>
             </label>
             <input type="file" id="foto_grupo" name="foto_grupo" accept="image/png,image/jpeg,image/webp" hidden>
@@ -67,7 +63,7 @@ $amigos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php else: ?>
             <div class="grupo-amigos-lista">
                 <?php foreach ($amigos as $amigo): ?>
-                    <?php $foto = $amigo['foto_user'] ? '/-TCC-/'.$amigo['foto_user'] : '/-TCC-/public/imagem/blank.png'; ?>
+                    <?php $foto = $amigo['foto_user'] ? zubbo_url('/' . ltrim((string) $amigo['foto_user'], '/')) : zubbo_url('/public/imagem/blank.png'); ?>
                     <label class="grupo-amigo-item">
                         <input type="checkbox" name="participantes[]" value="<?= (int)$amigo['id_user'] ?>">
                         <img src="<?= htmlspecialchars($foto) ?>" alt="" class="grupo-amigo-foto">

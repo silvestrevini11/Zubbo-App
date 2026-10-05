@@ -241,13 +241,14 @@ html.tema-escuro .presenca-container {
 }
 
 .presenca-time-1 > header {
-    background: linear-gradient(90deg, var(--time-1), rgba(35,126,120,.65));
+    background: linear-gradient(90deg, #ef4b25, #d93e1b);
+    color: #ffffff;
 }
 
 .presenca-time-2 > header {
-    background: linear-gradient(90deg, rgba(166,70,70,.65), var(--time-2));
+    background: linear-gradient(90deg, #11161b, #1a2128);
+    color: #ffffff;
 }
-
 .presenca-time-identidade span {
     display: block;
     font-size: 8px;
@@ -403,7 +404,7 @@ html.tema-escuro .presenca-container {
 
 .presenca-slot-status.pendente {
     background: rgba(216,167,46,.17);
-    color: #f2cc69;
+    color: #0e0d0d;
 }
 
 .presenca-slot-status.livre {
@@ -413,6 +414,7 @@ html.tema-escuro .presenca-container {
 
 .presenca-solicitar {
     justify-self: end;
+    color: black;
 }
 
 .presenca-solicitar button {
@@ -420,21 +422,27 @@ html.tema-escuro .presenca-container {
     border: 1px solid rgba(255,255,255,.14);
     border-radius: 7px;
     background: rgba(255,255,255,.06);
-    color: #e6ebef;
+    color: #000000;
     font: inherit;
     font-size: 8px;
     font-weight: 900;
     cursor: pointer;
 }
 
+html.tema-escuro .presenca-solicitar{
+    color: white;
+}
+
 .presenca-time-1 .presenca-solicitar button:hover {
     background: var(--time-1);
     border-color: var(--time-1);
+    color: white;
 }
 
 .presenca-time-2 .presenca-solicitar button:hover {
     background: var(--time-2);
     border-color: var(--time-2);
+    color: white;
 }
 
 .presenca-slot-acao {
@@ -482,7 +490,7 @@ html.tema-escuro .presenca-container {
 
 .presenca-moderacao > header span {
     display: block;
-    color: #ff876a;
+    color: rgb(255, 135, 106);
     font-size: 8px;
     font-weight: 900;
     letter-spacing: .15em;
@@ -967,4 +975,74 @@ html.tema-escuro .presenca-moderacao {
 
 html.tema-escuro .presenca-fila article {
     border-color: #383b40;
+}
+/* TEMA ESCURO */
+
+/* TEMA ESCURO */
+
+html.tema-escuro .presenca-time-1 > header {
+    background: #ef4b25;
+    color: #ffffff;
+}
+
+html.tema-escuro .presenca-time-2 > header {
+    background: #11161b;
+    color: #ffffff;
+}
+
+/* =========================================
+   VOCÊ ESTÁ NO JOGO - CONFIRMADO
+   LARANJA ESCURO / TRANSPARENTE
+   ========================================= */
+
+.presenca-minha-solicitacao.confirmada {
+    border-color: rgba(239, 75, 37, 0.45);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(239, 75, 37, 0.16),
+            rgba(154, 48, 23, 0.08)
+        );
+}
+
+.presenca-minha-solicitacao.confirmada > div > span {
+    color: #c94727;
+}
+
+.presenca-minha-solicitacao.confirmada strong {
+    color: #2d2d2d;
+}
+
+.presenca-minha-solicitacao.confirmada small {
+    color: #777;
+}
+
+
+/* TEMA ESCURO */
+
+html.tema-escuro .presenca-minha-solicitacao.confirmada {
+    border-color: rgba(239, 75, 37, 0.45);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(239, 75, 37, 0.18),
+            rgba(89, 32, 20, 0.18)
+        );
+}
+
+html.tema-escuro
+.presenca-minha-solicitacao.confirmada > div > span {
+    color: #ff7655;
+}
+
+html.tema-escuro
+.presenca-minha-solicitacao.confirmada strong {
+    color: #f5f5f5;
+}
+
+html.tema-escuro
+.presenca-minha-solicitacao.confirmada small {
+    color: #a9a9ae;
 }

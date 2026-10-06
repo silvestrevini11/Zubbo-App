@@ -29,10 +29,6 @@ include __DIR__.'/../../../config/database.php';
     <h2 class="pesquisa-poles">Poles</h2>
     <hr class="perfil-hr">
 
-
-    <h2 class="pesquisa-comunidade">Comunidades</h2>
-    <hr class="perfil-hr">
-
 </section>
 
 

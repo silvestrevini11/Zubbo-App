@@ -21,7 +21,7 @@ include __DIR__.'/../../../config/database.php';
     <div id="resultadosEventos" class="resultados-eventos"></div>
 </section>
 
-<script src="/../-TCC-/public/js/pesquisa.js"></script>
+<script src="../../../public/js/pesquisa.js"></script>
 
 <?php
 include __DIR__ . '/../../views/includes/under-bar.php';

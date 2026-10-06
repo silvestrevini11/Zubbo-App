@@ -70,13 +70,19 @@ pesquisaInput.addEventListener('input', function () {
                 resultadosPoles.innerHTML = mensagemSemResultado('Nenhum pole encontrado.');
             } else {
                 poles.forEach(pole => {
-                    const resultado = document.createElement('div');
+                    const resultado = document.createElement('a');
+                    const parametros = new URLSearchParams({
+                        id_local: pole.id_local,
+                        local: pole.nome_local
+                    });
 
                     resultado.className = 'resultado-pole';
+                    resultado.href = '../painel/Painel-inicial.php?' + parametros.toString();
 
                     resultado.innerHTML = `
                         <strong>${pole.nome_local}</strong>
                         <span>${pole.endereco_local}</span>
+                        <small>Clique para ver no mapa</small>
                     `;
 
                     resultadosPoles.appendChild(resultado);

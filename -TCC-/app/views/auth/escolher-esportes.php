@@ -45,7 +45,7 @@ include __DIR__ . '/../includes/head.php';
                         'Corrida'  => 'esporte-corrida',
                         'Futsal'   => 'esporte-futsal',
                         'Handebol' => 'esporte-handebol',
-                        default    => '';
+                        default    => '',
                     };
                 ?>
 

@@ -178,6 +178,7 @@ include __DIR__ . '/../includes/head.php';
 
   const locaisMapa = <?= json_encode($locaisMapa, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE) ?>;
   const erroLocaisMapa = <?= $erroLocaisMapa ? 'true' : 'false' ?>;
+  const localSelecionadoId = new URLSearchParams(window.location.search).get('id_local');
   const statusMapa = document.getElementById('painel-status-mapa');
 
   async function carregarMarcadoresLocais() {
@@ -220,10 +221,23 @@ include __DIR__ . '/../includes/head.php';
             coordenadas[1] < limitesDiadema[0][1] || coordenadas[1] > limitesDiadema[1][1]) {
           throw new Error('Endereço não localizado em Diadema');
         }
-        new mapboxgl.Marker({ color: '#ef4b25' })
+        const marcador = new mapboxgl.Marker({ color: '#ef4b25' })
           .setLngLat(coordenadas)
           .setPopup(criarPopupLocal(local.nome_local, local.endereco_local))
           .addTo(map);
+
+        if (localSelecionadoId && String(local.id_local) === String(localSelecionadoId)) {
+          map.flyTo({
+            center: coordenadas,
+            zoom: 17,
+            speed: 1.2,
+            essential: true
+          });
+
+          marcador.togglePopup();
+          statusMapa.textContent = 'Local encontrado: ' + local.nome_local;
+        }
+
         adicionados++;
       } catch (erro) {
         falhas++;

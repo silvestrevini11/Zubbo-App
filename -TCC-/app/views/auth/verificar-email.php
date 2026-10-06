@@ -43,7 +43,7 @@ unset($_SESSION['erro_verificacao']);
             required
         >
 
-        <button type="submit" class="verificar-botao">Verificar</button>
+        <button type="submit" class="verificar-btn">Verificar</button>
     </form>
 </main>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

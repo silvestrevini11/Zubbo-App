@@ -6983,11 +6983,14 @@ html.tema-escuro .recuperacao-link-teste {
 }
 
 .resultado-pole {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    padding: 16px 18px;
-    border: 1px solid #e7e7eb;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    width: calc(100% - 40px);
+    margin: 0 20px;
+    padding: 16px 18px !important;
+    border: 1px solid #e7e7eb !important;
+    border-left: 4px solid #ef4b25 !important;
     border-radius: 15px;
     background: #ffffff;
     color: #202024;
@@ -7008,6 +7011,7 @@ html.tema-escuro .recuperacao-link-teste {
 }
 
 .resultado-pole strong {
+    display: block;
     font-size: 16px;
     font-weight: 700;
 }

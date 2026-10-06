@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -34,50 +33,37 @@ include __DIR__ . '/../includes/head.php';
 
         <div class="esportes-grid">
 
- <?php
-$imagensEsportes = [
-    'Basquete' => 'basquete.png',
-    'Futebol'  => 'futebol.png',
-    'Futsal'   => 'futsal.png',
-    'Handebol' => 'handebol.png',
-    'Vôlei'    => 'volei.png',
-    'Corrida'  => 'corrida.png',
-];
-?>
+            <?php foreach ($esportes as $esporte): ?>
 
-<?php foreach ($esportes as $esporte): ?>
+                <?php
+                    $nome = $esporte['nome_esporte'];
 
-    <?php
-        $nome = $esporte['nome_esporte'];
-        $imagem = $imagensEsportes[$nome] ?? null;
-    ?>
+                    $classeEsporte = match ($nome) {
+                        'Futebol'  => 'esporte-futebol',
+                        'Basquete' => 'esporte-basquete',
+                        'Vôlei'    => 'esporte-volei',
+                        'Corrida'  => 'esporte-corrida',
+                        'Futsal'   => 'esporte-futsal',
+                        'Handebol' => 'esporte-handebol',
+                        default    => '';
+                    };
+                ?>
 
-    <label class="esporte-card">
+                <label class="esporte-card <?= htmlspecialchars($classeEsporte) ?>">
 
-        <input
-            type="checkbox"
-            name="esportes[]"
-            value="<?= $esporte['id_esporte'] ?>"
-        >
+                    <input
+                        type="checkbox"
+                        name="esportes[]"
+                        value="<?= (int) $esporte['id_esporte'] ?>"
+                    >
 
-        <?php if ($imagem): ?>
-            <span class="esporte-emoji">
-                <img class="esporte-img"
-                    src="/-tcc-/public/imagem/<?= htmlspecialchars($imagem) ?>"
-                    alt="<?= htmlspecialchars($nome) ?>"
-                >
-            </span>
-        <?php endif; ?>
+                    <span class="esporte-nome">
+                        <?= htmlspecialchars($nome) ?>
+                    </span>
 
-        <span class="esporte-nome">
-            <?= htmlspecialchars($nome) ?>
-        </span>
+                </label>
 
-    </label>
-
-<?php endforeach; ?>
-
-
+            <?php endforeach; ?>
 
         </div>
 
@@ -90,4 +76,3 @@ $imagensEsportes = [
 </main>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
-

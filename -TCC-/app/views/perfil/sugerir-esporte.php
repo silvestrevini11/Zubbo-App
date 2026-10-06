@@ -79,7 +79,7 @@ include __DIR__ . '/../includes/head.php';
 
     <?php if ($sucesso): ?>
         <p class="suporte-mensagem suporte-mensagem-sucesso" role="status">
-            Sugestão enviada! Ela já está disponível no painel administrativo para análise.
+            Sugestão enviada! O administrador já está revisando a sugestão!.
         </p>
     <?php endif; ?>
 

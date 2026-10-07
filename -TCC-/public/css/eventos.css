@@ -58,6 +58,7 @@ html.tema-escuro .evento-aviso-sucesso { background:#203526; color:#98dfaa; }
 .evento-score-faixa h1 { margin:4px 0 7px; font-size:clamp(28px,4vw,42px); line-height:1.05; }
 .evento-score-faixa p:last-child { margin:0; color:#9eabb6; font-size:12px; }
 .evento-score-status { padding:7px 10px; border-radius:7px; background:#255d48; color:#93e0b7; font-size:9px; font-weight:900; letter-spacing:.1em; }
+html.tema-escuro .evento-score-status {color: #237e78;}
 .evento-score-status.fechado { background:#52312f; color:#ffaaa3; }
 .evento-score-resumo { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); }
 .evento-score-resumo > div { min-width:0; padding:14px 18px; border-right:1px solid rgba(255,255,255,.08); }

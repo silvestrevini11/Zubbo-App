@@ -3650,12 +3650,17 @@ html.tema-escuro .seletor-tipo {
 }
 
 .seletor-tipo .opcao {
+    color: black;
     position: relative;
     z-index: 1;
     flex: 1;
     border: 0;
     background: transparent;
     cursor: pointer;
+}
+
+html.tema-escuro .seletor-tipo .opcao {
+    color: white;
 }
 
 .seletor-tipo .opcao:nth-child(2).ativa ~ .seletor-indicador {
@@ -6454,11 +6459,40 @@ html.tema-escuro .grupo-criador-badge {
 }
 .amigos-titulo {
     text-align: center;
-    margin-top: 35px;
+    margin-top: 45px;
     color: #ff4b2b;
 }
 html.tema-escuro .amigos-titulo {
     color: #ff4b2b;
+}
+.amigos-head{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 4%;
+    margin-top: 3%;
+}
+
+.amigos-lista{
+    position: relative;
+    display: flex;
+    justify-content:flex-start;
+    align-items: center;
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    max-width: 85%;
+    margin-left:7.5%;
+
+    text-decoration: none;
+    color: inherit;
+
+    background-color: rgb(50,50,50);
+
+    border-radius: 12px;
 }
 
 /* =========================================
@@ -6979,7 +7013,7 @@ html.tema-escuro .recuperacao-link-teste {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin: 16px 20px 28px;
+    margin: 16px 20px 1px;
 }
 
 .resultado-pole {
@@ -6987,7 +7021,7 @@ html.tema-escuro .recuperacao-link-teste {
     flex-direction: column !important;
     gap: 5px !important;
     width: calc(100% - 40px);
-    margin: 0 20px;
+    margin: 0px 20px 5px;
     padding: 16px 18px !important;
     border: 1px solid #e7e7eb !important;
     border-left: 4px solid #ef4b25 !important;
@@ -7045,6 +7079,74 @@ html.tema-escuro .resultado-pole:hover {
 
 @media (max-width: 600px) {
     .resultados-poles {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+}
+
+.resultado-evento {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+    width: calc(100% - 40px);
+    margin: 0px 20px 5px;
+    padding: 16px 18px !important;
+    border: 1px solid #e7e7eb !important;
+    border-left: 4px solid #ef4b25 !important;
+    border-radius: 15px;
+    background: #ffffff;
+    color: #202024;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.resultado-evento:hover {
+    transform: translateY(-2px);
+    border-color: #ef4b25;
+    box-shadow: 0 7px 18px rgba(0, 0, 0, 0.08);
+}
+
+.resultado-evento:active {
+    transform: scale(.99);
+}
+
+.resultado-evento strong {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.resultado-evento span {
+    color: #6d6d75;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.resultado-evento small {
+    margin-top: 4px;
+    color: #ef4b25;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+html.tema-escuro .resultado-evento {
+    border-color: #383838;
+    background: #232323;
+    color: #f5f5f5;
+}
+
+html.tema-escuro .resultado-evento span {
+    color: #b1b1ba;
+}
+
+html.tema-escuro .resultado-evento:hover {
+    border-color: #ef4b25;
+}
+
+@media (max-width: 600px) {
+    .resultados-evento {
         margin-left: 16px;
         margin-right: 16px;
     }

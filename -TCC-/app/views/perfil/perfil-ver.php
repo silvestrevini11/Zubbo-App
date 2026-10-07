@@ -168,14 +168,7 @@ include __DIR__ . '/../includes/head.php';
     </div>
 </div>
 
-<div class="perfil-organiza-eventos">
-    <h2>Eventos que organizei</h2>
-    <p>Ver Todos</p>
 
-    <section class="perfil-eventos-idos">
-        <!--para fazer ainda-->
-    </section>
-</div>
 
 </section>
 <?php

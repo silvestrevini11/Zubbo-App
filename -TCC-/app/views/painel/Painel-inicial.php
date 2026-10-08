@@ -269,8 +269,6 @@ include __DIR__ . '/../includes/head.php';
   });
 </script>
 
-
-
 <section class="painel-eventos-lista" aria-labelledby="painel-eventos-titulo">
     <div class="painel-eventos-cabecalho">
         <h2 id="painel-eventos-titulo">Próximos eventos<?= $filtroEvento !== 'todos' ? ' de ' . escaparPainelEvento($filtrosEventos[$filtroEvento]) : '' ?></h2>

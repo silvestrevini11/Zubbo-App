@@ -49,6 +49,13 @@ include __DIR__ . '/../includes/head.php';
 
 <section class="amigos-container">
 
+<button
+        class="btn-voltar"
+        onclick="window.location.href='perfil.php'"
+    >
+        ←
+    </button>
+
     <h1 class="amigos-titulo">
         Meus Amigos
     </h1>

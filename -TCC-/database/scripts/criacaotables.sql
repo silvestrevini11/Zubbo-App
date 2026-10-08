@@ -30,6 +30,9 @@ CREATE TABLE Usuario (
     status_user ENUM('ativo', 'suspenso', 'banido') NOT NULL DEFAULT 'ativo'
 );
 
+ALTER TABLE Usuario
+ADD COLUMN sobre_mim TEXT NULL AFTER nome_user;
+
 ALTER TABLE Administrador
     ADD CONSTRAINT fk_admin_usuario
     FOREIGN KEY (id_user)

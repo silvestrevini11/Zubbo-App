@@ -950,6 +950,9 @@ html.tema-escuro .btn-criar-init{
 
     text-align: center;
 }
+html.tema-escuro .title-cad{
+    color: white;
+}
 
 
 /* =====================================================
@@ -971,6 +974,9 @@ html.tema-escuro .btn-criar-init{
     text-align: center;
 }
 
+html.tema-escuro .desc-cad {
+    color:#ef4b25 ;
+}
 
 /* =====================================================
    CAMPOS
@@ -1426,6 +1432,10 @@ html.tema-escuro .opcao-cad.selecionada{
     font-weight: 600;
 
     text-decoration: none;
+}
+
+html.tema-escuro .enter-cad a{
+    color: #ef4b25;
 }
 
 

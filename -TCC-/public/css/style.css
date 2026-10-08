@@ -7703,3 +7703,42 @@ html.tema-escuro .notificacoes-vazio {
         font-size: 13px;
     }
 }
+
+.editar-dados-form textarea {
+    width: 100%;
+    min-height: 120px;
+
+    padding: 12px;
+
+    box-sizing: border-box;
+
+    resize: vertical;
+
+    border: 1px solid #ddd;
+    border-radius: 10px;
+
+    background: #fff;
+    color: #222;
+
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+
+    outline: none;
+
+    transition: border-color 0.2s ease;
+}
+
+.editar-dados-form textarea:focus {
+    border-color: #ff7a00;
+}
+
+html.tema-escuro .editar-dados-form textarea {
+    background: #252525;
+    border-color: #444;
+    color: #fff;
+}
+
+html.tema-escuro .editar-dados-form textarea::placeholder {
+    color: #888;
+}

@@ -1,0 +1,185 @@
+<?php
+require_once __DIR__ . '/../../middleware/auth.php';
+include __DIR__ . '/../includes/head.php';
+
+$id_user = (int) $_SESSION['usuario']['id'];
+
+$stmtUsuario = $conn->prepare("
+    SELECT nome_user, email_user, sobre_mim
+    FROM Usuario
+    WHERE id_user = ?
+");
+
+$stmtUsuario->execute([$id_user]);
+
+$usuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
+
+
+/*
+ * Conta quantos amigos o usuário possui
+ */
+$stmtAmigos = $conn->prepare("
+    SELECT COUNT(*)
+    FROM Amizade
+    WHERE id_user_1 = ?
+       OR id_user_2 = ?
+");
+
+$stmtAmigos->execute([
+    $id_user,
+    $id_user
+]);
+
+$quantidadeAmigos = (int) $stmtAmigos->fetchColumn();
+
+
+/*
+ * Busca os esportes do usuário
+ */
+$stmt = $conn->prepare("
+    SELECT e.nome_esporte
+    FROM Esporte e
+    INNER JOIN Usuario_Esporte ue
+        ON e.id_esporte = ue.id_esporte
+    WHERE ue.id_user = ?
+    ORDER BY e.nome_esporte
+");
+
+$stmt->execute([$id_user]);
+
+$esportes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+<section style="padding-bottom: 80px;">
+
+<button onclick="window.location.href='./perfil-configuracoes.php';" class="perfil-config"></button>
+<button onclick="window.location.href='./perfil-editar.php';" class="perfil-editar"></button>
+
+<?php
+    $stmtFoto = $conn->prepare("
+    SELECT foto_user
+    FROM Usuario
+    WHERE id_user = ?
+");
+
+$stmtFoto->execute([$id_user]);
+
+$usuarioFoto = $stmtFoto->fetch(PDO::FETCH_ASSOC);
+
+$fotoPerfil = !empty($usuarioFoto['foto_user'])
+    ? zubbo_url('/' . ltrim((string) $usuarioFoto['foto_user'], '/'))
+    : zubbo_url('/public/imagem/blank.png');
+?>
+
+<form action="upload-foto.php" method="POST" enctype="multipart/form-data">
+    <?= zubbo_csrf_input() ?>
+
+    <label for="fotoPerfil" class="perfil-pic-label">
+
+        <img
+            class="perfil-pic"
+            src="<?= htmlspecialchars($fotoPerfil) ?>"
+            alt="Foto de perfil"
+        >
+
+    </label>
+
+    <input
+        type="file"
+        id="fotoPerfil"
+        name="fotoPerfil"
+        accept="image/png, image/jpeg, image/webp"
+        hidden
+    >
+
+</form>
+
+<script>
+const inputFoto = document.getElementById('fotoPerfil');
+
+inputFoto.addEventListener('change', function () {
+
+    if (this.files.length > 0) {
+        this.form.submit();
+    }
+
+});
+</script>
+
+<h1 class="perfil-nome">
+    <?= htmlspecialchars($usuario['nome_user']) ?>
+</h1>
+
+<h3 class="perfil-email">
+    <?= htmlspecialchars($usuario['email_user']) ?>
+</h3>
+
+
+<div class="perfil-nivel">
+    <p class="perfil-nivel-nome">Nivel-Inciante</p>
+</div>
+
+<div class="perfil-status">
+    <div class="perfil-eventos">
+        <h3 class="perfil-name">Eventos</h3>
+        <h2 class="perfil-eventos-num">0</h2>
+    </div>
+    <a href="amigos.php" class="perfil-amigos">
+
+    <h3 class="perfil-name">Amigos</h3>
+
+    <h2 class="perfil-amigos-num">
+        <?= $quantidadeAmigos ?>
+    </h2>
+
+</a>
+</div>
+
+<div class="perfil-sobre">
+    <h2 class="perfil-sobremim">Sobre Mim</h2>
+
+    <p class="perfil-sobremim-texto">
+        <?= !empty($usuario['sobre_mim'])
+            ? nl2br(htmlspecialchars($usuario['sobre_mim']))
+            : 'Este usuário ainda não adicionou uma descrição.' ?>
+    </p>
+</div>
+
+<div class="perfil-esportes">
+
+    <h2>Meus Esportes</h2>
+
+    <div class="esportes-lista">
+
+        <?php foreach ($esportes as $esporte): ?>
+
+            <?php
+                $nome = $esporte['nome_esporte'];
+
+                $classe = match ($nome) {
+                    'Futebol' => 'esporte-futebol',
+                    'Basquete' => 'esporte-basquete',
+                    'Vôlei' => 'esporte-volei',
+                    'Tênis' => 'esporte-tenis',
+                    'Futsal' => 'esporte-futesal',
+                    'Corrida' => 'esporte-corrida',
+                    'Handebol' => 'esporte-handebol',
+                    default => 'esporte-outro'
+                };
+            ?>
+
+            <div class="esporte-card <?= $classe ?>">
+                <span class="esporte-card-txt"><?= htmlspecialchars($nome) ?></span>
+            </div>
+
+        <?php endforeach; ?>
+
+    </div>
+
+</div>
+
+
+</section>
+<?php
+include __DIR__ . '/../../views/includes/under-bar.php';
+include __DIR__ . '/../../views/includes/footer.php';
+?>

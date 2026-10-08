@@ -7151,3 +7151,555 @@ html.tema-escuro .resultado-evento:hover {
         margin-right: 16px;
     }
 }
+
+.mapboxgl-popup-content {
+    color: #222 !important;
+    background: #fff !important;
+    border-radius: 10px;
+}
+
+.mapboxgl-popup-content strong {
+    color: #222 !important;
+    font-size: 16px;
+}
+
+.mapboxgl-popup-content p {
+    color: #555 !important;
+}
+
+/* =========================
+   LISTA DE AMIGOS
+========================= */
+
+.amigos-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 25px 20px 100px;
+    box-sizing: border-box;
+}
+
+.amigos-titulo {
+    margin: 0 0 25px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #222;
+}
+
+/* Lista */
+
+.amigos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Cada amigo */
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    width: 100%;
+    padding: 12px 14px;
+
+    box-sizing: border-box;
+
+    text-decoration: none;
+    color: inherit;
+
+    background: #fff;
+    border: 1px solid #eeeeee;
+    border-radius: 14px;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.chat-item:hover {
+    transform: translateY(-2px);
+
+    border-color: #ff7a00;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Foto */
+
+.chat-item-foto {
+    width: 52px;
+    height: 52px;
+
+    min-width: 52px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+    border: 2px solid #ff7a00;
+
+    background: #f2f2f2;
+}
+
+/* Nome */
+
+.chat-item-info {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.chat-item-info strong {
+    font-size: 16px;
+    font-weight: 600;
+
+    color: #222;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Linha */
+
+.perfil-hr {
+    display: none;
+}
+
+/* Mensagem quando não possui amigos */
+
+.amigos-container > p {
+    margin: 0;
+    padding: 25px;
+
+    text-align: center;
+
+    color: #777;
+
+    background: #fff;
+    border: 1px solid #eeeeee;
+    border-radius: 14px;
+}
+
+
+/* =========================
+   TEMA ESCURO
+========================= */
+
+.tema-escuro .amigos-titulo {
+    color: #fff;
+}
+
+.tema-escuro .chat-item {
+    background: #1e1e1e;
+    border-color: #333;
+}
+
+.tema-escuro .chat-item:hover {
+    border-color: #ff7a00;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.tema-escuro .chat-item-info strong {
+    color: #fff;
+}
+
+.tema-escuro .amigos-container > p {
+    color: #aaa;
+    background: #1e1e1e;
+    border-color: #333;
+}
+
+
+/* =========================
+   CELULAR
+========================= */
+
+@media (max-width: 450px) {
+
+    .amigos-container {
+        padding: 20px 14px 100px;
+    }
+
+    .amigos-titulo {
+        font-size: 23px;
+        margin-bottom: 20px;
+    }
+
+    .chat-item {
+        padding: 11px 12px;
+        gap: 12px;
+        border-radius: 12px;
+    }
+
+    .chat-item-foto {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+    }
+
+    .chat-item-info strong {
+        font-size: 15px;
+    }
+}
+
+/* =========================================
+   NOTIFICAÇÕES
+========================================= */
+
+.notificacoes-container {
+    width: 100%;
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 20px 20px 100px;
+    box-sizing: border-box;
+}
+
+.notificacoes-titulo {
+    margin: 0 0 25px;
+    padding-top: 40px;
+
+    font-size: 27px;
+    font-weight: 700;
+
+    color: #222;
+}
+
+/* Botão voltar */
+
+.btn-voltar {
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #f2f2f2;
+    color: #333;
+
+    font-size: 22px;
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.btn-voltar:hover {
+    background: #ff7a00;
+    color: #fff;
+    transform: translateX(-2px);
+}
+
+
+/* =========================================
+   LISTA
+========================================= */
+
+.notificacoes-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+/* =========================================
+   NOTIFICAÇÃO
+========================================= */
+
+.notificacao-item {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    min-height: 76px;
+
+    padding: 12px 14px;
+
+    box-sizing: border-box;
+
+    background: #fff;
+
+    border: 1px solid #eeeeee;
+    border-radius: 15px;
+
+    gap: 13px;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.notificacao-item:hover {
+    transform: translateY(-2px);
+
+    border-color: #ff7a00;
+
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================
+   NOTIFICAÇÃO NÃO LIDA
+========================================= */
+
+.notificacao-item.nao-lida {
+    border-left: 4px solid #ff7a00;
+    background: #fffaf7;
+}
+
+
+/* =========================================
+   LINK DE MENSAGEM
+========================================= */
+
+.notificacao-link {
+    display: flex;
+    align-items: center;
+
+    flex: 1;
+    min-width: 0;
+
+    gap: 13px;
+
+    color: inherit;
+    text-decoration: none;
+}
+
+
+/* =========================================
+   FOTO
+========================================= */
+
+.notificacao-foto {
+    width: 52px;
+    height: 52px;
+
+    min-width: 52px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+    border: 2px solid #ff7a00;
+
+    background: #f2f2f2;
+}
+
+
+/* =========================================
+   INFORMAÇÕES
+========================================= */
+
+.notificacao-info {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    flex: 1;
+}
+
+.notificacao-nome-user {
+    color: #222;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    margin-bottom: 2px;
+}
+
+.notificacao-env-men {
+    color: #666;
+
+    font-size: 14px;
+    line-height: 1.3;
+}
+
+
+/* =========================================
+   MENSAGEM
+========================================= */
+
+.notificacao-mensagem {
+    margin: 5px 0 0;
+
+    color: #777;
+
+    font-size: 13px;
+    line-height: 1.3;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   BOTÃO ACEITAR
+========================================= */
+
+.notificacao-item form {
+    margin-left: auto;
+
+    flex-shrink: 0;
+}
+
+.notificacao-item form button {
+    border: none;
+
+    padding: 9px 17px;
+
+    border-radius: 9px;
+
+    background: #ff7a00;
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.notificacao-item form button:hover {
+    background: #f04b24;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 4px 10px rgba(255, 122, 0, 0.25);
+}
+
+.notificacao-item form button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================
+   SEM NOTIFICAÇÕES
+========================================= */
+
+.notificacoes-vazio {
+    padding: 30px 20px;
+
+    margin: 0;
+
+    text-align: center;
+
+    color: #777;
+
+    background: #fff;
+
+    border: 1px solid #eeeeee;
+    border-radius: 15px;
+}
+
+
+/* =========================================
+   TEMA ESCURO
+========================================= */
+
+html.tema-escuro .notificacoes-titulo {
+    color: #fff;
+}
+
+html.tema-escuro .btn-voltar {
+    background: #292929;
+    color: #fff;
+}
+
+html.tema-escuro .btn-voltar:hover {
+    background: #ff7a00;
+    color: #fff;
+}
+
+html.tema-escuro .notificacao-item {
+    background: #1e1e1e;
+
+    border-color: #333;
+}
+
+html.tema-escuro .notificacao-item:hover {
+    border-color: #ff7a00;
+
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.35);
+}
+
+html.tema-escuro .notificacao-item.nao-lida {
+    background: #241e1a;
+    border-left-color: #ff7a00;
+}
+
+html.tema-escuro .notificacao-nome-user {
+    color: #fff;
+}
+
+html.tema-escuro .notificacao-env-men {
+    color: #aaa;
+}
+
+html.tema-escuro .notificacao-mensagem {
+    color: #999;
+}
+
+html.tema-escuro .notificacoes-vazio {
+    color: #aaa;
+
+    background: #1e1e1e;
+    border-color: #333;
+}
+
+
+/* =========================================
+   CELULAR
+========================================= */
+
+@media (max-width: 450px) {
+
+    .notificacoes-container {
+        padding: 15px 14px 100px;
+    }
+
+    .notificacoes-titulo {
+        font-size: 23px;
+        margin-bottom: 20px;
+    }
+
+    .notificacao-item {
+        padding: 11px;
+        gap: 10px;
+
+        min-height: 70px;
+    }
+
+    .notificacao-foto {
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+    }
+
+    .notificacao-nome-user {
+        font-size: 15px;
+    }
+
+    .notificacao-env-men {
+        font-size: 13px;
+    }
+
+    .notificacao-mensagem {
+        font-size: 12px;
+    }
+
+    .notificacao-item form button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}

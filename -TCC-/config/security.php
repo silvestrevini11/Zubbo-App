@@ -7,27 +7,35 @@ function zubbo_is_https(): bool
         || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
 }
 
+
 function zubbo_base_path(): string
 {
     $configured = trim((string) getenv('ZUBBO_BASE_PATH'));
+
     if ($configured !== '') {
         return '/' . trim($configured, '/');
     }
 
     $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
-    $marker = '/-TCC-/';
-    $pos = strpos($script, $marker);
+
+    // Procura -tcc- sem diferenciar maiúsculas de minúsculas.
+    $pos = stripos($script, '/-tcc-/');
 
     if ($pos !== false) {
-        return rtrim(substr($script, 0, $pos + strlen('/-TCC-')), '/');
+        return rtrim(substr($script, 0, $pos + strlen('/-tcc-')), '/');
     }
 
-    if (str_ends_with($script, '/-TCC-')) {
-        return rtrim($script, '/');
+    if (stripos($script, '/-tcc-') !== false) {
+        $pos = stripos($script, '/-tcc-');
+
+        if ($pos !== false) {
+            return rtrim(substr($script, 0, $pos + strlen('/-tcc-')), '/');
+        }
     }
 
-    return '/-TCC-';
+    return '/-tcc-';
 }
+
 
 function zubbo_url(string $path = ''): string
 {

@@ -15,7 +15,7 @@ if (empty($_SESSION['csrf_token'])) {
 $id_user = (int) $_SESSION['usuario']['id'];
 
 $stmt = $conn->prepare("
-    SELECT nome_user, email_user, tel_user, date_user
+    SELECT nome_user, email_user, tel_user, date_user, sobre_mim
     FROM Usuario
     WHERE id_user = ?
     LIMIT 1
@@ -41,6 +41,7 @@ $esportesUsuario = $stmtEsportes->fetchAll(PDO::FETCH_COLUMN);
 
 $mensagensSucesso = [
     'nome' => 'Nome alterado com sucesso.',
+    'sobre_mim' => 'Sobre Mim alterado com sucesso.',
     'email' => 'E-mail alterado com sucesso.',
     'telefone' => 'Telefone alterado com sucesso.',
     'senha' => 'Senha alterada com sucesso.',
@@ -51,6 +52,7 @@ $mensagensSucesso = [
 $mensagensErro = [
     'csrf' => 'Sua sessão expirou. Atualize a página e tente novamente.',
     'nome' => 'Informe um nome válido entre 3 e 50 caracteres.',
+    'sobre_mim' => 'O Sobre Mim pode ter no máximo 500 caracteres.',
     'email' => 'Informe um e-mail válido.',
     'email_existente' => 'Este e-mail já está sendo usado por outra conta.',
     'telefone' => 'Informe um telefone com 11 números, incluindo o DDD.',
@@ -104,6 +106,30 @@ include __DIR__ . '/../includes/head.php';
                 required
             >
             <button class="editar-campo-btn" type="submit">Alterar nome</button>
+        </form>
+
+        <form class="editar-dados-form" action="atualizar-dados.php" method="post">
+             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+            <input type="hidden" name="acao" value="sobre_mim">
+
+        <label for="editar-sobre-mim">Sobre Mim</label>
+
+        <textarea
+            id="editar-sobre-mim"
+            name="sobre_mim"
+            maxlength="500"
+            rows="5"
+            placeholder="Conte um pouco sobre você..."
+        ><?= htmlspecialchars($usuario['sobre_mim'] ?? '') ?></textarea>
+
+        <small>
+            Conte um pouco sobre você, seus interesses ou seu estilo de jogo.
+            Máximo de 500 caracteres.
+        </small>
+
+            <button class="editar-campo-btn" type="submit">
+                Alterar Sobre Mim
+            </button>
         </form>
 
         <form class="editar-dados-form" action="atualizar-dados.php" method="post">

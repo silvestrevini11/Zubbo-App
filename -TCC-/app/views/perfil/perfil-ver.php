@@ -26,7 +26,7 @@ if ($id_user === $id_logado) {
 }
 
 $stmtUsuario = $conn->prepare("
-    SELECT nome_user, email_user, foto_user
+    SELECT nome_user, email_user, foto_user, sobre_mim
     FROM Usuario
     WHERE id_user = ?
 ");
@@ -74,8 +74,8 @@ $stmt->execute([$id_user]);
 $esportes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $fotoPerfil = !empty($usuario['foto_user'])
-    ? '/-TCC-/' . $usuario['foto_user']
-    : '/-TCC-/public/imagem/blank.png';
+    ? '/Zubbo-App/-TCC-/' . $usuario['foto_user']
+    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
 
 include __DIR__ . '/../includes/head.php';
 ?>
@@ -138,7 +138,12 @@ include __DIR__ . '/../includes/head.php';
 
 <div class="perfil-sobre">
     <h2 class="perfil-sobremim">Sobre Mim</h2>
-    <p class="perfil-sobremim-texto"></p>
+
+    <p class="perfil-sobremim-texto">
+        <?= !empty($usuario['sobre_mim'])
+            ? nl2br(htmlspecialchars($usuario['sobre_mim']))
+            : 'Este usuário ainda não adicionou uma descrição.' ?>
+    </p>
 </div>
 
 <div class="perfil-esportes">

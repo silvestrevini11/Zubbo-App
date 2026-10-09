@@ -34,8 +34,8 @@ $resultados = [];
 foreach ($usuarios as $usuario) {
 
     $foto = !empty($usuario['foto_user'])
-        ? '/-TCC-/' . $usuario['foto_user']
-        : '/-TCC-/public/imagem/blank.png';
+        ? '/Zubbo-App/-TCC-/' . $usuario['foto_user']
+        : '/Zubbo-App/-TCC-/public/imagem/blank.png';
 
     $resultados[] = [
         'id_user' => $usuario['id_user'],

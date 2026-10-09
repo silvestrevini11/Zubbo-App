@@ -5,7 +5,7 @@ include __DIR__ . '/../includes/head.php';
 $id_user = (int) $_SESSION['usuario']['id'];
 
 $stmtUsuario = $conn->prepare("
-    SELECT nome_user, email_user
+    SELECT nome_user, email_user, sobre_mim
     FROM Usuario
     WHERE id_user = ?
 ");
@@ -119,6 +119,9 @@ inputFoto.addEventListener('change', function () {
 </div>
 
 <div class="perfil-status">
+    <div class="perfil-eventos">
+        <h3 class="perfil-name">Eventos</h3>
+    </div>
     <a href="amigos.php" class="perfil-amigos">
 
     <h3 class="perfil-name">Amigos</h3>
@@ -133,7 +136,11 @@ inputFoto.addEventListener('change', function () {
 <div class="perfil-sobre">
     <h2 class="perfil-sobremim">Sobre Mim</h2>
 
-    <p class="perfil-sobremim-texto"></p>
+    <p class="perfil-sobremim-texto">
+        <?= !empty($usuario['sobre_mim'])
+            ? nl2br(htmlspecialchars($usuario['sobre_mim']))
+            : 'Este usuário ainda não publicou uma descrição, vá a edição do perfil para adicionar!.' ?>
+    </p>
 </div>
 
 <div class="perfil-esportes">

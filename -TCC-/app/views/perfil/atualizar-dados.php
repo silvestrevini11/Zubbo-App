@@ -112,6 +112,29 @@ try {
             $stmt->execute([$dataNascimento, $id_user]);
             voltarComSucesso('data');
 
+                    case 'sobre_mim':
+            $sobreMim = trim($_POST['sobre_mim'] ?? '');
+            $tamanho = function_exists('mb_strlen')
+                ? mb_strlen($sobreMim, 'UTF-8')
+                : strlen($sobreMim);
+
+            if ($tamanho > 500) {
+                voltarComErro('sobre_mim');
+            }
+
+            $stmt = $conn->prepare('
+                UPDATE Usuario
+                SET sobre_mim = ?
+                WHERE id_user = ?
+            ');
+
+            $stmt->execute([
+                $sobreMim !== '' ? $sobreMim : null,
+                $id_user
+            ]);
+
+            voltarComSucesso('sobre_mim');
+
         default:
             voltarComErro('salvar');
     }

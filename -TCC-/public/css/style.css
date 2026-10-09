@@ -900,13 +900,7 @@ html.tema-escuro .btn-criar-init{
         linear-gradient(
             rgba(255, 255, 255, 0.0),
             rgba(255, 255, 255, 0.0)
-        ),
-        url("../imagem/Mapa2.png");
-
-    background-size: cover;
-    background-position: center;
-
-    border-radius: 0 0 42px 42px;
+        )
 }
 
 
@@ -2368,80 +2362,6 @@ html.tema-escuro .esporte-card:has(input:checked) {
 /* ========================================
    CORES DOS ESPORTES
 ======================================== */
-
-.esporte-futebol {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-basquete {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-corrida {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-html.tema-escuro .esporte-corrida{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-
-.esporte-volei {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-tenis {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-futesal {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-handebol {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-.esporte-outro {
-    background: #d2cfcd !important;
-    border-color: #000000 !important;
-}
-
-html.tema-escuro .esporte-futebol{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-basquete{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-volei{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-tenis{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-futesal{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-handebol{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
-html.tema-escuro .esporte-outro{
-    background: #434242 !important;
-    border-color: #fdfdfd !important;
-}
 
 
 /* CELULAR PEQUENO */
@@ -7751,4 +7671,40 @@ html.tema-escuro .editar-dados-form textarea {
 
 html.tema-escuro .editar-dados-form textarea::placeholder {
     color: #888;
+}
+
+
+/* ESPORTES - CADASTRO */
+
+.esportes-grid .esporte-card {
+    background: #F8F8F8;
+    border: 2px solid #E5E5E5;
+    color: #333333;
+    box-shadow: none;
+}
+
+/* Apenas esportes selecionados */
+.esportes-grid .esporte-card:has(input:checked) {
+    background: #d2cfcd;
+    border-color: #000000;
+    color: #333333;
+    box-shadow: none;
+}
+
+/* Tema escuro */
+html.tema-escuro .esportes-grid .esporte-card {
+    background: #252525;
+    border-color: #444444;
+    color: #eeeeee;
+}
+
+html.tema-escuro .esportes-grid .esporte-card:has(input:checked) {
+    background: #434242;
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+/* Hover */
+.esportes-grid .esporte-card:hover {
+    border-color: #FF7A00;
 }

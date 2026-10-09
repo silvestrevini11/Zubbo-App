@@ -94,8 +94,8 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php
 
                 $foto = !empty($notificacao['foto_user'])
-                    ? '/-TCC-/' . $notificacao['foto_user']
-                    : '/-TCC-/public/imagem/blank.png';
+                    ? '/Zubbo-App/-TCC-/' . $notificacao['foto_user']
+                    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
 
             ?>
 

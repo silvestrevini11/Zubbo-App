@@ -53,8 +53,8 @@ $stmt->execute([
 $amigosDisponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $fotoGrupo = $grupo['foto_grupo']
-    ? '/-TCC-/'.$grupo['foto_grupo']
-    : '/-TCC-/public/imagem/blank.png';
+    ? '/Zubbo-App/-TCC-/'.$grupo['foto_grupo']
+    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
 ?>
 
 <section class="grupo-criar-container">

@@ -142,8 +142,8 @@ $mensagens = $stmtMensagens->fetchAll(PDO::FETCH_ASSOC);
 ========================================== */
 
 $fotoPerfil = !empty($usuario['foto_user'])
-    ? '/-TCC-/' . $usuario['foto_user']
-    : '/-TCC-/public/imagem/blank.png';
+    ? '/Zubbo-App/-TCC-/' . $usuario['foto_user']
+    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
 
 ?>
 

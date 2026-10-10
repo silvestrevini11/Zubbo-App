@@ -29,7 +29,7 @@ O projeto une desenvolvimento de sistemas, convivência comunitária e incentivo
 - **Curso:** Técnico em Desenvolvimento de Sistemas.
 - **Natureza do trabalho:** Trabalho de Conclusão de Curso (TCC).
 - **Ano:** 2026.
-- **Projeto:** Zubbo — plataforma de encontros esportivos comunitários.
+- **Projeto:** Zubbo, plataforma de encontros esportivos comunitários.
 
 O desenvolvimento do Zubbo coloca em prática conhecimentos adquiridos no curso, como programação web, banco de dados, modelagem, redes de computadores, segurança da informação, testes, documentação e organização de projetos de software.
 
@@ -55,6 +55,9 @@ Além das atividades individuais, a equipe participa da revisão das funcionalid
 | **Helton** | **Orientador do TCC** e professor de **Redes de Computadores**. |
 | **João Bahia** | Professor de **Banco de Dados** e **Segurança da Informação**. |
 | **Paulo** | Professor da área de **Desenvolvimento Web**. |
+| **Sandra** | Professora de **Linguagem Técnica e Formal**, contribuindo para a comunicação e a elaboração dos textos acadêmicos. |
+| **João Paulo** | Professor de **Desenvolvimento de Aplicativos Mobile**, área relacionada à adaptação futura do Zubbo para Android. |
+| **Rogério Coelho** | Professor de **Desenvolvimento e Testes de Programação**, com foco em boas práticas de programação, lógica e pseudocódigos. |
 
 As responsabilidades da equipe foram registradas de acordo com o relatório de progresso, enquanto as disciplinas dos professores foram informadas pelos integrantes.
 
@@ -70,17 +73,18 @@ Embora haja interesse em atividades esportivas, nem sempre é simples encontrar 
 
 Entre as dificuldades que motivam este TCC estão:
 
+- **Falta de divulgação e visibilidade de atividades, projetos e iniciativas esportivas na cidade de Diadema**, dificultando que moradores descubram oportunidades de participação;
 - **Informação dispersa** sobre locais e encontros esportivos na região;
 - **Dificuldade de encontrar participantes** com interesse na mesma modalidade;
 - **Custos ou barreiras de acesso** a determinadas opções de prática;
 - **Ambientes excessivamente competitivos**, que podem afastar iniciantes;
 - **Menos oportunidades de convivência presencial** e integração comunitária.
 
-Por isso, o trabalho investiga como uma aplicação digital pode ajudar a tornar **encontros esportivos amadores mais acessíveis, organizados e acolhedores**.
+Por isso, o trabalho investiga como uma aplicação digital pode ajudar a **divulgar as oportunidades esportivas existentes em Diadema**, dar visibilidade às atividades comunitárias e tornar **encontros esportivos amadores mais acessíveis, organizados e acolhedores**.
 
 ## Proposta de solução
 
-Desenvolver uma plataforma em que usuários possam **descobrir locais, organizar encontros e participar de eventos esportivos**, com ferramentas de comunicação e mecanismos de moderação.
+Desenvolver uma plataforma em que usuários possam **conhecer e divulgar oportunidades de prática esportiva em Diadema, descobrir locais, organizar encontros e participar de eventos esportivos**, com ferramentas de comunicação e mecanismos de moderação.
 
 O sistema foi pensado para conectar três elementos:
 
@@ -100,7 +104,7 @@ Como recorte inicial do protótipo, a aplicação utiliza locais esportivos da r
 
 ### Objetivos específicos
 
-1. **Reunir informações** sobre locais disponíveis para atividades esportivas.
+1. **Reunir e divulgar informações** sobre locais, projetos, atividades e iniciativas esportivas disponíveis na cidade de Diadema e, futuramente, em outras regiões.
 2. **Permitir a criação e a descoberta de eventos** por modalidade, local, data e horário.
 3. **Facilitar a participação em equipes**, com solicitações de vagas e organização de times.
 4. **Estimular conexões entre usuários** por meio de perfis, amizades, conversas e grupos.
@@ -111,7 +115,7 @@ Como recorte inicial do protótipo, a aplicação utiliza locais esportivos da r
 
 ## Público-alvo
 
-Pessoas interessadas em praticar esportes amadores, conhecer outros participantes, encontrar atividades e organizar encontros em sua comunidade — incluindo iniciantes e quem deseja uma alternativa mais social e menos voltada à competição.
+Pessoas interessadas em praticar esportes amadores, conhecer outros participantes, encontrar atividades e organizar encontros em sua comunidade; incluindo iniciantes e quem deseja uma alternativa mais social e menos voltada à competição.
 
 ## Recursos da aplicação
 
@@ -132,11 +136,13 @@ Pessoas interessadas em praticar esportes amadores, conhecer outros participante
 | Interface | HTML, CSS e JavaScript |
 | Aplicação | PHP |
 | Persistência | MySQL e PDO |
+| Modelagem e administração do banco de dados | DBeaver |
 | Mapa | Mapbox |
 | E-mail | Resend / PHPMailer |
 | Hospedagem de demonstração | Railway |
 | Versionamento e testes | GitHub e GitHub Actions |
 | Próxima etapa mobile | Android Studio e Kotlin, com WebView experimental |
+| Domínio próprio (planejado) | Registro.br, para consulta de disponibilidade e futura contratação de domínio; ainda não adquirido |
 
 ## Estado do desenvolvimento
 
@@ -155,6 +161,7 @@ A branch de desenvolvimento e validação é **teste-railway**. A **main** perma
 - Criar um **APK experimental para Android**, usando a interface web hospedada.
 - Validar a experiência em aparelhos reais.
 - Avaliar a expansão de locais, modalidades e comunidades atendidas.
+- Pesquisar a disponibilidade de um domínio no **Registro.br** e planejar sua aquisição futura para disponibilizar o Zubbo em endereço próprio.
 
 ## Documentação e funcionamento do aplicativo
 
@@ -174,7 +181,7 @@ Documentos complementares:
 
 <div align="center">
 
-**Zubbo — Encontre. Pratique. Conecte-se.**
+**Zubbo: Encontre. Pratique. Conecte-se.**
 
 *Um TCC de Desenvolvimento de Sistemas dedicado a aproximar pessoas por meio do esporte.*
 

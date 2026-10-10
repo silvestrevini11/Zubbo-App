@@ -111,8 +111,8 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php
 
                 $foto = !empty($conversa['foto_user'])
-                    ? '/Zubbo-App/-TCC-/' . $conversa['foto_user']
-                    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
+                    ? zubbo_url('/' . ltrim((string) $conversa['foto_user'], '/'))
+                    : zubbo_url('/public/imagem/blank.png');
 
             ?>
 

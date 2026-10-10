@@ -74,8 +74,8 @@ $stmt->execute([$id_user]);
 $esportes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $fotoPerfil = !empty($usuario['foto_user'])
-    ? '/Zubbo-App/-TCC-/' . $usuario['foto_user']
-    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
+    ? zubbo_url('/' . ltrim((string) $usuario['foto_user'], '/'))
+    : zubbo_url('/public/imagem/blank.png');
 
 include __DIR__ . '/../includes/head.php';
 

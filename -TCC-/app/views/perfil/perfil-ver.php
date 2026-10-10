@@ -78,80 +78,95 @@ $fotoPerfil = !empty($usuario['foto_user'])
     : '/Zubbo-App/-TCC-/public/imagem/blank.png';
 
 include __DIR__ . '/../includes/head.php';
+
+$sqlEventos = "
+    SELECT COUNT(*) AS total
+    FROM (
+        SELECT id_evento
+        FROM Evento
+        WHERE id_criador = ?
+
+        UNION
+
+        SELECT id_evento
+        FROM Lista_Evento
+        WHERE id_user = ?
+    ) AS eventos_usuario
+";
+
+$stmtEventos = $conn->prepare($sqlEventos);
+$stmtEventos->execute([$id_user, $id_user]);
+
+$quantidadeEventos = (int) $stmtEventos->fetchColumn();
 ?>
 <section style="padding-bottom: 80px;">
 
-<div class="perfil-pic-label" aria-label="Foto de perfil">
-    <img
-        class="perfil-pic"
-        src="<?= htmlspecialchars($fotoPerfil) ?>"
-        alt="Foto de perfil"
-    >
-</div>
-
-<h1 class="perfil-nome">
-    <?= htmlspecialchars($usuario['nome_user']) ?>
-</h1>
-
-<h3 class="perfil-email">
-    <?= htmlspecialchars($usuario['email_user']) ?>
-</h3>
-
-<div class="perfil-nivel">
-    <p class="perfil-nivel-nome">Nivel-Iniciante</p>
-</div>
-
-<div class="perfil-status">
-    <div class="perfil-eventos">
-        <h3 class="perfil-name">Eventos</h3>
-        <h2 class="perfil-eventos-num">0</h2>
+    <div class="perfil-pic-label" aria-label="Foto de perfil">
+        <img class="perfil-pic" src="<?= htmlspecialchars($fotoPerfil) ?>" alt="Foto de perfil">
     </div>
-    <div class="perfil-amigos">
-        <h3 class="perfil-name">Amigos</h3>
-        <h2 class="perfil-amigos-num"><?= $quantidadeAmigos ?></h2>
+
+    <h1 class="perfil-nome">
+        <?= htmlspecialchars($usuario['nome_user']) ?>
+    </h1>
+
+    <h3 class="perfil-email">
+        <?= htmlspecialchars($usuario['email_user']) ?>
+    </h3>
+
+    <div class="perfil-nivel">
+        <p class="perfil-nivel-nome">Nivel-Iniciante</p>
     </div>
-</div>
 
-<div class="perfil-acoes">
+    <div class="perfil-status">
+        <div class="perfil-eventos">
+            <h3 class="perfil-name">Eventos</h3>
+            <h2 class="perfil-eventos-num">
+                <?= $quantidadeEventos ?>
+            </h2>
+        </div>
+        <div class="perfil-amigos">
+            <h3 class="perfil-name">Amigos</h3>
+            <h2 class="perfil-amigos-num"><?= $quantidadeAmigos ?></h2>
+        </div>
+    </div>
 
-    <?php if (!$saoAmigos): ?>
+    <div class="perfil-acoes">
 
-        <form action="adicionar-amigo.php" method="POST">
-            <input type="hidden" name="id_amigo" value="<?= $id_user ?>">
+        <?php if (!$saoAmigos): ?>
 
-            <button type="submit" class="btn-adicionar-amigo">
-                + Adicionar amigo
-            </button>
-        </form>
+            <form action="adicionar-amigo.php" method="POST">
+                <input type="hidden" name="id_amigo" value="<?= $id_user ?>">
 
-    <?php endif; ?>
+                <button type="submit" class="btn-adicionar-amigo">
+                    + Adicionar amigo
+                </button>
+            </form>
 
-    <button
-        type="button"
-        class="btn-conversar"
-        onclick="window.location.href='../chats/chats-conversas.php?id=<?= $id_user ?>'"
-    >
-        Conversar
-    </button>
+        <?php endif; ?>
 
-</div>
+        <button type="button" class="btn-conversar"
+            onclick="window.location.href='../chats/chats-conversas.php?id=<?= $id_user ?>'">
+            Conversar
+        </button>
 
-<div class="perfil-sobre">
-    <h2 class="perfil-sobremim">Sobre Mim</h2>
+    </div>
 
-    <p class="perfil-sobremim-texto">
-        <?= !empty($usuario['sobre_mim'])
-            ? nl2br(htmlspecialchars($usuario['sobre_mim']))
-            : 'Este usuário ainda não adicionou uma descrição.' ?>
-    </p>
-</div>
+    <div class="perfil-sobre">
+        <h2 class="perfil-sobremim">Sobre Mim</h2>
 
-<div class="perfil-esportes">
-    <h2>Meus Esportes</h2>
+        <p class="perfil-sobremim-texto">
+            <?= !empty($usuario['sobre_mim'])
+                ? nl2br(htmlspecialchars($usuario['sobre_mim']))
+                : 'Este usuário ainda não adicionou uma descrição.' ?>
+        </p>
+    </div>
 
-    <div class="esportes-lista">
-        <?php foreach ($esportes as $esporte): ?>
-            <?php
+    <div class="perfil-esportes">
+        <h2>Meus Esportes</h2>
+
+        <div class="esportes-lista">
+            <?php foreach ($esportes as $esporte): ?>
+                <?php
                 $nome = $esporte['nome_esporte'];
 
                 $classe = match ($nome) {
@@ -164,14 +179,14 @@ include __DIR__ . '/../includes/head.php';
                     'Handebol' => 'esporte-handebol',
                     default => 'esporte-outro'
                 };
-            ?>
+                ?>
 
-            <div class="esporte-card <?= $classe ?>">
-                <span><?= htmlspecialchars($nome) ?></span>
-            </div>
-        <?php endforeach; ?>
+                <div class="esporte-card <?= $classe ?>">
+                    <span><?= htmlspecialchars($nome) ?></span>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
-</div>
 
 
 

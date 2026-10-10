@@ -33,8 +33,12 @@ $stmt = $conn->prepare("
              g.foto_grupo, m.id_mensagem, m.mensagem, m.data_envio, c.data_criacao
     ORDER BY COALESCE(m.data_envio, c.data_criacao) DESC
 ");
-$stmt->execute([':id_usuario'=>$id_usuario, ':id_unread'=>$id_usuario]);
+$stmt->execute([':id_usuario'=>$id_usuario]);
 $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmtNaoLidas = $conn->prepare("SELECT id_conversa, COUNT(*) AS total FROM Notificacao WHERE id_destinatario = ? AND tipo = 'mensagem' AND lida = FALSE AND id_conversa IS NOT NULL GROUP BY id_conversa");
+$stmtNaoLidas->execute([$id_usuario]);
+$naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
+
 ?>
 <section class="chats-container">
     <button class="chats-btn-create" onclick="location.href='criar-grupos.php'" aria-label="Criar grupo">+</button>
@@ -91,8 +95,8 @@ $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <strong><?= htmlspecialchars($grupo['nome_grupo']) ?></strong>
                     <span><?= htmlspecialchars($resumo) ?></span>
                 </div>
-                <?php if ((int)$grupo['novas_mensagens'] > 0): ?>
-                    <span class="chat-item-unread" aria-label="<?= (int)$grupo['novas_mensagens'] ?> mensagens não lidas"><?= (int)$grupo['novas_mensagens'] > 99 ? '99+' : (int)$grupo['novas_mensagens'] ?></span>
+                <?php if ((int)($naoLidas[$grupo['id_conversa']] ?? 0) > 0): ?>
+                    <span class="chat-item-unread" aria-label="<?= (int)($naoLidas[$grupo['id_conversa']] ?? 0) ?> mensagens não lidas"><?= (int)($naoLidas[$grupo['id_conversa']] ?? 0) > 99 ? '99+' : (int)($naoLidas[$grupo['id_conversa']] ?? 0) ?></span>
                 <?php endif; ?>
                 <span class="grupo-chat-total"><?= (int)$grupo['total_participantes'] ?></span>
             </a>

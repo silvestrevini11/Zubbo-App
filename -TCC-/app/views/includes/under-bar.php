@@ -14,8 +14,9 @@
         <span>+</span>
     </a>
 
-    <a href="<?= htmlspecialchars(zubbo_url('/app/views/chats/chats.php'), ENT_QUOTES, 'UTF-8') ?>" class="nav-item">
+    <a href="<?= htmlspecialchars(zubbo_url('/app/views/chats/chats.php'), ENT_QUOTES, 'UTF-8') ?>" class="nav-item nav-mensagens">
         <img class="nav-icon" src="<?= htmlspecialchars(zubbo_url('/public/imagem/chat.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Chat">
+        <span class="nav-unread-badge" id="nav-conversas-nao-lidas" hidden aria-label="Conversas com mensagens não lidas"></span>
         <span>Mensagens</span>
     </a>
 
@@ -24,3 +25,25 @@
         <span>Perfil</span>
     </a>
 </nav>
+
+<script>
+(() => {
+    const badge = document.getElementById('nav-conversas-nao-lidas');
+    if (!badge) return;
+    const url = <?= json_encode(zubbo_url('/app/views/notificacoes/buscar-notificacoes.php')) ?>;
+    async function carregarNaoLidas() {
+        try {
+            const resposta = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
+            if (!resposta.ok) return;
+            const dados = await resposta.json();
+            const quantidade = Math.max(0, Number(dados.conversas_nao_lidas) || 0);
+            badge.hidden = quantidade === 0;
+            badge.textContent = quantidade > 99 ? '99+' : String(quantidade);
+        } catch (erro) {
+            console.warn('Não foi possível atualizar mensagens não lidas.');
+        }
+    }
+    carregarNaoLidas();
+    setInterval(carregarNaoLidas, 15000);
+})();
+</script>

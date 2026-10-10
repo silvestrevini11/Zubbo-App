@@ -3,7 +3,7 @@
 session_start();
 
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../usuario/form-usuario.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
@@ -151,7 +151,7 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-<script src="/../-TCC-/public/js/conversas.js"></script>
+<script src="<?= htmlspecialchars(zubbo_url('/public/js/conversas.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 
 </section>
 

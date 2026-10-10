@@ -1,9 +1,3 @@
-CREATE DATABASE IF NOT EXISTS app_zubbo
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE app_zubbo;
-
 -- =========================================================
 -- 1. TABELAS PRINCIPAIS / CADASTROS
 -- =========================================================

@@ -78,7 +78,7 @@ include __DIR__ . '/../includes/head.php';
         </form>
         <button class="configuracoes-item configuracoes-botao configuracoes-perigo" type="button" data-abrir-exclusao>
             <span class="configuracoes-icone" aria-hidden="true">×</span>
-            <span class="configuracoes-item-texto"><strong>Desativar conta</strong><span>Remove os dados básicos e impede novo acesso; registros de moderação poderão permanecer</span></span>
+            <span class="configuracoes-item-texto"><strong>Desativar conta</strong><span>Remove os dados básicos e impede novo acesso.</span></span>
             <span class="configuracoes-seta" aria-hidden="true">›</span>
         </button>
     </section>

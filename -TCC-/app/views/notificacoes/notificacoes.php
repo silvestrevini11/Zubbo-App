@@ -65,7 +65,7 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <button
         class="btn-voltar"
-        onclick="window.location.href='../painel/painel-inicial.php'"
+        onclick="window.location.href='../painel/Painel-inicial.php'"
     >
         ←
     </button>

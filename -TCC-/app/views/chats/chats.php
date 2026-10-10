@@ -57,7 +57,8 @@ $stmt = $conn->prepare("
 
 $stmt->execute([
     ':id_usuario' => $id_usuario,
-    ':id_usuario_outro' => $id_usuario
+    ':id_usuario_outro' => $id_usuario,
+    ':id_unread' => $id_usuario
 ]);
 
 $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);

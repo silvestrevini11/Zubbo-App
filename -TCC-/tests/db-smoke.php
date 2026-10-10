@@ -35,6 +35,22 @@ $insUser->execute(['Segundo', 'segundo-ci@localhost.test', '11922222222', $senha
 $id2 = (int)$conn->lastInsertId();
 confirmar($id1 > 0 && $id2 > $id1, 'usuarios AUTO_INCREMENT');
 
+require_once __DIR__ . '/../app/services/AdminService.php';
+$conn->prepare("INSERT INTO Administrador (id_user, nome_adm, email_adm, senha_adm, ativo) VALUES (NULL, ?, ?, ?, 1)")
+    ->execute(['Legado CI', 'segundo-ci@localhost.test', password_hash('NaoUtilizarCI123', PASSWORD_DEFAULT)]);
+confirmar(
+    AdminService::buscarIdAtivo($conn, $id2, 'segundo-ci@localhost.test') === null,
+    'sem privilegio admin apenas por e-mail legado'
+);
+$idAdm = AdminService::conceder($conn, [
+    'id_user' => $id1,
+    'nome_user' => 'Primeiro',
+    'email_user' => 'primeiro-ci@localhost.test',
+]);
+confirmar($idAdm > 0 && AdminService::buscarIdAtivo($conn, $id1, 'primeiro-ci@localhost.test') === $idAdm,
+    'admin autorizado por id_user');
+
+
 $conn->prepare('INSERT INTO Amizade (id_user_1, id_user_2) VALUES (?, ?)')->execute([$id1, $id2]);
 $amizade = $conn->query('SELECT id_amizade, data_aceita FROM Amizade LIMIT 1')->fetch(PDO::FETCH_ASSOC);
 confirmar((int)$amizade['id_amizade'] > 0 && $amizade['data_aceita'] !== null, 'amizade e DEFAULT CURRENT_TIMESTAMP');

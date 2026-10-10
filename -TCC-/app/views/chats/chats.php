@@ -62,6 +62,10 @@ $stmt->execute([
 ]);
 
 $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmtNaoLidas = $conn->prepare("SELECT id_conversa, COUNT(*) AS total FROM Notificacao WHERE id_destinatario = ? AND tipo = 'mensagem' AND lida = FALSE AND id_conversa IS NOT NULL GROUP BY id_conversa");
+$stmtNaoLidas->execute([$id_usuario]);
+$naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
+
 
 ?>
 

@@ -19,6 +19,7 @@ Defina:
 ```text
 ZUBBO_BASE_PATH=/
 ZUBBO_BASE_URL=https://SEU-DOMINIO.up.railway.app
+RAILPACK_PHP_EXTENSIONS=pdo_mysql
 ```
 
 Para o MySQL do Railway, crie referências:
@@ -64,3 +65,22 @@ ZUBBO_MAIL_FROM=Zubbo <onboarding@resend.dev>
 Para um domínio próprio verificado no Resend, substitua `ZUBBO_MAIL_FROM` pelo remetente validado.
 
 O SMTP continua disponível apenas como fallback usando `ZUBBO_MAIL_PROVIDER=smtp`. O código agora possui timeout para evitar requisições presas.
+
+
+## Modo de demonstração
+
+Para apresentações e testes sem domínio verificado no Resend:
+
+```text
+ZUBBO_DEMO_MODE=true
+```
+
+Nesse modo o código de verificação aparece na própria tela e nenhum e-mail de cadastro é enviado.
+
+Em produção real, mantenha:
+
+```text
+ZUBBO_DEMO_MODE=false
+```
+
+Nunca deixe o modo de demonstração ativado em produção.

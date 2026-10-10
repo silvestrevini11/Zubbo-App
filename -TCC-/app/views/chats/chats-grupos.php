@@ -33,7 +33,7 @@ $stmt = $conn->prepare("
              g.foto_grupo, m.id_mensagem, m.mensagem, m.data_envio, c.data_criacao
     ORDER BY COALESCE(m.data_envio, c.data_criacao) DESC
 ");
-$stmt->execute([':id_usuario'=>$id_usuario]);
+$stmt->execute([':id_usuario'=>$id_usuario, ':id_unread'=>$id_usuario]);
 $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <section class="chats-container">
@@ -91,6 +91,9 @@ $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <strong><?= htmlspecialchars($grupo['nome_grupo']) ?></strong>
                     <span><?= htmlspecialchars($resumo) ?></span>
                 </div>
+                <?php if ((int)$grupo['novas_mensagens'] > 0): ?>
+                    <span class="chat-item-unread" aria-label="<?= (int)$grupo['novas_mensagens'] ?> mensagens não lidas"><?= (int)$grupo['novas_mensagens'] > 99 ? '99+' : (int)$grupo['novas_mensagens'] ?></span>
+                <?php endif; ?>
                 <span class="grupo-chat-total"><?= (int)$grupo['total_participantes'] ?></span>
             </a>
             <hr class="perfil-hr">

@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../../config/security.php';
             document.documentElement.classList.add('tema-escuro');
         }
     </script>
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars(zubbo_url('/public/imagem/LogooZ.png'), ENT_QUOTES, 'UTF-8') ?>">
     <link rel="stylesheet" href="<?= htmlspecialchars(zubbo_url('/public/css/style.css'), ENT_QUOTES, 'UTF-8') ?>">
     <title>Zubbo</title>
 </head>

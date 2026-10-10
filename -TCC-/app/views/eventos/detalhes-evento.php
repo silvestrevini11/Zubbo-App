@@ -54,6 +54,7 @@ if ($limite !== null) {
 }
 
 $minhaParticipacaoSemVaga = null;
+
 foreach ($confirmadosSemVaga as $participanteSemVaga) {
     if ((int) $participanteSemVaga['id_user'] === $idUsuario) {
         $minhaParticipacaoSemVaga = $participanteSemVaga;
@@ -70,42 +71,97 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= escaparDetalhe($evento['nome_evento']) ?> | Zubbo</title>
+
     <script>
         if (localStorage.getItem('zubbo-tema') === 'escuro') {
             document.documentElement.classList.add('tema-escuro');
         }
     </script>
+
     <link rel="stylesheet" href="../../../public/css/style.css">
     <link rel="stylesheet" href="../../../public/css/eventos.css">
 </head>
 <body>
 <main class="eventos-container evento-detalhes-shell">
+
     <a class="eventos-voltar" href="eventos.php">← Voltar aos eventos</a>
 
     <section class="evento-score-hero">
         <div class="evento-score-faixa">
             <div>
-                <p class="eventos-marca"><?= escaparDetalhe($evento['nome_esporte']) ?></p>
+                <p class="eventos-marca">
+                    <?= escaparDetalhe($evento['nome_esporte']) ?>
+                </p>
+
                 <h1><?= escaparDetalhe($evento['nome_evento']) ?></h1>
+
                 <p>
                     <?= escaparDetalhe($evento['nome_local']) ?> ·
-                    <?= escaparDetalhe(date('d/m/Y', strtotime($evento['data_evento']))) ?> às
-                    <?= escaparDetalhe(substr($evento['horario_evento'], 0, 5)) ?>
+                    <?= escaparDetalhe(date('d/m/Y', strtotime($evento['data_evento']))) ?>
+                    às <?= escaparDetalhe(substr($evento['horario_evento'], 0, 5)) ?>
                 </p>
             </div>
 
             <span class="evento-score-status <?= !$aberto ? 'fechado' : '' ?>">
-                <?= $evento['status_evento'] === 'cancelado' ? 'CANCELADO' : ($aberto ? 'ABERTO' : 'ENCERRADO') ?>
+                <?= $evento['status_evento'] === 'cancelado'
+                    ? 'CANCELADO'
+                    : ($aberto ? 'ABERTO' : 'ENCERRADO') ?>
             </span>
         </div>
 
         <div class="evento-score-resumo">
-            <div><span>ORGANIZADOR</span><strong><?= escaparDetalhe($evento['criador'] ?? 'Indisponível') ?></strong></div>
-            <div><span>CONFIRMADOS</span><strong><?= $totalConfirmados ?><?= $limite ? ' / ' . ($limite * 2) : '' ?></strong></div>
-            <div><span>SOLICITAÇÕES</span><strong><?= count($pendentes) ?></strong></div>
-            <div><span>LOCAL</span><strong><?= escaparDetalhe($evento['endereco_local']) ?></strong></div>
+            <div>
+                <span>ORGANIZADOR</span>
+                <strong><?= escaparDetalhe($evento['criador'] ?? 'Indisponível') ?></strong>
+            </div>
+
+            <div>
+                <span>CONFIRMADOS</span>
+                <strong><?= $totalConfirmados ?><?= $limite ? ' / ' . ($limite * 2) : '' ?></strong>
+            </div>
+
+            <div>
+                <span>SOLICITAÇÕES</span>
+                <strong><?= count($pendentes) ?></strong>
+            </div>
+
+            <div>
+                <span>LOCAL</span>
+                <strong><?= escaparDetalhe($evento['endereco_local']) ?></strong>
+            </div>
         </div>
     </section>
+
+    <?php if ($organizador && $evento['status_evento'] !== 'removido'): ?>
+        <section class="evento-score-acoes">
+            <div>
+                <strong>Gerenciar evento</strong>
+                <span>Você é o organizador deste evento.</span>
+            </div>
+
+            <form
+                action="excluir-evento.php"
+                method="post"
+                onsubmit="return confirm('Tem certeza que deseja excluir este evento? Ele deixará de aparecer nas listagens.');"
+            >
+                <input
+                    type="hidden"
+                    name="csrf"
+                    value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>"
+                >
+
+                <input
+                    type="hidden"
+                    name="id_evento"
+                    value="<?= (int) $idEvento ?>"
+                >
+
+                <button class="eventos-delete" type="submit">
+                    Excluir evento
+                </button>
+            </form>
+        </section>
+    <?php endif; ?>
 
     <?php if ($flash): ?>
         <p
@@ -118,19 +174,28 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
 
     <?php if ($confirmadosSemVaga): ?>
         <section class="evento-legado-aviso">
-            <strong><?= count($confirmadosSemVaga) ?> participação(ões) do sistema antigo ainda sem vaga.</strong>
+            <strong>
+                <?= count($confirmadosSemVaga) ?>
+                participação(ões) do sistema antigo ainda sem vaga.
+            </strong>
+
             <p>
-                Quem já estava confirmado continua na lista. Ao escolher uma vaga no novo quadro,
-                a participação antiga será vinculada automaticamente sem precisar de nova aprovação.
+                Quem já estava confirmado continua na lista. Ao escolher uma vaga
+                no novo quadro, a participação antiga será vinculada automaticamente
+                sem precisar de nova aprovação.
             </p>
 
             <?php if ($minhaParticipacaoSemVaga): ?>
                 <form action="vaga-evento-acao.php" method="post">
-                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="csrf"
+                           value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
                     <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
                     <input type="hidden" name="acao" value="cancelar">
                     <input type="hidden" name="origem" value="detalhes">
-                    <button class="evento-botao-secundario" type="submit">Cancelar minha participação</button>
+
+                    <button class="evento-botao-secundario" type="submit">
+                        Cancelar minha participação
+                    </button>
                 </form>
             <?php endif; ?>
         </section>
@@ -140,30 +205,42 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
         <div class="evento-score-acoes">
             <div>
                 <strong>Escalação <?= $limite ?> x <?= $limite ?></strong>
-                <span>Escolha uma vaga livre. Ela só fica ocupada depois da aprovação do organizador.</span>
+                <span>
+                    Escolha uma vaga livre. Ela só fica ocupada depois da aprovação
+                    do organizador.
+                </span>
             </div>
-            <a class="eventos-criar" href="lista-presenca.php?id_evento=<?= $idEvento ?>">Abrir escalação completa</a>
+
+            <a class="eventos-criar"
+               href="lista-presenca.php?id_evento=<?= $idEvento ?>">
+                Abrir escalação completa
+            </a>
         </div>
 
         <?php if ($minhaSolicitacao): ?>
             <section class="evento-minha-vaga <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada' ? 'confirmada' : '' ?>">
                 <div>
                     <span>SUA PARTICIPAÇÃO</span>
+
                     <strong>
                         Time <?= (int) $minhaSolicitacao['time_num'] ?> ·
                         #<?= str_pad((string) $minhaSolicitacao['numero_vaga'], 2, '0', STR_PAD_LEFT) ?>
                     </strong>
+
                     <small>
                         <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada'
                             ? 'Confirmado pelo organizador'
                             : 'Aguardando aprovação' ?>
                     </small>
                 </div>
+
                 <form action="vaga-evento-acao.php" method="post">
-                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="csrf"
+                           value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
                     <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
                     <input type="hidden" name="acao" value="cancelar">
                     <input type="hidden" name="origem" value="detalhes">
+
                     <button class="evento-botao-secundario" type="submit">
                         <?= $minhaSolicitacao['status_solicitacao'] === 'aprovada'
                             ? 'Sair da escalação'
@@ -181,29 +258,45 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                             <span>TEAM <?= $time === 1 ? 'A' : 'B' ?></span>
                             <h2>TIME <?= $time ?></h2>
                         </div>
-                        <strong><?= count($confirmadosTimes[$time]) ?> / <?= $limite ?></strong>
+
+                        <strong>
+                            <?= count($confirmadosTimes[$time]) ?> / <?= $limite ?>
+                        </strong>
                     </header>
 
                     <ol>
                         <?php for ($vaga = 1; $vaga <= $limite; $vaga++): ?>
                             <?php
-                                $ocupante = $confirmadosTimes[$time][$vaga] ?? null;
-                                $quantidadePendentes = count($pendentesPorVaga[$time][$vaga] ?? []);
+                            $ocupante = $confirmadosTimes[$time][$vaga] ?? null;
+                            $quantidadePendentes = count(
+                                $pendentesPorVaga[$time][$vaga] ?? []
+                            );
                             ?>
+
                             <li class="<?= $ocupante ? 'ocupada status-aprovada' : 'livre' ?>">
-                                <span class="evento-slot-numero"><?= str_pad((string) $vaga, 2, '0', STR_PAD_LEFT) ?></span>
+                                <span class="evento-slot-numero">
+                                    <?= str_pad((string) $vaga, 2, '0', STR_PAD_LEFT) ?>
+                                </span>
 
                                 <?php if ($ocupante): ?>
-                                    <span class="evento-slot-avatar"><?= escaparDetalhe(evento_iniciais($ocupante['nome_user'])) ?></span>
+                                    <span class="evento-slot-avatar">
+                                        <?= escaparDetalhe(evento_iniciais($ocupante['nome_user'])) ?>
+                                    </span>
+
                                     <span class="evento-slot-jogador">
                                         <strong><?= escaparDetalhe($ocupante['nome_user']) ?></strong>
                                         <small>CONFIRMADO</small>
                                     </span>
                                 <?php else: ?>
                                     <span class="evento-slot-avatar evento-slot-vazio">+</span>
+
                                     <span class="evento-slot-jogador">
                                         <strong>Vaga livre</strong>
-                                        <small><?= $quantidadePendentes ? $quantidadePendentes . ' SOLICITAÇÃO(ÕES)' : 'DISPONÍVEL' ?></small>
+                                        <small>
+                                            <?= $quantidadePendentes
+                                                ? $quantidadePendentes . ' SOLICITAÇÃO(ÕES)'
+                                                : 'DISPONÍVEL' ?>
+                                        </small>
                                     </span>
                                 <?php endif; ?>
                             </li>
@@ -212,22 +305,32 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                 </article>
             <?php endforeach; ?>
         </section>
+
     <?php else: ?>
+
         <section class="evento-individual-card">
             <div>
                 <p class="eventos-marca">PARTICIPAÇÃO INDIVIDUAL</p>
                 <h2><?= escaparDetalhe($evento['nome_esporte']) ?></h2>
-                <p>Esta modalidade não usa Time 1 e Time 2. A entrada continua dependendo da aprovação do organizador.</p>
+                <p>
+                    Esta modalidade não usa Time 1 e Time 2. A entrada continua
+                    dependendo da aprovação do organizador.
+                </p>
             </div>
 
             <?php if (!$minhaSolicitacao && $aberto): ?>
                 <form action="vaga-evento-acao.php" method="post">
-                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="csrf"
+                           value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
                     <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
                     <input type="hidden" name="acao" value="solicitar">
                     <input type="hidden" name="origem" value="detalhes">
-                    <button class="eventos-criar" type="submit">Solicitar participação</button>
+
+                    <button class="eventos-criar" type="submit">
+                        Solicitar participação
+                    </button>
                 </form>
+
             <?php elseif ($minhaSolicitacao): ?>
                 <div class="evento-individual-status">
                     <strong>
@@ -235,12 +338,17 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                             ? 'Participação confirmada'
                             : 'Solicitação pendente' ?>
                     </strong>
+
                     <form action="vaga-evento-acao.php" method="post">
-                        <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                        <input type="hidden" name="csrf"
+                               value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
                         <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
                         <input type="hidden" name="acao" value="cancelar">
                         <input type="hidden" name="origem" value="detalhes">
-                        <button class="evento-botao-secundario" type="submit">Cancelar participação</button>
+
+                        <button class="evento-botao-secundario" type="submit">
+                            Cancelar participação
+                        </button>
                     </form>
                 </div>
             <?php endif; ?>
@@ -249,10 +357,12 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
         <?php if ($confirmadosIndividuais || $confirmadosSemVaga): ?>
             <section class="eventos-card evento-detalhes">
                 <h2>Participantes confirmados</h2>
+
                 <ul class="evento-integrantes">
                     <?php foreach ($confirmadosIndividuais as $participante): ?>
                         <li><?= escaparDetalhe($participante['nome_user']) ?></li>
                     <?php endforeach; ?>
+
                     <?php foreach ($confirmadosSemVaga as $participante): ?>
                         <li><?= escaparDetalhe($participante['nome_user']) ?></li>
                     <?php endforeach; ?>
@@ -268,42 +378,62 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                     <span>ORGANIZADOR</span>
                     <h2>Solicitações pendentes</h2>
                 </div>
+
                 <strong><?= count($pendentes) ?></strong>
             </div>
 
             <?php if (!$pendentes): ?>
-                <p class="evento-solicitacoes-vazio">Nenhuma solicitação aguardando resposta.</p>
+                <p class="evento-solicitacoes-vazio">
+                    Nenhuma solicitação aguardando resposta.
+                </p>
             <?php else: ?>
                 <div class="evento-solicitacoes-lista">
                     <?php foreach ($pendentes as $solicitacao): ?>
                         <article>
-                            <span class="evento-slot-avatar"><?= escaparDetalhe(evento_iniciais($solicitacao['nome_user'])) ?></span>
+                            <span class="evento-slot-avatar">
+                                <?= escaparDetalhe(evento_iniciais($solicitacao['nome_user'])) ?>
+                            </span>
+
                             <div>
                                 <strong><?= escaparDetalhe($solicitacao['nome_user']) ?></strong>
+
                                 <small>
                                     <?php if ($solicitacao['time_num'] !== null): ?>
-                                        Time <?= (int) $solicitacao['time_num'] ?> · vaga #<?= (int) $solicitacao['numero_vaga'] ?>
+                                        Time <?= (int) $solicitacao['time_num'] ?> ·
+                                        vaga #<?= (int) $solicitacao['numero_vaga'] ?>
                                     <?php else: ?>
                                         Participação individual
                                     <?php endif; ?>
                                 </small>
                             </div>
+
                             <div class="evento-solicitacao-acoes">
                                 <form action="vaga-evento-acao.php" method="post">
-                                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                                    <input type="hidden" name="csrf"
+                                           value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
                                     <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
-                                    <input type="hidden" name="id_solicitacao" value="<?= (int) $solicitacao['id_solicitacao'] ?>">
+                                    <input type="hidden" name="id_solicitacao"
+                                           value="<?= (int) $solicitacao['id_solicitacao'] ?>">
                                     <input type="hidden" name="acao" value="aprovar">
                                     <input type="hidden" name="origem" value="detalhes">
-                                    <button class="evento-aprovar" type="submit">Aceitar</button>
+
+                                    <button class="evento-aprovar" type="submit">
+                                        Aceitar
+                                    </button>
                                 </form>
+
                                 <form action="vaga-evento-acao.php" method="post">
-                                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                                    <input type="hidden" name="csrf"
+                                           value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
                                     <input type="hidden" name="id_evento" value="<?= $idEvento ?>">
-                                    <input type="hidden" name="id_solicitacao" value="<?= (int) $solicitacao['id_solicitacao'] ?>">
+                                    <input type="hidden" name="id_solicitacao"
+                                           value="<?= (int) $solicitacao['id_solicitacao'] ?>">
                                     <input type="hidden" name="acao" value="recusar">
                                     <input type="hidden" name="origem" value="detalhes">
-                                    <button class="evento-recusar" type="submit">Recusar</button>
+
+                                    <button class="evento-recusar" type="submit">
+                                        Recusar
+                                    </button>
                                 </form>
                             </div>
                         </article>
@@ -312,6 +442,7 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
             <?php endif; ?>
         </section>
     <?php endif; ?>
+
 </main>
 
 <?php

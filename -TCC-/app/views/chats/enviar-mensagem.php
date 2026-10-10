@@ -1,6 +1,14 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
+
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    http_response_code(405);
+    exit('Método não permitido.');
+}
+
+zubbo_require_csrf();
 
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../auth/login.php');
@@ -13,9 +21,9 @@ $id_usuario = (int) $_SESSION['usuario']['id'];
 
 $id_conversa = (int) ($_POST['id_conversa'] ?? 0);
 
-$mensagem = trim($_POST['mensagem'] ?? '');
+$mensagem = trim((string) ($_POST['mensagem'] ?? ''));
 
-if ($id_conversa <= 0 || $mensagem === '') {
+if ($id_conversa <= 0 || $mensagem === '' || mb_strlen($mensagem) > 2000) {
     header('Location: chats.php');
     exit;
 }

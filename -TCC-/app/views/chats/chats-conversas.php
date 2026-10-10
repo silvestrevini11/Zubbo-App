@@ -339,7 +339,7 @@ async function atualizarChat() {
     a cada 1 segundo.
 */
 
-setInterval(atualizarChat, 1000);
+setInterval(() => { if (!document.hidden) atualizarChat(); }, 4000);
 
 </script>
 

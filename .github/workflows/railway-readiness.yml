@@ -1,0 +1,57 @@
+name: Railway Readiness
+
+on:
+  push:
+    branches:
+      - teste-railway
+  workflow_dispatch:
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql
+
+      - name: Validate Composer
+        working-directory: ./-TCC-
+        run: composer validate --no-check-publish
+
+      - name: Check PHP syntax
+        run: find ./-TCC- -path './-TCC-/vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Check Railway entry files
+        run: |
+          test -f ./-TCC-/index.php
+          test -f ./-TCC-/health.php
+          test -f ./-TCC-/public/index.php
+          test -f ./-TCC-/config/database.php
+          test -f ./-TCC-/database/scripts/criacaotables.sql
+          test -f ./-TCC-/database/scripts/insertstables.sql
+
+      - name: Check base path helper
+        run: |
+          ZUBBO_BASE_PATH=/ php -r "require './-TCC-/config/security.php'; if (zubbo_url('/public/index.php') !== '/public/index.php') { fwrite(STDERR, 'URL base invalida'.PHP_EOL); exit(1); }"
+
+      - name: Reject local-only runtime paths
+        shell: bash
+        run: |
+          if grep -RInE "/Zubbo-[Aa]pp/-TCC-|/-TCC-/public|/\.\./-TCC-|\.\./login/login\.php|\.\./usuario/form-usuario\.php" ./-TCC-/app ./-TCC-/public; then
+            echo "Foram encontrados caminhos locais ou rotas antigas incompatíveis com o Railway."
+            exit 1
+          fi
+
+      - name: Check managed-database SQL
+        shell: bash
+        run: |
+          if grep -nE "^[[:space:]]*(CREATE DATABASE|USE[[:space:]]+app_zubbo)" ./-TCC-/database/scripts/criacaotables.sql ./-TCC-/database/scripts/insertstables.sql; then
+            echo "Os scripts SQL ainda selecionam/criam um banco fixo."
+            exit 1
+          fi

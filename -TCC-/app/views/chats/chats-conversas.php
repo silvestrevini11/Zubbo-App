@@ -1,6 +1,7 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../auth/login.php');
@@ -135,6 +136,9 @@ $stmtMensagens = $conn->prepare("
 $stmtMensagens->execute([$id_conversa]);
 
 $mensagens = $stmtMensagens->fetchAll(PDO::FETCH_ASSOC);
+
+$conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
+    ->execute([$id_usuario_logado, $id_conversa]);
 
 
 /* ==========================================

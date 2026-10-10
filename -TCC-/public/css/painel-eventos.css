@@ -26,3 +26,36 @@ html.tema-escuro .painel-evento-card p { color:#b1b1ba; }
 html.tema-escuro .painel-evento-esporte { background:#3c261f; color:#ffac91; }
 html.tema-escuro .painel-eventos-cabecalho a { color:#ffac91; }
 @media(max-width:600px) { .painel-eventos-grid { grid-template-columns:1fr; } .painel-eventos-filtros,.painel-eventos-lista { padding:0 18px; } .painel-eventos-busca button { padding:12px; } }
+
+
+/* Sugestões de busca de locais/eventos no painel */
+.painel-eventos-filtros { position: relative; }
+.painel-busca-sugestoes[hidden], .painel-liberar-mapa[hidden] { display: none !important; }
+.painel-busca-sugestoes {
+    position: absolute; left: 20px; right: 20px; top: 100%;
+    z-index: 950; max-height: 330px; overflow-y: auto;
+    border: 1px solid #dedee4; border-radius: 14px;
+    background: #fff; box-shadow: 0 12px 28px rgba(0,0,0,.13);
+}
+.painel-sugestao-categoria {
+    margin: 0; padding: 10px 14px 7px; background: #f4f5f7;
+    color: #555; font-size: 11px; font-weight: 800; text-transform: uppercase;
+}
+.painel-sugestao-item {
+    display: flex; flex-direction: column; gap: 3px; padding: 11px 14px;
+    text-decoration: none; color: #222; border-top: 1px solid #f1f1f1;
+}
+.painel-sugestao-item small { color: #737680; font-size: 11px; }
+.painel-sugestao-item:hover, .painel-sugestao-item:focus-visible {
+    background: #fff3eb; outline: 0;
+}
+.painel-liberar-mapa {
+    display: block; margin: 0 20px 15px auto; padding: 8px 14px;
+    background: #e34b22; border: 0; border-radius: 10px;
+    color: white; font-weight: 700; cursor: pointer;
+}
+html.tema-escuro .painel-busca-sugestoes { background: #242424; border-color: #494949; }
+html.tema-escuro .painel-sugestao-categoria { background: #303030; color: #c8c8c8; }
+html.tema-escuro .painel-sugestao-item { color: #f4f4f4; border-color: #383838; }
+html.tema-escuro .painel-sugestao-item small { color: #bababa; }
+html.tema-escuro .painel-sugestao-item:hover, html.tema-escuro .painel-sugestao-item:focus-visible { background: #453026; }

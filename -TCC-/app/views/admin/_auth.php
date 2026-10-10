@@ -18,7 +18,7 @@ $idAdminAtual = AdminService::buscarIdAtivo(
 
 if ($idAdminAtual === null) {
     unset($_SESSION['admin'], $_SESSION['admin_csrf_token'], $_SESSION['admin_flash']);
-    header('Location: ../painel/painel-inicial.php');
+    header('Location: ../painel/Painel-inicial.php');
     exit;
 }
 

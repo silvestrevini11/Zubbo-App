@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/_auth.php'; require_once __DIR__.'/../../../config/database.php';
 $status=$_GET['status']??''; $ok=['pendente','aprovada','rejeitada'];
-$sql="SELECT s.id_sugestao,s.nome_esporte,s.status_sugestao,s.data_sugestao,s.data_analise,u.nome_user,COUNT(v.id_user) votos FROM Sugestao_Esporte s INNER JOIN Usuario u ON u.id_user=s.id_user LEFT JOIN Voto_Sugestao v ON v.id_sugestao=s.id_sugestao"; $p=[]; if(in_array($status,$ok,true)){ $sql.=' WHERE s.status_sugestao=?'; $p[]=$status;} $sql.=' GROUP BY s.id_sugestao ORDER BY (s.status_sugestao="pendente") DESC, votos DESC, s.data_sugestao DESC LIMIT 200'; $st=$conn->prepare($sql); $st->execute($p); $sug=$st->fetchAll(PDO::FETCH_ASSOC);
+$sql="SELECT s.id_sugestao,s.nome_esporte,s.status_sugestao,s.data_sugestao,s.data_analise,u.nome_user,(SELECT COUNT(*) FROM Voto_Sugestao v WHERE v.id_sugestao=s.id_sugestao) votos FROM Sugestao_Esporte s INNER JOIN Usuario u ON u.id_user=s.id_user"; $p=[]; if(in_array($status,$ok,true)){ $sql.=' WHERE s.status_sugestao=?'; $p[]=$status;} $sql.=' ORDER BY (s.status_sugestao="pendente") DESC, votos DESC, s.data_sugestao DESC LIMIT 200'; $st=$conn->prepare($sql); $st->execute($p); $sug=$st->fetchAll(PDO::FETCH_ASSOC);
 $paginaAdmin='sugestoes'; $tituloAdmin='Sugestões de esportes'; require __DIR__.'/includes/header.php';
 ?>
 <form class="admin-filtros" method="get"><select name="status"><option value="">Todos os status</option><?php foreach($ok as $op): ?><option value="<?= $op ?>" <?= $status===$op?'selected':'' ?>><?= ucfirst($op) ?></option><?php endforeach; ?></select><button>Filtrar</button><a href="sugestoes.php">Limpar</a></form>

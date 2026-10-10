@@ -2,123 +2,104 @@ const pesquisaInput = document.getElementById('pesquisaInput');
 const resultadosPerfis = document.getElementById('resultadosPerfis');
 const resultadosPoles = document.getElementById('resultadosPoles');
 const resultadosEventos = document.getElementById('resultadosEventos');
-
 let tempoPesquisa;
+let versaoPesquisa = 0;
 
-function mensagemSemResultado(texto) {
-    return '<p class="pesquisa-sem-resultados">' + texto + '</p>';
+function mensagemSemResultado(destino, texto) {
+    const p = document.createElement('p');
+    p.className = 'pesquisa-sem-resultados';
+    p.textContent = texto;
+    destino.appendChild(p);
 }
 
 async function buscar(url) {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-        throw new Error('HTTP ' + response.status);
-    }
-
+    const response = await fetch(url, { credentials: 'same-origin' });
+    if (!response.ok) throw new Error('HTTP ' + response.status);
     return response.json();
+}
+
+function adicionarTexto(container, tag, texto) {
+    const elemento = document.createElement(tag);
+    elemento.textContent = texto;
+    container.appendChild(elemento);
 }
 
 pesquisaInput.addEventListener('input', function () {
     clearTimeout(tempoPesquisa);
-
     const pesquisa = this.value.trim();
-
-    if (pesquisa === '') {
-        resultadosPerfis.innerHTML = '';
-        resultadosPoles.innerHTML = '';
-        resultadosEventos.innerHTML = '';
-        return;
-    }
+    const versaoAtual = ++versaoPesquisa;
+    resultadosPerfis.replaceChildren();
+    resultadosPoles.replaceChildren();
+    resultadosEventos.replaceChildren();
+    if (!pesquisa) return;
 
     tempoPesquisa = setTimeout(async () => {
         try {
             const termo = encodeURIComponent(pesquisa);
-
             const [perfis, poles, eventos] = await Promise.all([
                 buscar('pesquisar-perfis.php?pesquisa=' + termo),
                 buscar('pesquisar-poles.php?pesquisa=' + termo),
                 buscar('pesquisar-eventos.php?pesquisa=' + termo)
             ]);
+            if (versaoAtual !== versaoPesquisa) return;
 
-            resultadosPerfis.innerHTML = '';
-            resultadosPoles.innerHTML = '';
-            resultadosEventos.innerHTML = '';
-
-            if (perfis.length === 0) {
-                resultadosPerfis.innerHTML = mensagemSemResultado('Nenhum perfil encontrado.');
-            } else {
-                perfis.forEach(perfil => {
-                    const resultado = document.createElement('a');
-
-                    resultado.className = 'resultado-perfil';
-                    resultado.href = '../perfil/perfil-ver.php?id=' + perfil.id_user;
-
-                    resultado.innerHTML = `
-                        <img src="${perfil.foto}" class="resultado-perfil-foto" alt="Foto de perfil">
-                        <div class="resultado-perfil-info">
-                            <strong>${perfil.nome}</strong>
-                            <span>${perfil.email}</span>
-                        </div>
-                    `;
-
-                    resultadosPerfis.appendChild(resultado);
-                });
+            if (!perfis.length) {
+                mensagemSemResultado(resultadosPerfis, 'Nenhum perfil encontrado.');
+            }
+            for (const perfil of perfis) {
+                const id = Number.parseInt(perfil.id_user, 10);
+                if (!Number.isInteger(id) || id <= 0) continue;
+                const link = document.createElement('a');
+                link.href = '../perfil/perfil-ver.php?id=' + id;
+                link.className = 'resultado-perfil';
+                const foto = document.createElement('img');
+                foto.className = 'resultado-perfil-foto';
+                foto.alt = 'Foto de perfil';
+                foto.src = perfil.foto;
+                const info = document.createElement('div');
+                info.className = 'resultado-perfil-info';
+                adicionarTexto(info, 'strong', perfil.nome);
+                adicionarTexto(info, 'span', perfil.email);
+                link.append(foto, info);
+                resultadosPerfis.appendChild(link);
             }
 
-            if (poles.length === 0) {
-                resultadosPoles.innerHTML = mensagemSemResultado('Nenhum pole encontrado.');
-            } else {
-                poles.forEach(pole => {
-                    const resultado = document.createElement('a');
-                    const parametros = new URLSearchParams({
-                        id_local: pole.id_local,
-                        local: pole.nome_local
-                    });
-
-                    resultado.className = 'resultado-pole';
-                    resultado.href = '../painel/Painel-inicial.php?' + parametros.toString();
-
-                    resultado.innerHTML = `
-                        <strong>${pole.nome_local}</strong>
-                        <span>${pole.endereco_local}</span>
-                        <small>Clique para ver no mapa</small>
-                    `;
-
-                    resultadosPoles.appendChild(resultado);
-                });
+            if (!poles.length) {
+                mensagemSemResultado(resultadosPoles, 'Nenhum local encontrado.');
+            }
+            for (const pole of poles) {
+                const id = Number.parseInt(pole.id_local, 10);
+                if (!Number.isInteger(id) || id <= 0) continue;
+                const link = document.createElement('a');
+                link.className = 'resultado-pole';
+                link.href = '../painel/Painel-inicial.php?id_local=' + id;
+                adicionarTexto(link, 'strong', pole.nome_local);
+                adicionarTexto(link, 'span', pole.endereco_local);
+                adicionarTexto(link, 'small', 'Ver no mapa');
+                resultadosPoles.appendChild(link);
             }
 
-            if (eventos.length === 0) {
-                resultadosEventos.innerHTML = mensagemSemResultado('Nenhum evento encontrado.');
-            } else {
-                eventos.forEach(evento => {
-                    const resultado = document.createElement('a');
-
-                    resultado.className = 'resultado-evento';
-                    resultado.href = '../eventos/detalhes-evento.php?id_evento=' + evento.id_evento;
-
-                    resultado.innerHTML = `
-                        <strong>${evento.nome_evento}</strong>
-                        <span>${evento.nome_esporte} · ${evento.nome_local}</span>
-                        <span>${evento.data_evento} · ${evento.horario_evento}</span>
-                    `;
-
-                    resultadosEventos.appendChild(resultado);
-                });
+            if (!eventos.length) {
+                mensagemSemResultado(resultadosEventos, 'Nenhum evento encontrado.');
             }
-
-            if (perfis.length === 0 && poles.length === 0 && eventos.length === 0) {
-                resultadosPerfis.innerHTML = mensagemSemResultado('Nenhum resultado encontrado.');
-                resultadosPoles.innerHTML = '';
-                resultadosEventos.innerHTML = '';
+            for (const evento of eventos) {
+                const id = Number.parseInt(evento.id_evento, 10);
+                if (!Number.isInteger(id) || id <= 0) continue;
+                const link = document.createElement('a');
+                link.className = 'resultado-evento';
+                link.href = '../eventos/detalhes-evento.php?id_evento=' + id;
+                adicionarTexto(link, 'strong', evento.nome_evento);
+                adicionarTexto(link, 'span', evento.nome_esporte + ' · ' + evento.nome_local);
+                adicionarTexto(link, 'span', evento.data_evento + ' · ' + evento.horario_evento);
+                resultadosEventos.appendChild(link);
             }
         } catch (error) {
-            console.error('ERRO NA PESQUISA:', error);
-
-            resultadosPerfis.innerHTML = mensagemSemResultado('Não foi possível realizar a pesquisa.');
-            resultadosPoles.innerHTML = '';
-            resultadosEventos.innerHTML = '';
+            if (versaoAtual !== versaoPesquisa) return;
+            console.error('Erro na pesquisa:', error);
+            resultadosPerfis.replaceChildren();
+            resultadosPoles.replaceChildren();
+            resultadosEventos.replaceChildren();
+            mensagemSemResultado(resultadosPerfis, 'Não foi possível realizar a pesquisa.');
         }
     }, 300);
 });

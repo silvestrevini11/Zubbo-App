@@ -8,6 +8,7 @@ if (empty($_SESSION['usuario']['id'])) {
 }
 
 require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../config/logger.php';
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $erro = '';
@@ -83,13 +84,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sql = 'INSERT INTO Denuncia (' . implode(', ', $colunas) . ') VALUES (' . $marcadores . ')';
             $stmt = $conn->prepare($sql);
             $stmt->execute($valores);
+            zubbo_log('info', 'report.created', ['user_id' => $idUsuario, 'report_id' => (int) $conn->lastInsertId(), 'entity_type' => $tipoAlvo]);
 
             header('Location: fazer-denuncia.php?sucesso=1', true, 303);
             exit;
         } catch (InvalidArgumentException $e) {
             $erro = $e->getMessage();
         } catch (PDOException $e) {
-            error_log('Erro ao enviar denúncia: ' . $e->getMessage());
+            zubbo_log('error', 'report.create_failed', ['user_id' => $idUsuario, 'reason_code' => 'db_failure']);
             $erro = 'Não foi possível enviar sua denúncia agora. Tente novamente.';
         }
     }

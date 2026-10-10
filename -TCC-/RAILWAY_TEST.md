@@ -47,3 +47,20 @@ Os scripts desta branch não criam nem selecionam um banco fixo. Execute no banc
 ## Observação sobre uploads
 
 Fotos em `public/uploads` servem para teste, mas o filesystem do container não deve ser tratado como armazenamento persistente. Para produção, use um volume ou armazenamento externo.
+
+
+## E-mail via Resend (recomendado no Railway)
+
+Esta branch usa a API HTTPS do Resend por padrão para cadastro e recuperação de senha.
+
+Adicione no serviço `Zubbo-App`:
+
+```text
+ZUBBO_MAIL_PROVIDER=resend
+ZUBBO_RESEND_API_KEY=SUA_CHAVE_DA_RESEND
+ZUBBO_MAIL_FROM=Zubbo <onboarding@resend.dev>
+```
+
+Para um domínio próprio verificado no Resend, substitua `ZUBBO_MAIL_FROM` pelo remetente validado.
+
+O SMTP continua disponível apenas como fallback usando `ZUBBO_MAIL_PROVIDER=smtp`. O código agora possui timeout para evitar requisições presas.

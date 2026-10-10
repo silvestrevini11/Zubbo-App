@@ -3,8 +3,4 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
-echo json_encode([
-    'status' => 'ok',
-    'php' => PHP_VERSION,
-    'pdo_mysql' => extension_loaded('pdo_mysql'),
-], JSON_UNESCAPED_SLASHES);
+echo json_encode(['status' => 'ok'], JSON_UNESCAPED_SLASHES);

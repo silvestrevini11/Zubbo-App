@@ -1,6 +1,6 @@
 <?php require_once __DIR__ . '/../../../config/security.php'; ?>
 <nav class="bottom-nav">
-    <a href="<?= htmlspecialchars(zubbo_url('/app/views/painel/painel-inicial.php'), ENT_QUOTES, 'UTF-8') ?>" class="nav-item">
+    <a href="<?= htmlspecialchars(zubbo_url('/app/views/painel/Painel-inicial.php'), ENT_QUOTES, 'UTF-8') ?>" class="nav-item">
         <img class="nav-icon" src="<?= htmlspecialchars(zubbo_url('/public/imagem/inicio.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Início">
         <span>Início</span>
     </a>

@@ -14,7 +14,7 @@ $locaisMapa = [];
 $erroLocaisMapa = false;
 try {
     $stmtLocaisMapa = $conn->query("
-        SELECT DISTINCT nome_local, endereco_local, tipo_local
+        SELECT id_local, nome_local, endereco_local, tipo_local
         FROM LocalEsp
         WHERE status_local = 'aprovado'
           AND endereco_local LIKE '%Diadema%'
@@ -94,12 +94,12 @@ include __DIR__ . '/../includes/head.php';
 
 <link rel="stylesheet" href="../../../public/css/painel-eventos.css">
 <form class="painel-eventos-filtros" method="get" action="Painel-inicial.php">
-    <label for="painel-busca-evento">Pesquisar eventos</label>
+    <label for="painel-busca-evento">Pesquisar eventos ou locais</label>
     <div class="painel-eventos-busca">
-        <input id="painel-busca-evento" name="q" type="search" maxlength="100" placeholder="Nome do evento ou local" value="<?= escaparPainelEvento($buscaEvento) ?>">
+        <input id="painel-busca-evento" name="q" type="search" maxlength="100" placeholder="Digite o nome de um local ou evento" aria-controls="painel-busca-sugestoes" aria-autocomplete="list" value="<?= escaparPainelEvento($buscaEvento) ?>">
         <button type="submit" name="esporte" value="<?= escaparPainelEvento($filtroEvento) ?>">Pesquisar</button>
     </div>
-   
+    <div id="painel-busca-sugestoes" class="painel-busca-sugestoes" role="listbox" aria-label="Sugestões de locais e eventos" hidden></div>
 </form>
 
 <link
@@ -116,6 +116,7 @@ include __DIR__ . '/../includes/head.php';
 
 <div id="map" role="region" aria-label="Mapa dos locais esportivos de Diadema"></div>
 <p id="painel-status-mapa" role="status" style="padding: 12px 20px; font-size: 13px;">Carregando locais esportivos...</p>
+<button type="button" class="painel-liberar-mapa" id="painel-liberar-mapa" hidden>Desbloquear mapa</button>
 
 <link
   href="https://api.mapbox.com/mapbox-gl-js/v3.29.0/mapbox-gl.css"
@@ -176,6 +177,34 @@ include __DIR__ . '/../includes/head.php';
   const erroLocaisMapa = <?= $erroLocaisMapa ? 'true' : 'false' ?>;
   const localSelecionadoId = new URLSearchParams(window.location.search).get('id_local');
   const statusMapa = document.getElementById('painel-status-mapa');
+  const botaoDesbloquear = document.getElementById('painel-liberar-mapa');
+  let focoLocalAplicado = false;
+
+  function travarMapaNoLocal(coordenadas, marcador, nome) {
+    focoLocalAplicado = true;
+    map.flyTo({ center: coordenadas, zoom: 17, speed: 1.2, essential: true });
+    marcador.togglePopup();
+    map.dragPan.disable();
+    map.scrollZoom.disable();
+    map.touchZoomRotate.disable();
+    map.doubleClickZoom.disable();
+    map.boxZoom.disable();
+    map.keyboard.disable();
+    botaoDesbloquear.hidden = false;
+    statusMapa.textContent = 'Mapa fixado em ' + nome + '. Use Desbloquear mapa para navegar novamente.';
+  }
+
+  botaoDesbloquear.addEventListener('click', () => {
+    map.dragPan.enable();
+    map.scrollZoom.enable();
+    map.touchZoomRotate.enable();
+    map.doubleClickZoom.enable();
+    map.boxZoom.enable();
+    map.keyboard.enable();
+    botaoDesbloquear.hidden = true;
+    map.flyTo({ center: centroDiadema, zoom: 13, essential: true });
+    statusMapa.textContent = 'Mapa desbloqueado.';
+  });
 
   async function carregarMarcadoresLocais() {
     if (erroLocaisMapa) {
@@ -223,15 +252,7 @@ include __DIR__ . '/../includes/head.php';
           .addTo(map);
 
         if (localSelecionadoId && String(local.id_local) === String(localSelecionadoId)) {
-          map.flyTo({
-            center: coordenadas,
-            zoom: 17,
-            speed: 1.2,
-            essential: true
-          });
-
-          marcador.togglePopup();
-          statusMapa.textContent = 'Local encontrado: ' + local.nome_local;
+          travarMapaNoLocal(coordenadas, marcador, local.nome_local);
         }
 
         adicionados++;
@@ -241,10 +262,15 @@ include __DIR__ . '/../includes/head.php';
       } finally {
         clearTimeout(tempoLimite);
       }
-      statusMapa.textContent = adicionados + ' de ' + locaisMapa.length + ' locais no mapa.';
+      if (!focoLocalAplicado) {
+        statusMapa.textContent = adicionados + ' de ' + locaisMapa.length + ' locais no mapa.';
+      }
     }
-    if (falhas) {
+    if (falhas && !focoLocalAplicado) {
       statusMapa.textContent += ' ' + falhas + ' endereço(s) não localizado(s).';
+    }
+    if (localSelecionadoId && !focoLocalAplicado) {
+      statusMapa.textContent = 'O local selecionado não pôde ser localizado no mapa.';
     }
   }
   carregarMarcadoresLocais();
@@ -263,6 +289,86 @@ include __DIR__ . '/../includes/head.php';
     attributes: true,
     attributeFilter: ['class']
   });
+</script>
+
+
+<script>
+(() => {
+    const entrada = document.getElementById('painel-busca-evento');
+    const sugestoes = document.getElementById('painel-busca-sugestoes');
+    if (!entrada || !sugestoes) return;
+
+    const endpoint = <?= json_encode(zubbo_url('/app/views/painel/sugestoes-busca.php')) ?>;
+    const urlPainel = <?= json_encode(zubbo_url('/app/views/painel/Painel-inicial.php')) ?>;
+    const urlEvento = <?= json_encode(zubbo_url('/app/views/eventos/detalhes-evento.php')) ?>;
+    let timer, controller;
+
+    function item(titulo, subtitulo, destino) {
+        const link = document.createElement('a');
+        link.href = destino;
+        link.className = 'painel-sugestao-item';
+        link.setAttribute('role', 'option');
+        const strong = document.createElement('strong');
+        strong.textContent = titulo;
+        const small = document.createElement('small');
+        small.textContent = subtitulo;
+        link.append(strong, small);
+        sugestoes.appendChild(link);
+    }
+
+    function grupo(titulo) {
+        const cabecalho = document.createElement('p');
+        cabecalho.className = 'painel-sugestao-categoria';
+        cabecalho.textContent = titulo;
+        sugestoes.appendChild(cabecalho);
+    }
+
+    entrada.addEventListener('input', () => {
+        clearTimeout(timer);
+        if (controller) controller.abort();
+        sugestoes.replaceChildren();
+        sugestoes.hidden = true;
+        const termo = entrada.value.trim();
+        if (termo.length < 2) return;
+        timer = setTimeout(async () => {
+            controller = new AbortController();
+            try {
+                const resposta = await fetch(endpoint + '?q=' + encodeURIComponent(termo), {
+                    signal: controller.signal, credentials: 'same-origin'
+                });
+                if (!resposta.ok) return;
+                const dados = await resposta.json();
+                if (entrada.value.trim() !== termo) return;
+                sugestoes.replaceChildren();
+                if (Array.isArray(dados.locais) && dados.locais.length) {
+                    grupo('Locais esportivos');
+                    for (const local of dados.locais) {
+                        item(local.nome_local, local.endereco_local,
+                            urlPainel + '?id_local=' + encodeURIComponent(local.id_local));
+                    }
+                }
+                if (Array.isArray(dados.eventos) && dados.eventos.length) {
+                    grupo('Eventos');
+                    for (const evento of dados.eventos) {
+                        item(evento.nome_evento, evento.nome_esporte + ' · ' + evento.nome_local,
+                            urlEvento + '?id_evento=' + encodeURIComponent(evento.id_evento));
+                    }
+                }
+                sugestoes.hidden = !sugestoes.children.length;
+            } catch (error) {
+                if (error.name !== 'AbortError') console.warn('Busca de sugestões indisponível.');
+            }
+        }, 280);
+    });
+    entrada.addEventListener('keydown', event => {
+        if (event.key === 'Escape') sugestoes.hidden = true;
+    });
+    document.addEventListener('click', event => {
+        if (!entrada.contains(event.target) && !sugestoes.contains(event.target)) {
+            sugestoes.hidden = true;
+        }
+    });
+})();
 </script>
 
 <section class="painel-eventos-lista" aria-labelledby="painel-eventos-titulo">

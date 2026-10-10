@@ -62,32 +62,39 @@ $_SESSION['cadastro_pendente'] = [
     'tentativas_codigo' => 0,
 ];
 
-try {
-    $nomeSeguro = htmlspecialchars($nome, ENT_QUOTES, 'UTF-8');
-    $codigoSeguro = htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8');
+$demoMode = filter_var((string) getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN);
 
-    $html =
-        '<h2>Verifique seu e-mail</h2>' .
-        '<p>Olá, <strong>' . $nomeSeguro . '</strong>.</p>' .
-        '<p>Seu código de verificação é <strong>' . $codigoSeguro . '</strong>.</p>' .
-        '<p>Ele expira em 10 minutos.</p>';
-
-    $texto = 'Seu código de verificação do Zubbo é: ' . $codigo . '. Ele expira em 10 minutos.';
-
-    zubbo_enviar_email(
-        $email,
-        'Código de verificação - Zubbo',
-        $html,
-        $texto
-    );
-
+if ($demoMode) {
+    $_SESSION['codigo_demo'] = $codigo;
     zubbo_rate_limit_reset('cadastro', $email);
-} catch (Throwable $e) {
-    error_log('Falha ao enviar verificação: ' . $e->getMessage());
-    unset($_SESSION['cadastro_pendente']);
-    zubbo_rate_limit_hit('cadastro', 3600, $email);
-    header('Location: cadastro.php?erro=email_envio');
-    exit;
+} else {
+    try {
+        $nomeSeguro = htmlspecialchars($nome, ENT_QUOTES, 'UTF-8');
+        $codigoSeguro = htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8');
+
+        $html =
+            '<h2>Verifique seu e-mail</h2>' .
+            '<p>Olá, <strong>' . $nomeSeguro . '</strong>.</p>' .
+            '<p>Seu código de verificação é <strong>' . $codigoSeguro . '</strong>.</p>' .
+            '<p>Ele expira em 10 minutos.</p>';
+
+        $texto = 'Seu código de verificação do Zubbo é: ' . $codigo . '. Ele expira em 10 minutos.';
+
+        zubbo_enviar_email(
+            $email,
+            'Código de verificação - Zubbo',
+            $html,
+            $texto
+        );
+
+        zubbo_rate_limit_reset('cadastro', $email);
+    } catch (Throwable $e) {
+        error_log('Falha ao enviar verificação: ' . $e->getMessage());
+        unset($_SESSION['cadastro_pendente'], $_SESSION['codigo_demo']);
+        zubbo_rate_limit_hit('cadastro', 3600, $email);
+        header('Location: cadastro.php?erro=email_envio');
+        exit;
+    }
 }
 
 header('Location: verificar-email.php');

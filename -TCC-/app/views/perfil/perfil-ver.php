@@ -113,10 +113,6 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
         <?= htmlspecialchars($usuario['email_user']) ?>
     </h3>
 
-    <div class="perfil-nivel">
-        <p class="perfil-nivel-nome">Nivel-Iniciante</p>
-    </div>
-
     <div class="perfil-status">
         <div class="perfil-eventos">
             <h3 class="perfil-name">Eventos</h3>

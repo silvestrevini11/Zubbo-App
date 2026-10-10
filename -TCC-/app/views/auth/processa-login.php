@@ -81,5 +81,5 @@ if ($idAdmin !== null) {
     exit;
 }
 
-header('Location: ../painel/painel-inicial.php');
+header('Location: ../painel/Painel-inicial.php');
 exit;

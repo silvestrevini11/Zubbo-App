@@ -18,6 +18,8 @@ $idAdminAtual = AdminService::buscarIdAtivo(
 
 if ($idAdminAtual === null) {
     unset($_SESSION['admin'], $_SESSION['admin_csrf_token'], $_SESSION['admin_flash']);
+    require_once __DIR__ . '/../../../config/logger.php';
+    zubbo_log('warning', 'admin.access_denied', ['user_id' => (int) $_SESSION['usuario']['id']]);
     header('Location: ../painel/Painel-inicial.php');
     exit;
 }
@@ -72,5 +74,11 @@ function admin_registrar_acao(PDO $conn, string $tipo, string $motivo, array $al
         ':id_comunidade' => $alvos['id_comunidade'] ?? null,
         ':tipo_acao' => $tipo,
         ':motivo' => mb_substr($motivo, 0, 255),
+    ]);
+    require_once __DIR__ . '/../../../config/logger.php';
+    zubbo_log('info', 'admin.action_logged', [
+        'admin_id' => (int) $_SESSION['admin']['id'],
+        'action' => $tipo,
+        'entity_type' => isset($alvos['id_user']) ? 'user' : (isset($alvos['id_evento']) ? 'event' : 'other'),
     ]);
 }

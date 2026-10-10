@@ -83,7 +83,7 @@ include __DIR__ . '/../includes/head.php';
         </button>
     </section>
 
-    <p class="configuracoes-versao">Zubbo <span>versão 1.0.0</span></p>
+    <p class="configuracoes-versao"><a href="<?= htmlspecialchars(zubbo_url('/public/privacidade.php'), ENT_QUOTES, 'UTF-8') ?>">Privacidade e uso responsável</a> · Zubbo <span>versão 1.0.0</span></p>
 </main>
 
 <dialog class="modal-excluir" id="modal-excluir" aria-labelledby="titulo-excluir">

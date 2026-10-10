@@ -32,6 +32,10 @@ $stmt = $conn->prepare(
 $stmt->execute([$idConversa]);
 $mensagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Uma conversa aberta e consultada considera as mensagens recebidas como lidas.
+$conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
+    ->execute([$idUsuario, $idConversa]);
+
 foreach ($mensagens as &$msg) {
     $msg['minha'] = (int) $msg['id_remetente'] === $idUsuario;
 }

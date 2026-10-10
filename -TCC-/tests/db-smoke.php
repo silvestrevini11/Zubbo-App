@@ -72,4 +72,27 @@ $conn->prepare('INSERT INTO Denuncia (id_denunciante, id_local, motivo, descrica
 $conn->prepare('INSERT INTO Denuncia (id_denunciante, id_evento, motivo, descricao) VALUES (?, ?, ?, ?)')->execute([$id2, $idEvento, 'Outro', 'Evento simulado para testar a denúncia.']);
 confirmar((int)$conn->query('SELECT COUNT(*) FROM Denuncia WHERE id_local IS NOT NULL OR id_evento IS NOT NULL')->fetchColumn() === 2, 'denuncias de evento e local');
 
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+$_SESSION['usuario'] = [
+    'id' => $id1,
+    'nome' => 'Primeiro',
+    'email' => 'primeiro-ci@localhost.test'
+];
+
+// Exercita os arquivos reais de listagem, para detectar parâmetros PDO
+// inexistentes, consultas incompatíveis e erros fatais de renderização.
+foreach ([
+    'chats.php' => 'conversas privadas',
+    'chats-grupos.php' => 'conversas em grupo',
+] as $arquivo => $rotulo) {
+    ob_start();
+    require __DIR__ . '/../app/views/chats/' . $arquivo;
+    $html = ob_get_clean();
+    confirmar(str_contains($html, 'Conversas'), 'renderizar lista de ' . $rotulo);
+}
+unset($_SESSION['usuario']);
+
 echo "Testes de integracao MySQL concluidos.\n";

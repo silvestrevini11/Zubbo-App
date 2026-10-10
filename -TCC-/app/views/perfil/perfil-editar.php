@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (!isset($_SESSION['usuario']['id'])) {
     header('Location: ../auth/login.php');
@@ -55,8 +56,13 @@ $mensagensErro = [
     'sobre_mim' => 'O Sobre Mim pode ter no máximo 500 caracteres.',
     'email' => 'Informe um e-mail válido.',
     'email_existente' => 'Este e-mail já está sendo usado por outra conta.',
+    'email_envio' => 'Não foi possível enviar a confirmação. Tente novamente.',
+    'email_expirado' => 'Sua confirmação expirou. Solicite a alteração novamente.',
+    'senha_atual' => 'A senha atual informada está incorreta.',
+    'senha_repetida' => 'A nova senha precisa ser diferente da atual.',
+    'limite' => 'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
     'telefone' => 'Informe um telefone com 11 números, incluindo o DDD.',
-    'senha' => 'A nova senha precisa ter pelo menos 6 caracteres.',
+    'senha' => 'A nova senha precisa ter entre 8 e 255 caracteres.',
     'senhas_diferentes' => 'A confirmação da senha não corresponde à nova senha.',
     'data' => 'Informe uma data de nascimento válida.',
     'salvar' => 'Não foi possível salvar a alteração. Tente novamente.',
@@ -147,7 +153,9 @@ include __DIR__ . '/../includes/head.php';
                 autocomplete="email"
                 required
             >
-            <small>Usaremos para recuperação de conta e notificações.</small>
+            <small>Usaremos para recuperação de conta e notificações. A troca só acontece após confirmar o novo endereço.</small>
+            <label class="editar-label-secundario" for="senha-atual-email">Senha atual para confirmar</label>
+            <input id="senha-atual-email" type="password" name="senha_atual" autocomplete="current-password" required>
             <button class="editar-campo-btn" type="submit">Alterar e-mail</button>
         </form>
 
@@ -178,12 +186,14 @@ include __DIR__ . '/../includes/head.php';
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
             <input type="hidden" name="acao" value="senha">
 
+            <label for="senha-atual-senha">Senha atual</label>
+            <input id="senha-atual-senha" type="password" name="senha_atual" autocomplete="current-password" required>
             <label for="editar-senha">Nova senha</label>
             <input
                 id="editar-senha"
                 type="password"
                 name="senha"
-                minlength="6"
+                minlength="8"
                 autocomplete="new-password"
                 placeholder="Nova senha"
                 required

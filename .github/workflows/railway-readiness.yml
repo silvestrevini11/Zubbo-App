@@ -55,3 +55,21 @@ jobs:
             echo "Os scripts SQL ainda selecionam/criam um banco fixo."
             exit 1
           fi
+
+      - name: HTTP smoke for Railway router
+        shell: bash
+        working-directory: ./-TCC-
+        run: |
+          ZUBBO_BASE_PATH=/ php -S 127.0.0.1:8999 router.php > /tmp/zubbo-smoke.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 2
+          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/health.php)" = "200"
+          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/)" = "302"
+          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/app/views/auth/login.php)" = "200"
+          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/app/views/painel/sugestoes-busca.php)" = "401"
+          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/public/css/style.css)" = "200"
+          for path in config/database.php database/scripts/criacaotables.sql vendor/autoload.php RAILWAY_TEST.md router.php app/views/admin/_auth.php; do
+            test "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8999/$path")" = "404"
+          done
+          grep -q '"status":"ok"' <(curl -sS http://127.0.0.1:8999/health.php)

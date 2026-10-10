@@ -73,3 +73,8 @@ jobs:
             test "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8999/$path")" = "404"
           done
           grep -q '"status":"ok"' <(curl -sS http://127.0.0.1:8999/health.php)
+          # Todas as ações sensíveis recusam POST sem CSRF e GET não permitido.
+          for path in app/views/notificacoes/aceitar-amizade.php app/views/perfil/adicionar-amigo.php app/views/chats/enviar-mensagem.php; do
+            test "$(curl -sS -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:8999/$path")" = "403"
+            test "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8999/$path")" = "405"
+          done

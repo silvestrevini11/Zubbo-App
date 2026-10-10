@@ -1,18 +1,17 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
-include __DIR__ . '/../includes/head.php';
 
 $id_usuario = (int)$_SESSION['usuario']['id'];
 $id_conversa = (int)($_GET['id_conversa'] ?? 0);
 
 $stmt = $conn->prepare("
-    SELECT g.*, COUNT(pc2.id_user) AS total_participantes
+    SELECT g.*,
+           (SELECT COUNT(*) FROM Participantes_Conversa p WHERE p.id_conversa = g.id_conversa) AS total_participantes
     FROM Grupo g
     INNER JOIN Conversa c ON c.id_conversa = g.id_conversa AND c.tipo_conversa = 'grupo'
     INNER JOIN Participantes_Conversa pc ON pc.id_conversa = g.id_conversa AND pc.id_user = ?
-    LEFT JOIN Participantes_Conversa pc2 ON pc2.id_conversa = g.id_conversa
     WHERE g.id_conversa = ?
-    GROUP BY g.id_grupo
+    LIMIT 1
 ");
 $stmt->execute([$id_usuario, $id_conversa]);
 $grupo = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -31,6 +30,11 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute([$id_conversa]);
 $mensagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
+    ->execute([$id_usuario, $id_conversa]);
+
+include __DIR__ . '/../includes/head.php';
 
 $conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
     ->execute([$id_usuario, $id_conversa]);

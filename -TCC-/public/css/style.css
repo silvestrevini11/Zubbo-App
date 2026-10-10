@@ -2607,6 +2607,13 @@ html.tema-escuro .esporte-card:has(input:checked) {
     font-size: 21px;
     font-weight: 700;
 }
+.perfil-eventos-num,
+.perfil-status-num {
+    margin: 0;
+    color: #111111;
+    font-size: 21px;
+    font-weight: 700;
+}
 
 
 

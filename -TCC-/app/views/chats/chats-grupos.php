@@ -79,8 +79,8 @@ $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($grupos as $grupo): ?>
             <?php
                 $foto = $grupo['foto_grupo']
-                    ? '/-TCC-/'.$grupo['foto_grupo']
-                    : '/-TCC-/public/imagem/blank.png';
+                    ? zubbo_url('/' . ltrim((string) $grupo['foto_grupo'], '/'))
+                    : zubbo_url('/public/imagem/blank.png');
 
                 $resumo = $grupo['ultima_mensagem']
                     ?: ($grupo['descricao_grupo'] ?: $grupo['total_participantes'].' participantes');

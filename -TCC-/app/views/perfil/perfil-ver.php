@@ -110,9 +110,7 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
         <?= htmlspecialchars($usuario['nome_user']) ?>
     </h1>
 
-    <h3 class="perfil-email">
-        <?= htmlspecialchars($usuario['email_user']) ?>
-    </h3>
+    <p class="perfil-email">Perfil da comunidade Zubbo</p>
 
     <div class="perfil-status">
         <div class="perfil-eventos">

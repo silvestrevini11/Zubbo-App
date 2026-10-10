@@ -90,6 +90,7 @@ include __DIR__ . '/../includes/head.php';
                     src="<?= htmlspecialchars($foto) ?>"
                     alt="Foto de perfil"
                     class="chat-item-foto"
+                    onerror="this.onerror=null;this.src='<?= htmlspecialchars(zubbo_url('/public/imagem/blank.png'), ENT_QUOTES, 'UTF-8') ?>'"
                 >
 
                 <div class="chat-item-info">

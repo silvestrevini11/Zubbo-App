@@ -7715,3 +7715,55 @@ html.tema-escuro .esportes-grid .esporte-card:has(input:checked) {
 .esportes-grid .esporte-card:hover {
     border-color: #FF7A00;
 }
+
+/* Zubbo: lista minimalista de amigos e busca */
+body:has(.amigos-container) { background: #f2f3f5; }
+.amigos-container {
+    max-width: 680px; min-height: calc(100vh - 72px); padding: 30px 20px 104px;
+    background: #f2f3f5;
+}
+.amigos-container .amigos-titulo { text-align: center; margin-bottom: 24px; }
+.amigos-container .amigos-lista {
+    display: flex; flex-direction: column; align-items: stretch;
+    gap: 12px; width: 100%; max-width: none; margin: 0; padding: 0;
+    background: transparent; border: none; box-shadow: none;
+}
+.amigos-container .chat-item {
+    width: 100%; min-height: 88px; margin: 0; padding: 13px 17px;
+    background: #fff; border: 1px solid #e6e7eb; border-radius: 16px;
+    box-shadow: 0 2px 9px rgba(25,25,25,.035);
+}
+.amigos-container .chat-item:hover, .amigos-container .chat-item:focus-visible {
+    border-color: #fa7a31; box-shadow: 0 5px 15px rgba(25,25,25,.08);
+}
+.amigos-container .chat-item-foto { border-color: #fa792e; }
+.amigos-container .perfil-hr { display: none; }
+.pesquisa-catalogo-hr {
+    display: block; width: calc(100% - 40px); margin: 18px auto 23px;
+    border: 0; border-top: 1px solid #dee0e5;
+}
+.nav-mensagens { position: relative; }
+.nav-unread-badge:not([hidden]) {
+    position: absolute; top: 5px; left: calc(50% + 7px); z-index: 2;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 19px; height: 19px; padding: 0 5px; border-radius: 12px;
+    background: #e73e1d; color: #fff; font-size: 11px;
+    font-weight: 800; line-height: 1;
+    box-shadow: 0 0 0 2px #f0f0f0;
+}
+.nav-unread-badge[hidden] { display: none !important; }
+.chat-item-unread {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+    min-width: 22px; height: 22px; padding: 0 7px; margin-left: auto;
+    border-radius: 14px; background: #e73e1d; color: #fff;
+    font-size: 11px; font-weight: 800;
+}
+.suporte-alvo-campo[hidden] { display: none !important; }
+html.tema-escuro body:has(.amigos-container),
+html.tema-escuro .amigos-container { background: #18191b; }
+html.tema-escuro .amigos-container .chat-item {
+    background: #27282b; border-color: #414146; color: #f1f1f1;
+}
+html.tema-escuro .amigos-container .chat-item-info strong,
+html.tema-escuro .amigos-container .amigos-titulo { color: #f1f1f1; }
+html.tema-escuro .pesquisa-catalogo-hr { border-top-color: #45464c; }

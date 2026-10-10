@@ -1,6 +1,13 @@
 <?php
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
-session_start();
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    header('Location: escolher-esportes.php');
+    exit;
+}
+
+zubbo_require_csrf();
 
 if (
     !isset($_SESSION['cadastro_pendente']) ||
@@ -166,7 +173,7 @@ try {
 */
 
 unset($_SESSION['cadastro_pendente']);
-unset($_SESSION['email_verificado']);
+unset($_SESSION['email_verificado'], $_SESSION['codigo_demo']);
 
 
 /*

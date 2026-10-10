@@ -12,9 +12,9 @@ if (isset($_GET['conta']) && $_GET['conta'] === 'inativa') {
 include __DIR__ . '/../includes/head.php';
 ?>
 <main class="login-container">
-    <button class="btn-voltar" type="button" onclick="window.location.href='../../../public/index.php'">←</button>
+    <button class="btn-voltar" type="button" onclick="window.location.href='<?= htmlspecialchars(zubbo_url('/public/index.php'), ENT_QUOTES, 'UTF-8') ?>'">←</button>
 
-    <img src="../../../public/imagem/LogooZ.png" alt="Logo Zubbo" class="login-logo">
+    <img src="<?= htmlspecialchars(zubbo_url('/public/imagem/LogooZ.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Logo Zubbo" class="login-logo">
     <h1>Entrar</h1>
     <p class="login-subtitle">Que bom te ver de novo!</p>
 

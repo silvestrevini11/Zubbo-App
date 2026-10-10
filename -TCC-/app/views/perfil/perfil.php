@@ -51,107 +51,119 @@ $esportes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <section style="padding-bottom: 80px;">
 
-<button onclick="window.location.href='./perfil-configuracoes.php';" class="perfil-config"></button>
-<button onclick="window.location.href='./perfil-editar.php';" class="perfil-editar"></button>
+    <button onclick="window.location.href='./perfil-configuracoes.php';" class="perfil-config"></button>
+    <button onclick="window.location.href='./perfil-editar.php';" class="perfil-editar"></button>
 
-<?php
+    <?php
     $stmtFoto = $conn->prepare("
     SELECT foto_user
     FROM Usuario
     WHERE id_user = ?
 ");
 
-$stmtFoto->execute([$id_user]);
+    $stmtFoto->execute([$id_user]);
 
-$usuarioFoto = $stmtFoto->fetch(PDO::FETCH_ASSOC);
+    $usuarioFoto = $stmtFoto->fetch(PDO::FETCH_ASSOC);
 
-$fotoPerfil = !empty($usuarioFoto['foto_user'])
-    ? zubbo_url('/' . ltrim((string) $usuarioFoto['foto_user'], '/'))
-    : zubbo_url('/public/imagem/blank.png');
-?>
-
-<form action="upload-foto.php" method="POST" enctype="multipart/form-data">
-    <?= zubbo_csrf_input() ?>
-
-    <label for="fotoPerfil" class="perfil-pic-label">
-
-        <img
-            class="perfil-pic"
-            src="<?= htmlspecialchars($fotoPerfil) ?>"
-            alt="Foto de perfil"
-        >
-
-    </label>
-
-    <input
-        type="file"
-        id="fotoPerfil"
-        name="fotoPerfil"
-        accept="image/png, image/jpeg, image/webp"
-        hidden
-    >
-
-</form>
-
-<script>
-const inputFoto = document.getElementById('fotoPerfil');
-
-inputFoto.addEventListener('change', function () {
-
-    if (this.files.length > 0) {
-        this.form.submit();
-    }
-
-});
-</script>
-
-<h1 class="perfil-nome">
-    <?= htmlspecialchars($usuario['nome_user']) ?>
-</h1>
-
-<h3 class="perfil-email">
-    <?= htmlspecialchars($usuario['email_user']) ?>
-</h3>
+    $fotoPerfil = !empty($usuarioFoto['foto_user'])
+        ? zubbo_url('/' . ltrim((string) $usuarioFoto['foto_user'], '/'))
+        : zubbo_url('/public/imagem/blank.png');
 
 
-<div class="perfil-nivel">
-    <p class="perfil-nivel-nome">Nivel-Inciante</p>
-</div>
 
-<div class="perfil-status">
-    <div class="perfil-eventos">
-        <h3 class="perfil-name">Eventos</h3>
+    $sqlEventos = "
+    SELECT COUNT(*) AS total
+    FROM (
+        SELECT id_evento
+        FROM Evento
+        WHERE id_criador = ?
+
+        UNION
+
+        SELECT id_evento
+        FROM Lista_Evento
+        WHERE id_user = ?
+    ) AS eventos_usuario
+";
+
+    $stmtEventos = $conn->prepare($sqlEventos);
+    $stmtEventos->execute([$id_user, $id_user]);
+
+    $quantidadeEventos = (int) $stmtEventos->fetchColumn();
+    ?>
+
+    <form action="upload-foto.php" method="POST" enctype="multipart/form-data">
+        <?= zubbo_csrf_input() ?>
+
+        <label for="fotoPerfil" class="perfil-pic-label">
+
+            <img class="perfil-pic" src="<?= htmlspecialchars($fotoPerfil) ?>" alt="Foto de perfil">
+
+        </label>
+
+        <input type="file" id="fotoPerfil" name="fotoPerfil" accept="image/png, image/jpeg, image/webp" hidden>
+
+    </form>
+
+    <script>
+        const inputFoto = document.getElementById('fotoPerfil');
+
+        inputFoto.addEventListener('change', function () {
+
+            if (this.files.length > 0) {
+                this.form.submit();
+            }
+
+        });
+    </script>
+
+    <h1 class="perfil-nome">
+        <?= htmlspecialchars($usuario['nome_user']) ?>
+    </h1>
+
+    <h3 class="perfil-email">
+        <?= htmlspecialchars($usuario['email_user']) ?>
+    </h3>
+
+    <div class="perfil-status">
+        <div class="perfil-eventos">
+            <a href="../eventos/eventos.php" class="perfil-eventos-link">
+                <h3 class="perfil-name">Eventos</h3>
+                <h2 class="perfil-eventos-num">
+                    <?= $quantidadeEventos ?>
+                </h2>
+            </a>
     </div>
     <a href="amigos.php" class="perfil-amigos">
 
-    <h3 class="perfil-name">Amigos</h3>
+        <h3 class="perfil-name">Amigos</h3>
 
-    <h2 class="perfil-amigos-num">
-        <?= $quantidadeAmigos ?>
-    </h2>
+        <h2 class="perfil-amigos-num">
+            <?= $quantidadeAmigos ?>
+        </h2>
 
-</a>
-</div>
+    </a>
+    </div>
 
-<div class="perfil-sobre">
-    <h2 class="perfil-sobremim">Sobre Mim</h2>
+    <div class="perfil-sobre">
+        <h2 class="perfil-sobremim">Sobre Mim</h2>
 
-    <p class="perfil-sobremim-texto">
-        <?= !empty($usuario['sobre_mim'])
-            ? nl2br(htmlspecialchars($usuario['sobre_mim']))
-            : 'Este usuário ainda não publicou uma descrição, vá a edição do perfil para adicionar!.' ?>
-    </p>
-</div>
+        <p class="perfil-sobremim-texto">
+            <?= !empty($usuario['sobre_mim'])
+                ? nl2br(htmlspecialchars($usuario['sobre_mim']))
+                : 'Este usuário ainda não publicou uma descrição, vá a edição de perfil para adicionar!.' ?>
+        </p>
+    </div>
 
-<div class="perfil-esportes">
+    <div class="perfil-esportes">
 
-    <h2>Meus Esportes</h2>
+        <h2>Meus Esportes</h2>
 
-    <div class="esportes-lista">
+        <div class="esportes-lista">
 
-        <?php foreach ($esportes as $esporte): ?>
+            <?php foreach ($esportes as $esporte): ?>
 
-            <?php
+                <?php
                 $nome = $esporte['nome_esporte'];
 
                 $classe = match ($nome) {
@@ -164,17 +176,17 @@ inputFoto.addEventListener('change', function () {
                     'Handebol' => 'esporte-handebol',
                     default => 'esporte-outro'
                 };
-            ?>
+                ?>
 
-            <div class="esporte-card <?= $classe ?>">
-                <span class="esporte-card-txt"><?= htmlspecialchars($nome) ?></span>
-            </div>
+                <div class="esporte-card <?= $classe ?>">
+                    <span class="esporte-card-txt"><?= htmlspecialchars($nome) ?></span>
+                </div>
 
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+
+        </div>
 
     </div>
-
-</div>
 
 
 </section>

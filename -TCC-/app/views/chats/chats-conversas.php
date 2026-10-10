@@ -8,7 +8,6 @@ if (!isset($_SESSION['usuario'])) {
     exit;
 }
 
-include __DIR__ . '/../includes/head.php';
 include __DIR__ . '/../../../config/database.php';
 
 $id_usuario_logado = (int) $_SESSION['usuario']['id'];
@@ -149,6 +148,7 @@ $fotoPerfil = !empty($usuario['foto_user'])
     ? zubbo_url('/' . ltrim((string) $usuario['foto_user'], '/'))
     : zubbo_url('/public/imagem/blank.png');
 
+include __DIR__ . '/../includes/head.php';
 ?>
 
 <section class="chat-container">
@@ -221,6 +221,7 @@ $fotoPerfil = !empty($usuario['foto_user'])
         method="POST"
         class="chat-form"
     >
+        <?= zubbo_csrf_input() ?>
 
         <input
             type="hidden"

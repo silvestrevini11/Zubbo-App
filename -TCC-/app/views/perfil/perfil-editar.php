@@ -72,7 +72,8 @@ include __DIR__ . '/../includes/head.php';
 <main class="editar-dados-container">
     <header class="editar-dados-topo">
         <a class="editar-dados-voltar" href="perfil.php" aria-label="Voltar para o perfil">←</a>
-        <img class="editar-dados-logo" src="/../Zubbo-app/-TCC-/public/imagem/LogooZ.png" alt="Zubbo">
+        <img class="editar-dados-logo"
+            src="<?= htmlspecialchars(zubbo_url('/public/imagem/LogooZ.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Zubbo">
     </header>
 
     <h1>Alterar Dados</h1>

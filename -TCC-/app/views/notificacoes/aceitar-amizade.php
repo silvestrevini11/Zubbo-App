@@ -192,9 +192,8 @@ try {
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
+    error_log('Erro ao aceitar amizade: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Não foi possível aceitar a amizade. Tente novamente.');
 
-    die(
-        '<h2>Erro ao aceitar amizade</h2>' .
-        '<p>' . htmlspecialchars($e->getMessage()) . '</p>'
-    );
 }

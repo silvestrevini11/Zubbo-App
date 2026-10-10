@@ -28,5 +28,5 @@ include __DIR__.'/../app/views/includes/head.php';
 </section>
 
 <?php
-include __DIR__.'/../app/views/includes/head.php';
+include __DIR__.'/../app/views/includes/footer.php';
 ?>

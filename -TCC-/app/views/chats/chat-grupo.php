@@ -36,11 +36,6 @@ $conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND
 
 include __DIR__ . '/../includes/head.php';
 
-$conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
-    ->execute([$id_usuario, $id_conversa]);
-
-include __DIR__ . '/../includes/head.php';
-
 $foto = $grupo['foto_grupo']
     ? zubbo_url('/' . ltrim((string) $grupo['foto_grupo'], '/'))
     : zubbo_url('/public/imagem/blank.png');

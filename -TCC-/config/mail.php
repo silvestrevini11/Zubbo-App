@@ -41,7 +41,19 @@ function zubbo_configurar_mail(\PHPMailer\PHPMailer\PHPMailer $mail): void
         $mail->SMTPSecure = '';
     }
 
-    $mail->setFrom($remetente, 'Zubbo');
+    $nomeRemetente = 'Zubbo';
+    $emailRemetente = $remetente;
+
+    if (preg_match('/^\s*(.*?)\s*<([^<>]+)>\s*$/', $remetente, $match)) {
+        $nomeRemetente = trim($match[1]) !== '' ? trim($match[1]) : 'Zubbo';
+        $emailRemetente = trim($match[2]);
+    }
+
+    if (!filter_var($emailRemetente, FILTER_VALIDATE_EMAIL)) {
+        throw new RuntimeException('ZUBBO_MAIL_FROM contém um endereço inválido.');
+    }
+
+    $mail->setFrom($emailRemetente, $nomeRemetente);
 }
 
 function zubbo_enviar_email(
@@ -50,9 +62,11 @@ function zubbo_enviar_email(
     string $html,
     string $texto = ''
 ): void {
-    $provider = strtolower(trim((string) (getenv('ZUBBO_MAIL_PROVIDER') ?: 'resend')));
+    $provider = strtolower(trim((string) getenv('ZUBBO_MAIL_PROVIDER')));
+    $resendKey = trim((string) getenv('ZUBBO_RESEND_API_KEY'));
 
-    if ($provider === 'resend') {
+    // No Railway, priorize a API HTTPS do Resend sempre que a chave estiver configurada.
+    if ($resendKey !== '' && ($provider === '' || $provider === 'resend')) {
         zubbo_enviar_email_resend($destinatario, $assunto, $html, $texto);
         return;
     }

@@ -197,6 +197,7 @@ try {
         default:
             voltarComErro('salvar');
     }
-} catch (PDOException $e) {
+} catch (Throwable $e) {
+    zubbo_log('error', 'account.update_failed', ['user_id' => $id_user, 'reason_code' => 'internal_error']);
     voltarComErro('salvar');
 }

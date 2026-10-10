@@ -44,7 +44,7 @@ O Zubbo é um trabalho colaborativo. A distribuição de responsabilidades abaix
 | **Kaue Mota** | **Design e estilização da interface**, ajustes visuais e participação na pesquisa de campo dos poliesportivos. |
 | **Pedro Nathan** | Apoio no **banco de dados**, estruturação de funcionalidades **JavaScript** e configuração do **Android Studio** para a futura versão mobile. |
 | **Vinicius Silvestre** | **Documentação do TCC**, organização das informações e desenvolvimento da **revista e dos materiais de apresentação** do projeto. |
-| **Mayara** | **Documentação do TCC** e **estruturação da revista**, contribuindo para a organização e apresentação das informações do trabalho. |
+| **Mayara Santos** | **Documentação do TCC** e **estruturação da revista**, contribuindo para a organização e apresentação das informações do trabalho. |
 
 Além das atividades individuais, a equipe participa da revisão das funcionalidades, dos testes finais e da preparação da apresentação do TCC.
 

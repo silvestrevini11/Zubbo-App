@@ -147,6 +147,10 @@ $naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
                     </span>
 
                 </div>
+                <?php $totalNaoLidas = (int)($naoLidas[$conversa['id_conversa']] ?? 0); ?>
+                <?php if ($totalNaoLidas > 0): ?>
+                    <span class="chat-item-unread" aria-label="<?= $totalNaoLidas ?> mensagens não lidas"><?= $totalNaoLidas > 99 ? '99+' : $totalNaoLidas ?></span>
+                <?php endif; ?>
 
             </a>
             <hr class="perfil-hr">

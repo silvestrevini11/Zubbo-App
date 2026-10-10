@@ -55,6 +55,16 @@ final class AdminService
             : $stmt->execute([$email]);
 
         $idExistente = $stmt->fetchColumn();
+        // O comando de provisionamento é explícito, mas jamais deve reatribuir
+        // silenciosamente uma conta administrativa que pertença a outro usuário.
+        if ($idExistente !== false && self::possuiRelacaoUsuario($conn)) {
+            $dono = $conn->prepare('SELECT id_user FROM Administrador WHERE id_adm = ? LIMIT 1');
+            $dono->execute([(int) $idExistente]);
+            $idDono = $dono->fetchColumn();
+            if ($idDono !== null && $idDono !== false && (int) $idDono !== $idUsuario) {
+                throw new RuntimeException('Administrador já associado a outro usuário.');
+            }
+        }
         $senhaLegada = password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT);
 
         if ($idExistente !== false) {

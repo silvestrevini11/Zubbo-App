@@ -24,28 +24,37 @@ O projeto une desenvolvimento de sistemas, convivência comunitária e incentivo
 
 ## Instituição de ensino
 
-- **Instituição:** Escola Técnica Estadual (**ETEC**), integrante da rede do **Centro Paula Souza (CPS)**.
+- **Instituição:** **ETEC Juscelino Kubitschek**, integrante da rede de Escolas Técnicas Estaduais do **Centro Paula Souza (CPS)**.
 - **Curso:** Técnico em Desenvolvimento de Sistemas.
-- **Natureza do trabalho:** Trabalho de Conclusão de Curso.
+- **Natureza do trabalho:** Trabalho de Conclusão de Curso (TCC).
 - **Ano:** 2026.
-- **Unidade da ETEC:** *a equipe poderá acrescentar a unidade específica*.
-- **Turma e orientação:** *a preencher com os dados oficiais do TCC*.
+- **Projeto:** Zubbo — plataforma de encontros esportivos comunitários.
 
-O desenvolvimento do Zubbo envolve conhecimentos adquiridos no curso, como programação web, banco de dados, modelagem, interface, testes, documentação, segurança e organização de projetos de software.
+O desenvolvimento do Zubbo coloca em prática conhecimentos adquiridos no curso, como programação web, banco de dados, modelagem, redes de computadores, segurança da informação, testes, documentação e organização de projetos de software.
 
-## Equipe do projeto
+## Equipe de desenvolvimento
 
-O Zubbo é desenvolvido por **estudantes do curso Técnico em Desenvolvimento de Sistemas da ETEC**, com colaboração nas etapas de planejamento, prototipação, programação, modelagem de banco de dados, testes e apresentação acadêmica.
+O Zubbo é um trabalho colaborativo. A distribuição de responsabilidades abaixo foi baseada no **Relatório de Progresso do Projeto Zubbo**, com os nomes completos informados pela equipe.
 
-| Identificação | Informação |
+| Integrante | Principais responsabilidades |
 |---|---|
-| **Equipe** | Equipe de desenvolvimento do TCC Zubbo |
-| **Integrantes** | *Nomes a serem confirmados pela equipe* |
-| **Professor(a) orientador(a)** | *A preencher* |
-| **ETEC / unidade** | *A preencher* |
-| **Curso** | Técnico em Desenvolvimento de Sistemas |
+| **Vitor Santos** | Estruturação e organização do **banco de dados**, organização do projeto e levantamento de informações por meio da pesquisa nos poliesportivos. |
+| **Ycaro Jesus** | Desenvolvimento do **back-end**, correção de problemas técnicos e integração das funcionalidades da aplicação. |
+| **Kaue Mota** | **Design e estilização da interface**, ajustes visuais e participação na pesquisa de campo dos poliesportivos. |
+| **Pedro Nathan** | Apoio no **banco de dados**, estruturação de funcionalidades **JavaScript** e configuração do **Android Studio** para a futura versão mobile. |
+| **Vinicius Silvestre** | **Documentação do TCC**, organização das informações e desenvolvimento da **revista e dos materiais de apresentação** do projeto. |
 
-> Os nomes e a unidade não foram informados de forma confirmada nesta documentação. Evitamos inserir dados pessoais ou atribuir autoria incorretamente; a equipe pode completar esta seção antes da apresentação.
+Além das atividades individuais, a equipe participa da revisão das funcionalidades, dos testes finais e da preparação da apresentação do TCC.
+
+## Professores envolvidos
+
+| Professor | Disciplina e contribuição acadêmica |
+|---|---|
+| **Helton** | **Orientador do TCC** e professor de **Redes de Computadores**. |
+| **João Bahia** | Professor de **Banco de Dados** e **Segurança da Informação**. |
+| **Paulo** | Professor da área de **Desenvolvimento Web**. |
+
+As responsabilidades da equipe foram registradas de acordo com o relatório de progresso, enquanto as disciplinas dos professores foram informadas pelos integrantes.
 
 ## Tema
 

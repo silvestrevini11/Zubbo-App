@@ -24,7 +24,8 @@ O projeto une desenvolvimento de sistemas, convivência comunitária e incentivo
 
 ## Instituição de ensino
 
-- **Instituição:** **ETEC Juscelino Kubitschek**, integrante da rede de Escolas Técnicas Estaduais do **Centro Paula Souza (CPS)**.
+- **Instituição:** **ETEC Juscelino Kubitchek, de Diadema (SP)**, integrante da rede de Escolas Técnicas Estaduais do **Centro Paula Souza (CPS)**.
+- **Localização:** Diadema, São Paulo.
 - **Curso:** Técnico em Desenvolvimento de Sistemas.
 - **Natureza do trabalho:** Trabalho de Conclusão de Curso (TCC).
 - **Ano:** 2026.
@@ -34,7 +35,7 @@ O desenvolvimento do Zubbo coloca em prática conhecimentos adquiridos no curso,
 
 ## Equipe de desenvolvimento
 
-O Zubbo é um trabalho colaborativo. A distribuição de responsabilidades abaixo foi baseada no **Relatório de Progresso do Projeto Zubbo**, com os nomes completos informados pela equipe.
+O Zubbo é um trabalho colaborativo. A distribuição de responsabilidades abaixo foi baseada no **Relatório de Progresso do Projeto Zubbo**, com os nomes informados pela equipe.
 
 | Integrante | Principais responsabilidades |
 |---|---|
@@ -43,6 +44,7 @@ O Zubbo é um trabalho colaborativo. A distribuição de responsabilidades abaix
 | **Kaue Mota** | **Design e estilização da interface**, ajustes visuais e participação na pesquisa de campo dos poliesportivos. |
 | **Pedro Nathan** | Apoio no **banco de dados**, estruturação de funcionalidades **JavaScript** e configuração do **Android Studio** para a futura versão mobile. |
 | **Vinicius Silvestre** | **Documentação do TCC**, organização das informações e desenvolvimento da **revista e dos materiais de apresentação** do projeto. |
+| **Mayara** | **Documentação do TCC** e **estruturação da revista**, contribuindo para a organização e apresentação das informações do trabalho. |
 
 Além das atividades individuais, a equipe participa da revisão das funcionalidades, dos testes finais e da preparação da apresentação do TCC.
 

@@ -134,13 +134,17 @@ Pessoas interessadas em praticar esportes amadores, conhecer outros participante
 | Camada | Tecnologia |
 |---|---|
 | Interface | HTML, CSS e JavaScript |
+| Design e prototipação de telas | Figma |
+| Modelagem conceitual e lógica | Miro |
 | Aplicação | PHP |
 | Persistência | MySQL e PDO |
 | Modelagem e administração do banco de dados | DBeaver |
+| Servidor local de desenvolvimento | XAMPP, com Apache e MySQL/MariaDB |
 | Mapa | Mapbox |
 | E-mail | Resend / PHPMailer |
 | Hospedagem de demonstração | Railway |
-| Versionamento e testes | GitHub e GitHub Actions |
+| Versionamento de código | Git e GitHub |
+| Integração e testes automatizados | GitHub Actions |
 | Próxima etapa mobile | Android Studio e Kotlin, com WebView experimental |
 | Domínio próprio (planejado) | Registro.br, para consulta de disponibilidade e futura contratação de domínio; ainda não adquirido |
 

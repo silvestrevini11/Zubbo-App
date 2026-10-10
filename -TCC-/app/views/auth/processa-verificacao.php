@@ -39,7 +39,7 @@ $expiraEm = is_numeric($expiracao)
 $codigoEsperado = (string) ($cadastro['codigo'] ?? '');
 
 if ($expiraEm <= 0 || $expiraEm < time()) {
-    unset($_SESSION['cadastro_pendente']);
+    unset($_SESSION['cadastro_pendente'], $_SESSION['codigo_demo']);
     $_SESSION['erro_verificacao'] = 'Esse código expirou. Faça o cadastro novamente.';
     header('Location: cadastro.php?erro=codigo_expirado');
     exit;
@@ -56,5 +56,6 @@ if ($codigoEsperado === '' || !hash_equals($codigoEsperado, $codigo)) {
 
 zubbo_rate_limit_reset('verificacao_email', $email);
 $_SESSION['email_verificado'] = true;
+unset($_SESSION['codigo_demo']);
 header('Location: escolher-esportes.php');
 exit;

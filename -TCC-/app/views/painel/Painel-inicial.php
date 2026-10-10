@@ -89,7 +89,7 @@ include __DIR__ . '/../includes/head.php';
 
 <h1 class="painel-saudacoes">Olá <strong class="painel-saudacoes-cor"><?= htmlspecialchars($nomeUsuario) ?></strong></h1>
 
-<h4 class="painel-sub-saudacoes">Pronto para <strong class="painel-sub-saudacoes-cor">jogar</strong> hoje</h4>
+<h4 class="painel-sub-saudacoes">Pronto para <strong class="painel-sub-saudacoes-cor">jogar</strong> hoje?</h4>
 </div>
 
 <link rel="stylesheet" href="../../../public/css/painel-eventos.css">
@@ -99,11 +99,7 @@ include __DIR__ . '/../includes/head.php';
         <input id="painel-busca-evento" name="q" type="search" maxlength="100" placeholder="Nome do evento ou local" value="<?= escaparPainelEvento($buscaEvento) ?>">
         <button type="submit" name="esporte" value="<?= escaparPainelEvento($filtroEvento) ?>">Pesquisar</button>
     </div>
-    <div class="painel-eventos-modalidades" role="group" aria-label="Filtrar eventos por esporte">
-        <?php foreach ($filtrosEventos as $chave => $rotulo): ?>
-        <button type="submit" name="esporte" value="<?= $chave ?>" aria-pressed="<?= $filtroEvento === $chave ? 'true' : 'false' ?>"><?= $rotulo ?></button>
-        <?php endforeach; ?>
-    </div>
+   
 </form>
 
 <link

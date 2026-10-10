@@ -59,7 +59,7 @@ pesquisaInput.addEventListener('input', function () {
                 const info = document.createElement('div');
                 info.className = 'resultado-perfil-info';
                 adicionarTexto(info, 'strong', perfil.nome);
-                adicionarTexto(info, 'span', perfil.email);
+                // E-mail do usuário nunca é retornado por esta busca.
                 link.append(foto, info);
                 resultadosPerfis.appendChild(link);
             }

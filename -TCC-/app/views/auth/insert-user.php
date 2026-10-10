@@ -63,22 +63,23 @@ $_SESSION['cadastro_pendente'] = [
 ];
 
 try {
-    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-    zubbo_configurar_mail($mail);
-    $mail->addAddress($email, $nome);
-    $mail->Subject = 'Código de verificação - Zubbo';
-    $mail->isHTML(true);
-
     $nomeSeguro = htmlspecialchars($nome, ENT_QUOTES, 'UTF-8');
     $codigoSeguro = htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8');
 
-    $mail->Body =
+    $html =
         '<h2>Verifique seu e-mail</h2>' .
         '<p>Olá, <strong>' . $nomeSeguro . '</strong>.</p>' .
         '<p>Seu código de verificação é <strong>' . $codigoSeguro . '</strong>.</p>' .
         '<p>Ele expira em 10 minutos.</p>';
-    $mail->AltBody = 'Seu código de verificação do Zubbo é: ' . $codigo . '. Ele expira em 10 minutos.';
-    $mail->send();
+
+    $texto = 'Seu código de verificação do Zubbo é: ' . $codigo . '. Ele expira em 10 minutos.';
+
+    zubbo_enviar_email(
+        $email,
+        'Código de verificação - Zubbo',
+        $html,
+        $texto
+    );
 
     zubbo_rate_limit_reset('cadastro', $email);
 } catch (Throwable $e) {

@@ -76,8 +76,8 @@ include __DIR__ . '/../includes/head.php';
             <?php
 
                 $foto = !empty($amigo['foto_user'])
-                    ? '/-TCC-/' . $amigo['foto_user']
-                    : '/-TCC-/public/imagem/blank.png';
+                    ? '/Zubbo-app/-TCC-/' . $amigo['foto_user']
+                    : '/Zubbo-app/-TCC-/public/imagem/blank.png';
 
             ?>
 

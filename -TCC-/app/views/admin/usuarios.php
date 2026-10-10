@@ -8,9 +8,12 @@ $permitidos = ['ativo', 'suspenso', 'banido'];
 
 $sql = "
     SELECT u.id_user, u.nome_user, u.email_user, u.tel_user, u.date_user, u.email_verificado, u.status_user,
-           COUNT(DISTINCT ue.id_esporte) AS qtd_esportes
+           (
+               SELECT COUNT(*)
+               FROM Usuario_Esporte ue
+               WHERE ue.id_user = u.id_user
+           ) AS qtd_esportes
     FROM Usuario u
-    LEFT JOIN Usuario_Esporte ue ON ue.id_user = u.id_user
     WHERE 1=1
 ";
 $params = [];
@@ -23,7 +26,7 @@ if (in_array($status, $permitidos, true)) {
     $sql .= " AND u.status_user = ?";
     $params[] = $status;
 }
-$sql .= " GROUP BY u.id_user ORDER BY u.id_user DESC LIMIT 200";
+$sql .= " ORDER BY u.id_user DESC LIMIT 200";
 $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);

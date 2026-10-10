@@ -9,7 +9,7 @@ Configure o serviço conectado ao repositório com:
 - Branch: `teste-railway`
 - Root Directory: `/-TCC-`
 - Build Command: automático
-- Start Command: `php -S 0.0.0.0:$PORT`
+- Start Command: `php -S 0.0.0.0:$PORT router.php`
 - Healthcheck Path: `/health.php`
 
 ## Variáveis da aplicação
@@ -84,3 +84,29 @@ ZUBBO_DEMO_MODE=false
 ```
 
 Nunca deixe o modo de demonstração ativado em produção.
+
+
+## Proteção de arquivos e denúncias de locais
+
+**Obrigatório na demo:** altere no Railway o Start Command para:
+
+```sh
+php -S 0.0.0.0:$PORT router.php
+```
+
+O arquivo `router.php` impede acesso direto à pasta `database`, `config`, `vendor`, e arquivos internos.
+O Start Command antigo **não ativa essa proteção**.
+
+Após o deploy, execute **uma vez no MySQL da demo** a migração
+`database/migrations/004_denuncia_local.sql` para habilitar denúncias vinculadas a locais
+e a exibição do local no painel administrativo. Não execute a migração em produção congelada.
+
+Confirme na demo:
+- `/health.php` responde 200 com `{"status":"ok"}`.
+- `/database/scripts/criacaotables.sql` responde 404.
+- `/config/database.php` responde 404.
+- Cadastro, login, amizade, chat, mapa e denúncias são testados manualmente com usuários de teste.
+
+O servidor embutido do PHP serve como adaptação temporária para demonstração;
+em produção pública definitiva, considere servidor web apropriado e armazenamento
+persistente para fotos e sessões.

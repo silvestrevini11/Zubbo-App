@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (!isset($_SESSION['usuario']['id'])) {
     header('Location: ../auth/login.php');
@@ -131,6 +132,7 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
         <?php if (!$saoAmigos): ?>
 
             <form action="adicionar-amigo.php" method="POST">
+                <?= zubbo_csrf_input() ?>
                 <input type="hidden" name="id_amigo" value="<?= $id_user ?>">
 
                 <button type="submit" class="btn-adicionar-amigo">

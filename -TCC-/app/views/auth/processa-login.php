@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../../config/security.php';
 zubbo_start_session();
 require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../config/logger.php';
 require_once __DIR__ . '/../../services/AdminService.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -16,6 +17,7 @@ $senha = (string) ($_POST['password'] ?? '');
 $scope = 'login_usuario';
 
 if (zubbo_rate_limit_exceeded($scope, 5, 900, $email)) {
+    zubbo_log('warning', 'auth.login_rate_limited', ['reason_code' => 'too_many_attempts']);
     $_SESSION['erro_login'] = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
     header('Location: login.php');
     exit;
@@ -23,6 +25,7 @@ if (zubbo_rate_limit_exceeded($scope, 5, 900, $email)) {
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $senha === '') {
     zubbo_rate_limit_hit($scope, 900, $email);
+    zubbo_log('warning', 'auth.login_denied', ['reason_code' => 'invalid_credentials']);
     $_SESSION['erro_login'] = 'E-mail ou senha incorretos.';
     header('Location: login.php');
     exit;
@@ -61,6 +64,8 @@ $_SESSION['usuario'] = [
 ];
 
 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$_SESSION['credential_fingerprint'] = hash('sha256', (string) $usuario['senha_user']);
+zubbo_log('info', 'auth.login_success', ['user_id' => (int) $usuario['id_user']]);
 
 $idAdmin = AdminService::buscarIdAtivo(
     $conn,

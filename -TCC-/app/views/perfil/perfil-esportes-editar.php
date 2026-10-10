@@ -73,7 +73,7 @@ include __DIR__ . '/../includes/head.php';
 
                     <span class="editar-esportes-icone" aria-hidden="true">
                         <?php if ($imagem): ?>
-                            <img src="/Zubbo-App/-TCC-/public/imagem/<?= htmlspecialchars($imagem) ?>" alt="">
+                            <img src="<?= htmlspecialchars(zubbo_url('/public/imagem/' . $imagem), ENT_QUOTES, 'UTF-8') ?>" alt="">
                         <?php else: ?>
                             ★
                         <?php endif; ?>

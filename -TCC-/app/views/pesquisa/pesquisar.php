@@ -13,9 +13,9 @@ include __DIR__.'/../../../config/database.php';
     <div id="resultadosPerfis" class="resultados-perfis"></div>
     <hr class="pesquisa-catalogo-hr">
 
-    <h2 class="pesquisa-poles">Poles</h2>
+    <h2 class="pesquisa-poles">Locais</h2>
     <div id="resultadosPoles" class="resultados-poles"></div>
-    <hr class="perfil-hr">
+    <hr class="pesquisa-catalogo-hr">
 
     <h2 class="pesquisa-comunidade">Eventos</h2>
     <div id="resultadosEventos" class="resultados-eventos"></div>

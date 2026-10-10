@@ -62,6 +62,7 @@ include __DIR__ . '/../includes/head.php';
             <input type="date" name="data-nasc" required>
         </div>
 
+        <p class="par-cad">Antes de continuar, conheça como a versão de demonstração trata dados em <a href="<?= htmlspecialchars(zubbo_url('/public/privacidade.php'), ENT_QUOTES, 'UTF-8') ?>">Privacidade e uso responsável</a>.</p>
         <button class="btn-cad" type="submit">Criar conta</button>
     </form>
 

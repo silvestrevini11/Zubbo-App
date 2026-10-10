@@ -459,7 +459,7 @@ atualizarNotificacoes();
     a cada 1 segundo.
 */
 
-setInterval(atualizarNotificacoes, 1000);
+setInterval(() => { if (!document.hidden) atualizarNotificacoes(); }, 15000);
 
 </script>
 

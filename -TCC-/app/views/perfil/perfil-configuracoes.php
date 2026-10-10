@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../auth/login.php');
@@ -24,7 +25,7 @@ include __DIR__ . '/../includes/head.php';
 
     <?php if (isset($_GET['erro'])): ?>
         <p class="configuracoes-erro">
-            <?= $_GET['erro'] === 'senha' ? 'A senha informada está incorreta.' : 'Não foi possível excluir a conta agora. Tente novamente.' ?>
+            <?= $_GET['erro'] === 'senha' ? 'A senha informada está incorreta.' : ($_GET['erro'] === 'admin' ? 'A conta administra o sistema. Revogue primeiro seu acesso administrativo.' : 'Não foi possível desativar a conta agora.') ?>
         </p>
     <?php endif; ?>
 
@@ -77,7 +78,7 @@ include __DIR__ . '/../includes/head.php';
         </form>
         <button class="configuracoes-item configuracoes-botao configuracoes-perigo" type="button" data-abrir-exclusao>
             <span class="configuracoes-icone" aria-hidden="true">×</span>
-            <span class="configuracoes-item-texto"><strong>Excluir conta</strong><span>Remove seus dados permanentemente</span></span>
+            <span class="configuracoes-item-texto"><strong>Desativar conta</strong><span>Remove os dados básicos e impede novo acesso; registros de moderação poderão permanecer</span></span>
             <span class="configuracoes-seta" aria-hidden="true">›</span>
         </button>
     </section>
@@ -88,13 +89,13 @@ include __DIR__ . '/../includes/head.php';
 <dialog class="modal-excluir" id="modal-excluir" aria-labelledby="titulo-excluir">
     <form action="excluir-conta.php" method="post" class="modal-excluir-conteudo">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-        <h2 id="titulo-excluir">Excluir sua conta?</h2>
-        <p>Esta ação não pode ser desfeita. Para confirmar, informe sua senha.</p>
+        <h2 id="titulo-excluir">Desativar e anonimizar sua conta?</h2>
+        <p>Seu perfil será desativado e seus dados básicos serão anonimizados. Alguns registros associados a eventos, mensagens e moderação poderão ser conservados conforme a política de retenção. Para confirmar, informe sua senha.</p>
         <label for="senha-confirmacao">Senha</label>
         <input id="senha-confirmacao" type="password" name="senha" required autocomplete="current-password">
         <div class="modal-excluir-acoes">
             <button type="button" class="modal-cancelar" data-fechar-exclusao>Cancelar</button>
-            <button type="submit" class="modal-confirmar">Excluir conta</button>
+            <button type="submit" class="modal-confirmar">Confirmar desativação</button>
         </div>
     </form>
 </dialog>

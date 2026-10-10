@@ -47,19 +47,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $link = zubbo_absolute_url('/public/reset-password.php?token=' . urlencode($token));
 
-                    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-                    zubbo_configurar_mail($mail);
-                    $mail->addAddress((string) $usuario['email_user']);
-                    $mail->Subject = 'Redefinição de senha - Zubbo';
-                    $mail->isHTML(true);
-
                     $linkSeguro = htmlspecialchars($link, ENT_QUOTES, 'UTF-8');
-                    $mail->Body =
+                    $html =
                         '<h2>Redefina sua senha</h2>' .
                         '<p>Use o link abaixo para criar uma nova senha. Ele expira em 1 hora.</p>' .
                         '<p><a href="' . $linkSeguro . '">Redefinir minha senha</a></p>';
-                    $mail->AltBody = 'Redefina sua senha usando este link (válido por 1 hora): ' . $link;
-                    $mail->send();
+
+                    $texto = 'Redefina sua senha usando este link (válido por 1 hora): ' . $link;
+
+                    zubbo_enviar_email(
+                        (string) $usuario['email_user'],
+                        'Redefinição de senha - Zubbo',
+                        $html,
+                        $texto
+                    );
 
                     $conn->prepare(
                         'DELETE FROM Recuperacao_Senha

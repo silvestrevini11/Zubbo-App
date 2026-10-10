@@ -1,0 +1,45 @@
+name: Demo MySQL Integration
+
+on:
+  push:
+    branches:
+      - teste-railway
+  workflow_dispatch:
+
+jobs:
+  db-smoke:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci_only_password
+          MYSQL_DATABASE: zubbo_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pci_only_password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: PHP 8.4 + PDO MySQL
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql
+
+      - name: Database integration smoke
+        working-directory: ./-TCC-
+        env:
+          ZUBBO_DB_HOST: 127.0.0.1
+          ZUBBO_DB_PORT: 3306
+          ZUBBO_DB_USER: root
+          ZUBBO_DB_PASSWORD: ci_only_password
+          ZUBBO_DB_NAME: zubbo_ci
+        run: php tests/db-smoke.php

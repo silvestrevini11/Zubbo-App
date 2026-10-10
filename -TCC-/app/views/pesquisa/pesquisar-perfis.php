@@ -1,48 +1,40 @@
 <?php
-
-include __DIR__.'/../../../config/database.php';
-
+require_once __DIR__ . '/../../middleware/auth.php';
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store');
 
-$pesquisa = trim($_GET['pesquisa'] ?? '');
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
+    http_response_code(405);
+    echo json_encode([]);
+    exit;
+}
 
-if ($pesquisa === '') {
+$pesquisa = trim((string) ($_GET['pesquisa'] ?? ''));
+if (mb_strlen($pesquisa) < 2 || mb_strlen($pesquisa) > 80) {
     echo json_encode([]);
     exit;
 }
 
 $stmt = $conn->prepare("
-    SELECT 
-        id_user,
-        nome_user,
-        email_user,
-        foto_user
+    SELECT id_user, nome_user, foto_user
     FROM Usuario
-    WHERE nome_user LIKE ?
+    WHERE status_user = 'ativo'
+      AND nome_user LIKE ?
     ORDER BY nome_user
     LIMIT 20
 ");
-
-$stmt->execute([
-    '%' . $pesquisa . '%'
-]);
-
+$stmt->execute(['%' . $pesquisa . '%']);
 $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $resultados = [];
-
 foreach ($usuarios as $usuario) {
-
     $foto = !empty($usuario['foto_user'])
         ? zubbo_url('/' . ltrim((string) $usuario['foto_user'], '/'))
         : zubbo_url('/public/imagem/blank.png');
-
     $resultados[] = [
-        'id_user' => $usuario['id_user'],
+        'id_user' => (int) $usuario['id_user'],
         'nome' => $usuario['nome_user'],
-        'email' => $usuario['email_user'],
-        'foto' => $foto
+        'foto' => $foto,
     ];
 }
-
-echo json_encode($resultados);
+echo json_encode($resultados, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);

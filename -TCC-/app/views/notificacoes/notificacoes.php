@@ -193,6 +193,7 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         action="aceitar-amizade.php"
                         method="POST"
                     >
+                        <?= zubbo_csrf_input() ?>
 
                         <input
                             type="hidden"

@@ -32,10 +32,31 @@ if (!$stmt->fetchColumn()) {
     exit('Você não participa desta conversa.');
 }
 
-$stmt = $conn->prepare(
-    'INSERT INTO Mensagem (id_conversa, id_remetente, mensagem) VALUES (?, ?, ?)'
-);
-$stmt->execute([$idConversa, $idUsuario, $mensagem]);
+try {
+    $conn->beginTransaction();
+
+    $stmt = $conn->prepare(
+        'INSERT INTO Mensagem (id_conversa, id_remetente, mensagem) VALUES (?, ?, ?)'
+    );
+    $stmt->execute([$idConversa, $idUsuario, $mensagem]);
+    $idMensagem = (int) $conn->lastInsertId();
+
+    $stmtNotificacao = $conn->prepare("
+        INSERT INTO Notificacao (id_destinatario, id_remetente, id_conversa, id_mensagem, tipo)
+        SELECT pc.id_user, ?, ?, ?, 'mensagem'
+        FROM Participantes_Conversa pc
+        WHERE pc.id_conversa = ? AND pc.id_user <> ?
+    ");
+    $stmtNotificacao->execute([$idUsuario, $idConversa, $idMensagem, $idConversa, $idUsuario]);
+    $conn->commit();
+} catch (Throwable $e) {
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
+    error_log('Erro ao enviar mensagem de grupo: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Não foi possível enviar a mensagem.');
+}
 
 header('Location: chat-grupo.php?id_conversa=' . $idConversa, true, 303);
 exit;

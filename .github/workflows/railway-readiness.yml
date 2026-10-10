@@ -27,6 +27,10 @@ jobs:
       - name: Check PHP syntax
         run: find ./-TCC- -path './-TCC-/vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
 
+      - name: Privacy and security regression smoke
+        working-directory: ./-TCC-
+        run: php tests/security-smoke.php
+
       - name: Check Railway entry files
         run: |
           test -f ./-TCC-/index.php
@@ -68,6 +72,9 @@ jobs:
           test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/)" = "302"
           test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/app/views/auth/login.php)" = "200"
           test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/app/views/painel/sugestoes-busca.php)" = "401"
+          for path in app/views/pesquisa/pesquisar-perfis.php app/views/pesquisa/pesquisar-poles.php app/views/pesquisa/pesquisar-eventos.php app/views/perfil/confirmar-email.php; do
+            test "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8999/$path")" = "302"
+          done
           test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/public/css/style.css)" = "200"
           for path in config/database.php database/scripts/criacaotables.sql vendor/autoload.php RAILWAY_TEST.md router.php app/views/admin/_auth.php; do
             test "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8999/$path")" = "404"

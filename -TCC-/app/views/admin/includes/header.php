@@ -10,6 +10,7 @@ unset($_SESSION['admin_flash']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($tituloAdmin) ?> | Zubbo Admin</title>
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars(zubbo_url('/public/imagem/LogooZ.png'), ENT_QUOTES, 'UTF-8') ?>">
     <link rel="stylesheet" href="../../../public/css/admin.css">
 </head>
 <body class="admin-body">

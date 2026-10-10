@@ -69,7 +69,7 @@ include __DIR__ . '/../includes/head.php';
     <?php endif; ?>
 
 
-    <div class="amigos-lista">
+    <div class="amigos-lista" aria-label="Lista de amigos">
 
         <?php foreach ($amigos as $amigo): ?>
 

@@ -69,7 +69,7 @@ try {
         throw new RuntimeException('Evento não encontrado.');
     }
 
-    $limite = evento_vagas_por_time((string) $evento['nome_esporte']);
+    $limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
     $organizador = (int) $evento['id_criador'] === $idUsuario;
     $inscricoesAbertas = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
 

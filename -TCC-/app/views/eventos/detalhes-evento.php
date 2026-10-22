@@ -44,7 +44,7 @@ $minhaSolicitacao = $estado['minha_solicitacao'];
 
 $organizador = (int) $evento['id_criador'] === $idUsuario;
 $aberto = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
-$limite = evento_vagas_por_time((string) $evento['nome_esporte']);
+$limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
 $totalConfirmados = count($confirmadosSemVaga);
 
 if ($limite !== null) {

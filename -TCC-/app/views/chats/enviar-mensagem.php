@@ -68,6 +68,14 @@ if (!$conversa) {
 
 $id_destinatario = (int) $conversa['id_destinatario'];
 
+$stmtBloqueio = $conn->prepare("SELECT 1 FROM Bloqueio_Usuario
+ WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?) LIMIT 1");
+$stmtBloqueio->execute([$id_usuario,$id_destinatario,$id_destinatario,$id_usuario]);
+if ($stmtBloqueio->fetchColumn()) {
+    http_response_code(403); exit('Não é possível enviar mensagens para este contato.');
+}
+
+
 
 /* ==========================================
    SALVAR MENSAGEM

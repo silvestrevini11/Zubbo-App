@@ -177,7 +177,7 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
                 <div>
                     <span><?= $minhaSolicitacao['status_solicitacao'] === 'aprovada' ? 'VOCÊ ESTÁ NO JOGO' : 'SUA SOLICITAÇÃO' ?></span>
                     <strong>
-                        Time <?= (int) $minhaSolicitacao['time_num'] ?> ·
+                        <?= escaparEscalacao($evento[(int)$minhaSolicitacao['time_num'] === 1 ? 'nome_time_1' : 'nome_time_2']) ?> ·
                         Vaga <?= (int) $minhaSolicitacao['numero_vaga'] ?>
                     </strong>
                     <small>
@@ -204,7 +204,7 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
                     <header>
                         <div class="presenca-time-identidade">
                             <span>TEAM <?= $time === 1 ? 'A' : 'B' ?></span>
-                            <h2>TIME <?= $time ?></h2>
+                            <h2><?= escaparEscalacao($evento[$time === 1 ? 'nome_time_1' : 'nome_time_2']) ?></h2>
                         </div>
                         <div class="presenca-time-contador">
                             <strong><?= count($confirmadosTimes[$time]) ?></strong>
@@ -275,7 +275,7 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
                                             <?php elseif ($quantidadePedidos > 0): ?>
                                                 <?= $quantidadePedidos ?> SOLICITAÇÃO(ÕES)
                                             <?php else: ?>
-                                                TIME <?= $time ?> · SLOT <?= $vaga ?>
+                                                <?= escaparEscalacao($evento[$time === 1 ? 'nome_time_1' : 'nome_time_2']) ?> · SLOT <?= $vaga ?>
                                             <?php endif; ?>
                                         </small>
                                     </span>
@@ -388,7 +388,7 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
                                 <strong><?= escaparEscalacao($solicitacao['nome_user']) ?></strong>
                                 <span>
                                     <?php if ($solicitacao['time_num'] !== null): ?>
-                                        Time <?= (int) $solicitacao['time_num'] ?> · vaga <?= (int) $solicitacao['numero_vaga'] ?>
+                                        <?= escaparEscalacao($evento[(int)$solicitacao['time_num'] === 1 ? 'nome_time_1' : 'nome_time_2']) ?> · vaga <?= (int) $solicitacao['numero_vaga'] ?>
                                     <?php else: ?>
                                         Participação individual
                                     <?php endif; ?>

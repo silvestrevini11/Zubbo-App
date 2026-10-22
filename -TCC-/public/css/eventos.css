@@ -1331,3 +1331,10 @@ html.tema-escuro .evento-minha-vaga.confirmada strong {
 html.tema-escuro .evento-minha-vaga.confirmada small {
     color: #a9a9ae;
 }
+/* Filtro de poliesportivos e quadras */
+.eventos-filtro-local { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin: 10px 0 26px; }
+.eventos-filtro-local label { font-weight:700; color:inherit; }
+.eventos-filtro-local select { min-width:200px; max-width:100%; padding:10px; border-radius:10px; border:1px solid #b8bac1; background:#fff; color:#252529; }
+.eventos-filtro-local button { background:#ef4b25; color:#fff; border:0; padding:11px 18px; border-radius:10px; cursor:pointer; }
+html.tema-escuro .eventos-filtro-local select { color:#f5f5f5; background:#20252b; border-color:#56606b; }
+html.tema-escuro .eventos-filtro-local a { color:#ff9b77; }

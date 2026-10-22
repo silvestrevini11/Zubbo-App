@@ -14,13 +14,20 @@ $locaisMapa = [];
 $erroLocaisMapa = false;
 try {
     $stmtLocaisMapa = $conn->query("
-        SELECT id_local, nome_local, endereco_local, tipo_local
+        SELECT id_local, nome_local, endereco_local, tipo_local, foto_local
         FROM LocalEsp
         WHERE status_local = 'aprovado'
           AND endereco_local LIKE '%Diadema%'
         ORDER BY nome_local
     ");
     $locaisMapa = $stmtLocaisMapa->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($locaisMapa as &$localMapa) {
+        $localMapa['foto_url'] = $localMapa['foto_local']
+            ? zubbo_url('/' . ltrim((string)$localMapa['foto_local'], '/'))
+            : null;
+        unset($localMapa['foto_local']);
+    }
+    unset($localMapa);
 } catch (PDOException $erro) {
     error_log('Erro ao carregar locais do mapa: ' . $erro->getMessage());
     $erroLocaisMapa = true;
@@ -157,7 +164,7 @@ include __DIR__ . '/../includes/head.php';
     'top-right'
   );
 
-  function criarPopupLocal(nome, endereco) {
+  function criarPopupLocal(nome, endereco, fotoUrl = null, idLocal = null) {
     const conteudo = document.createElement('div');
     conteudo.style.color = '#222';
     const titulo = document.createElement('strong');
@@ -165,6 +172,22 @@ include __DIR__ . '/../includes/head.php';
     const descricao = document.createElement('p');
     descricao.textContent = endereco;
     conteudo.append(titulo, descricao);
+    if (fotoUrl) {
+      const foto = document.createElement('img');
+      foto.src = fotoUrl;
+      foto.alt = 'Foto do local ' + nome;
+      foto.loading = 'lazy';
+      foto.style.cssText = 'display:block;width:220px;max-height:130px;object-fit:cover;border-radius:8px;margin:8px 0';
+      conteudo.appendChild(foto);
+    }
+    if (idLocal) {
+      const eventos = document.createElement('a');
+      const base = <?= json_encode(zubbo_url('/app/views/eventos/eventos.php')) ?>;
+      eventos.href = base + '?id_local=' + encodeURIComponent(idLocal);
+      eventos.textContent = 'Ver eventos neste local →';
+      eventos.style.cssText = 'display:block;margin-top:8px;color:#b93817;font-weight:bold';
+      conteudo.appendChild(eventos);
+    }
     return new mapboxgl.Popup({ offset: 25 }).setDOMContent(conteudo);
   }
 
@@ -248,7 +271,7 @@ include __DIR__ . '/../includes/head.php';
         }
         const marcador = new mapboxgl.Marker({ color: '#ef4b25' })
           .setLngLat(coordenadas)
-          .setPopup(criarPopupLocal(local.nome_local, local.endereco_local))
+          .setPopup(criarPopupLocal(local.nome_local, local.endereco_local, local.foto_url, local.id_local))
           .addTo(map);
 
         if (localSelecionadoId && String(local.id_local) === String(localSelecionadoId)) {

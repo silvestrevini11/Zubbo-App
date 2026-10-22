@@ -106,7 +106,7 @@ function escaparEvento($valor): string
         <section class="eventos-grid" aria-label="Eventos cadastrados">
             <?php foreach ($eventos as $evento): ?>
                 <?php
-                    $limite = evento_vagas_por_time((string) $evento['nome_esporte']);
+                    $limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
                     $dataHoraEvento = strtotime($evento['data_evento'] . ' ' . $evento['horario_evento']);
                     $aberto = $evento['status_evento'] === 'ativo' && $dataHoraEvento >= time();
 

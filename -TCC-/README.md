@@ -341,22 +341,7 @@ O teste **tests/db-smoke.php** cria/preenche tabelas e deve ser usado **somente 
 
 A equipe realizou uma checklist funcional de **39 testes marcados como aprovados**, incluindo login, privacidade, chat, eventos, denúncias e mobile no navegador. Isso não substitui pentest nem homologação de APK.
 
-## 12. APK Android: integração prevista
-
-O projeto pode evoluir para Android usando **Android Studio + Kotlin + WebView** para carregar a interface hospedada em domínio HTTPS. O PHP continua no Railway e o MySQL no servidor.
-
-Para um primeiro protótipo, verificar:
-
-1. Restrição de URLs a domínios conhecidos e HTTPS;
-2. Cookies de sessão, login e logout;
-3. Navegação de volta, links externos e downloads;
-4. Upload de foto e seleção de arquivos;
-5. Mapa, responsividade e mudança de tema;
-6. Conexão lenta, perda de internet e restauração.
-
-**WebView não converte PHP em código nativo**. Se no futuro a equipe preferir uma experiência Android nativa (Kotlin ou Flutter), será necessário desenvolver uma API autenticada. Não incluir segredos de banco nem de e-mail no APK.
-
-## 13. Problemas comuns e referências
+## 12. Problemas comuns e referências
 
 | Sintoma | O que conferir |
 |---|---|

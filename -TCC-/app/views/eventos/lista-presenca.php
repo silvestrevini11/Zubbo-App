@@ -42,7 +42,7 @@ $confirmadosIndividuais = $estado['confirmados_individuais'];
 $pendentes = $estado['pendentes'];
 $minhaSolicitacao = $estado['minha_solicitacao'];
 
-$limite = evento_vagas_por_time((string) $evento['nome_esporte']);
+$limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
 $organizador = (int) $evento['id_criador'] === $idUsuario;
 $aberto = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
 $totalConfirmados = count($confirmadosSemVaga);

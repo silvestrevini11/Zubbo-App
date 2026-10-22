@@ -25,14 +25,6 @@ function zubbo_base_path(): string
         return rtrim(substr($script, 0, $pos + strlen('/-tcc-')), '/');
     }
 
-    if (stripos($script, '/-tcc-') !== false) {
-        $pos = stripos($script, '/-tcc-');
-
-        if ($pos !== false) {
-            return rtrim(substr($script, 0, $pos + strlen('/-tcc-')), '/');
-        }
-    }
-
     return '/-tcc-';
 }
 
@@ -263,7 +255,8 @@ function zubbo_rate_limit_exceeded(
         return count(zubbo_rate_limit_mutate($scope, $window, $identity, false)) >= $max;
     } catch (Throwable $e) {
         error_log('Rate limit indisponível: ' . $e->getMessage());
-        return false;
+        // Falha segura: se o mecanismo estiver indisponivel, bloquear a tentativa.
+        return true;
     }
 }
 

@@ -1,5 +1,3 @@
-USE app_zubbo;
-
 INSERT IGNORE INTO Esporte (nome_esporte) VALUES
 ('Futebol'),
 ('Basquete'),

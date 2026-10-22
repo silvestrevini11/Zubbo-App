@@ -7,16 +7,19 @@ $permitidos = ['ativo','cancelado','removido'];
 $sql = "
     SELECT ev.id_evento, ev.nome_evento, ev.data_evento, ev.horario_evento, ev.status_evento,
            e.nome_esporte, l.nome_local, u.nome_user AS criador,
-           COUNT(DISTINCT le.id_user) AS participantes
+           (
+               SELECT COUNT(DISTINCT le.id_user)
+               FROM Lista_Evento le
+               WHERE le.id_evento = ev.id_evento
+           ) AS participantes
     FROM Evento ev
     INNER JOIN Esporte e ON e.id_esporte = ev.id_esporte
     INNER JOIN LocalEsp l ON l.id_local = ev.id_local
     LEFT JOIN Usuario u ON u.id_user = ev.id_criador
-    LEFT JOIN Lista_Evento le ON le.id_evento = ev.id_evento
 ";
 $params = [];
 if (in_array($status, $permitidos, true)) { $sql .= ' WHERE ev.status_evento = ?'; $params[] = $status; }
-$sql .= ' GROUP BY ev.id_evento ORDER BY ev.data_evento DESC, ev.horario_evento DESC LIMIT 200';
+$sql .= ' ORDER BY ev.data_evento DESC, ev.horario_evento DESC LIMIT 200';
 $stmt = $conn->prepare($sql); $stmt->execute($params); $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $paginaAdmin='eventos'; $tituloAdmin='Gerenciar eventos'; require __DIR__.'/includes/header.php';

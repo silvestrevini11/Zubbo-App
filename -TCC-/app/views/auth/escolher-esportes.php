@@ -1,6 +1,6 @@
 <?php
-
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (
     !isset($_SESSION['cadastro_pendente']) ||
@@ -30,6 +30,7 @@ include __DIR__ . '/../includes/head.php';
     <p>Escolha um ou mais esportes.</p>
 
     <form action="salvar-esportes.php" method="POST">
+        <?= zubbo_csrf_input() ?>
 
         <div class="esportes-grid">
 

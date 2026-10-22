@@ -1,12 +1,13 @@
 <?php
 
-include __DIR__.'/../../../config/database.php';
+require_once __DIR__ . '/../../middleware/auth.php';
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store');
 
-$pesquisa = trim($_GET['pesquisa'] ?? '');
+$pesquisa = trim((string) ($_GET['pesquisa'] ?? ''));
 
-if ($pesquisa === '') {
+if (mb_strlen($pesquisa) < 2 || mb_strlen($pesquisa) > 80) {
     echo json_encode([]);
     exit;
 }

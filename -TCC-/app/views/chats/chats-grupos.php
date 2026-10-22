@@ -35,6 +35,10 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute([':id_usuario'=>$id_usuario]);
 $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmtNaoLidas = $conn->prepare("SELECT id_conversa, COUNT(*) AS total FROM Notificacao WHERE id_destinatario = ? AND tipo = 'mensagem' AND lida = FALSE AND id_conversa IS NOT NULL GROUP BY id_conversa");
+$stmtNaoLidas->execute([$id_usuario]);
+$naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
+
 ?>
 <section class="chats-container">
     <button class="chats-btn-create" onclick="location.href='criar-grupos.php'" aria-label="Criar grupo">+</button>
@@ -79,8 +83,8 @@ $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($grupos as $grupo): ?>
             <?php
                 $foto = $grupo['foto_grupo']
-                    ? '/-TCC-/'.$grupo['foto_grupo']
-                    : '/-TCC-/public/imagem/blank.png';
+                    ? zubbo_url('/' . ltrim((string) $grupo['foto_grupo'], '/'))
+                    : zubbo_url('/public/imagem/blank.png');
 
                 $resumo = $grupo['ultima_mensagem']
                     ?: ($grupo['descricao_grupo'] ?: $grupo['total_participantes'].' participantes');
@@ -91,6 +95,9 @@ $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <strong><?= htmlspecialchars($grupo['nome_grupo']) ?></strong>
                     <span><?= htmlspecialchars($resumo) ?></span>
                 </div>
+                <?php if ((int)($naoLidas[$grupo['id_conversa']] ?? 0) > 0): ?>
+                    <span class="chat-item-unread" aria-label="<?= (int)($naoLidas[$grupo['id_conversa']] ?? 0) ?> mensagens não lidas"><?= (int)($naoLidas[$grupo['id_conversa']] ?? 0) > 99 ? '99+' : (int)($naoLidas[$grupo['id_conversa']] ?? 0) ?></span>
+                <?php endif; ?>
                 <span class="grupo-chat-total"><?= (int)$grupo['total_participantes'] ?></span>
             </a>
             <hr class="perfil-hr">

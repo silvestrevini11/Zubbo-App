@@ -1,9 +1,10 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../login/login.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
@@ -65,7 +66,7 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <button
         class="btn-voltar"
-        onclick="window.location.href='../painel/painel-inicial.php'"
+        onclick="window.location.href='../painel/Painel-inicial.php'"
     >
         ←
     </button>
@@ -94,8 +95,8 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php
 
                 $foto = !empty($notificacao['foto_user'])
-                    ? '/Zubbo-App/-TCC-/' . $notificacao['foto_user']
-                    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
+                    ? zubbo_url('/' . ltrim((string) $notificacao['foto_user'], '/'))
+                    : zubbo_url('/public/imagem/blank.png');
 
             ?>
 
@@ -192,6 +193,7 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         action="aceitar-amizade.php"
                         method="POST"
                     >
+                        <?= zubbo_csrf_input() ?>
 
                         <input
                             type="hidden"

@@ -1,9 +1,3 @@
-CREATE DATABASE IF NOT EXISTS app_zubbo
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE app_zubbo;
-
 -- =========================================================
 -- 1. TABELAS PRINCIPAIS / CADASTROS
 -- =========================================================
@@ -486,6 +480,7 @@ CREATE TABLE Denuncia (
     id_mensagem INT NULL,
     id_conversa INT NULL,
     id_evento INT NULL,
+    id_local INT NULL,
     id_adm INT NULL,
     motivo VARCHAR(100) NOT NULL,
     descricao TEXT NULL,
@@ -517,6 +512,11 @@ CREATE TABLE Denuncia (
     CONSTRAINT fk_denuncia_evento
         FOREIGN KEY (id_evento)
         REFERENCES Evento(id_evento)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_denuncia_local
+        FOREIGN KEY (id_local)
+        REFERENCES LocalEsp(id_local)
         ON DELETE SET NULL,
 
     CONSTRAINT fk_denuncia_adm

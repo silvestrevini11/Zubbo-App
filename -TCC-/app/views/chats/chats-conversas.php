@@ -14,6 +14,14 @@ $id_usuario_logado = (int) $_SESSION['usuario']['id'];
 
 $id_outro_usuario = (int) ($_GET['id'] ?? 0);
 
+$stmtBloqueio = $conn->prepare("SELECT 1 FROM Bloqueio_Usuario
+ WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?) LIMIT 1");
+$stmtBloqueio->execute([$id_usuario_logado,$id_outro_usuario,$id_outro_usuario,$id_usuario_logado]);
+if ($stmtBloqueio->fetchColumn()) {
+    http_response_code(403); exit('Conversa indisponível devido ao bloqueio.');
+}
+
+
 if ($id_outro_usuario <= 0 || $id_outro_usuario == $id_usuario_logado) {
     header('Location: chats.php');
     exit;

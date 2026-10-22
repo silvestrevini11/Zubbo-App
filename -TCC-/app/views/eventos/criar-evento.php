@@ -78,6 +78,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new RuntimeException('O local selecionado não está disponível.');
             }
 
+            // Prevenção básica de conflito: horário idêntico no mesmo local.
+            // Não substitui a confirmação de disponibilidade junto ao estabelecimento.
+            $checar = $conn->prepare("SELECT 1 FROM Evento
+                WHERE id_local=? AND data_evento=? AND horario_evento=?
+                  AND status_evento='ativo' LIMIT 1");
+            $checar->execute([$idLocal,$dataEvento,$horarioEvento]);
+            if ($checar->fetchColumn()) {
+                throw new RuntimeException('Já existe um evento Zubbo neste local e horário.');
+            }
+
             $stmt = $conn->prepare("
                 INSERT INTO Evento (
                     nome_evento,

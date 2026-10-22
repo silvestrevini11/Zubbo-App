@@ -50,6 +50,10 @@ $stmt = $conn->prepare("
         )
 
     WHERE c.tipo_conversa = 'privado'
+      AND u.status_user = 'ativo'
+      AND NOT EXISTS (SELECT 1 FROM Bloqueio_Usuario b
+        WHERE (b.id_bloqueador = :id_bloq_1 AND b.id_bloqueado = pc_outro.id_user)
+           OR (b.id_bloqueado = :id_bloq_2 AND b.id_bloqueador = pc_outro.id_user))
 
     ORDER BY
         COALESCE(m.data_envio, c.data_criacao) DESC
@@ -57,7 +61,9 @@ $stmt = $conn->prepare("
 
 $stmt->execute([
     ':id_usuario' => $id_usuario,
-    ':id_usuario_outro' => $id_usuario
+    ':id_usuario_outro' => $id_usuario,
+    ':id_bloq_1' => $id_usuario,
+    ':id_bloq_2' => $id_usuario
 ]);
 
 $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);

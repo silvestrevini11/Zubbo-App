@@ -7777,3 +7777,13 @@ html.tema-escuro .pesquisa-catalogo-hr { border-top-color: #45464c; }
 }
 .grupo-btn-sair:hover, .btn-desfazer-amizade:hover { background: #b53939; color: #fff; }
 .tema-escuro .grupo-btn-sair, .tema-escuro .btn-desfazer-amizade { color: #ff8a8a; border-color: #ff8a8a; }
+
+/* Indicador de notificações pendentes no menu Início */
+.bottom-nav .nav-item { position: relative; }
+.nav-unread-dot {
+    position: absolute; top: 1px; right: 22%;
+    width: 10px; height: 10px; background: #e12c35;
+    border: 2px solid var(--nav-bg, #fff); border-radius: 50%;
+    box-sizing: content-box; pointer-events: none;
+}
+.nav-unread-dot[hidden] { display: none !important; }

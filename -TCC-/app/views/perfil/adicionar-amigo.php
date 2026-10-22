@@ -32,6 +32,14 @@ if ($id_remetente === $id_destinatario) {
     exit;
 }
 
+$stmtBloqueio = $conn->prepare("SELECT 1 FROM Bloqueio_Usuario
+  WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?) LIMIT 1");
+$stmtBloqueio->execute([$id_remetente,$id_destinatario,$id_destinatario,$id_remetente]);
+if ($stmtBloqueio->fetchColumn()) {
+    http_response_code(403);
+    exit('Não é possível enviar solicitação para este usuário.');
+}
+
 /*
  * Verifica se já são amigos
  */

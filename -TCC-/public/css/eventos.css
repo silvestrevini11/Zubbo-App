@@ -1343,3 +1343,12 @@ html.tema-escuro .eventos-filtro-local a { color:#ff9b77; }
 .evento-fila-espera p { margin:5px 0; }
 .evento-fila-espera button { padding:10px 16px; border:0; border-radius:10px; background:#db592c; color:#fff; font-weight:700; cursor:pointer; }
 html.tema-escuro .evento-fila-espera { background:#2b271e; color:#f1e9d7; border-color:#74633f; }
+
+.evento-editar-times { margin:18px 0; padding:18px; border:1px solid #c8c8cc; border-radius:12px; background:#fff; color:#24242b; }
+.evento-editar-times summary { cursor:pointer; font-weight:700; }
+.evento-editar-times form { display:grid; gap:12px; margin-top:14px; }
+.evento-editar-times label { display:grid; gap:5px; }
+.evento-editar-times input,.evento-editar-times textarea { font:inherit; padding:10px; border-radius:8px; border:1px solid #bcbcbc; }
+.evento-editar-times button { background:#ef4b25;color:#fff;border:0;border-radius:9px;padding:10px 15px;cursor:pointer }
+html.tema-escuro .evento-editar-times { background:#20252b; color:#fff; border-color:#555d65; }
+html.tema-escuro .evento-editar-times input,html.tema-escuro .evento-editar-times textarea { background:#15191d;color:#fff;border-color:#676c73; }

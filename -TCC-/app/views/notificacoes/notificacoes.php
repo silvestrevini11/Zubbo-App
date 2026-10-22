@@ -13,6 +13,12 @@ include __DIR__ . '/../../../config/database.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 
+$conn->prepare("DELETE FROM Notificacao
+    WHERE id_destinatario = ? AND lida = TRUE
+      AND data_leitura IS NOT NULL
+      AND data_leitura <= DATE_SUB(NOW(), INTERVAL 20 MINUTE)")
+    ->execute([$id_usuario]);
+
 
 /* ==========================================
    BUSCAR NOTIFICAÇÕES

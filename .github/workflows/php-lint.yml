@@ -16,5 +16,16 @@ jobs:
         with:
           php-version: '8.4'
 
-      - name: Lint PHP
-        run: find ./-TCC- -path './-TCC-/vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Restore PHP syntax cache
+        id: php-cache
+        uses: actions/cache@v4
+        with:
+          path: .github/.cache/php-lint-ok
+          key: php84-syntax-${{ runner.os }}-${{ hashFiles('-TCC-/**/*.php') }}
+
+      - name: Lint PHP (only on source changes)
+        if: steps.php-cache.outputs.cache-hit != 'true'
+        run: |
+          find ./-TCC- -path './-TCC-/vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+          mkdir -p .github/.cache
+          echo OK > .github/.cache/php-lint-ok

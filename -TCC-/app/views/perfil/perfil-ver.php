@@ -29,7 +29,7 @@ if ($id_user === $id_logado) {
 $stmtUsuario = $conn->prepare("
     SELECT nome_user, email_user, foto_user, sobre_mim
     FROM Usuario
-    WHERE id_user = ?
+    WHERE id_user = ? AND status_user = 'ativo'
 ");
 $stmtUsuario->execute([$id_user]);
 $usuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);

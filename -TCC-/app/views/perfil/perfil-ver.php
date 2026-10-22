@@ -63,6 +63,18 @@ $stmtAmizade->execute([$id1, $id2]);
 
 $saoAmigos = $stmtAmizade->fetch();
 
+$stmtBloqueio = $conn->prepare("SELECT id_bloqueador FROM Bloqueio_Usuario
+    WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?)");
+$stmtBloqueio->execute([$id_logado,$id_user,$id_user,$id_logado]);
+$bloqueios = $stmtBloqueio->fetchAll(PDO::FETCH_COLUMN);
+$euBloqueei = in_array($id_logado, array_map('intval',$bloqueios), true);
+$meBloqueou = in_array($id_user, array_map('intval',$bloqueios), true);
+if ($meBloqueou) {
+    header('Location: ../pesquisa/pesquisar.php');
+    exit;
+}
+
+
 $stmt = $conn->prepare("
     SELECT e.nome_esporte
     FROM Esporte e
@@ -127,7 +139,7 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
 
     <div class="perfil-acoes">
 
-        <?php if (!$saoAmigos): ?>
+        <?php if (!$euBloqueei && !$saoAmigos): ?>
 
             <form action="adicionar-amigo.php" method="POST">
                 <?= zubbo_csrf_input() ?>
@@ -138,7 +150,7 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
                 </button>
             </form>
 
-        <?php else: ?>
+        <?php elseif (!$euBloqueei): ?>
             <form action="desfazer-amizade.php" method="POST"
                   onsubmit="return confirm('Deseja desfazer esta amizade?');">
                 <?= zubbo_csrf_input() ?>
@@ -147,10 +159,19 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
             </form>
         <?php endif; ?>
 
+        <form action="bloquear-usuario.php" method="POST"
+              onsubmit="return confirm('Confirma a alteração do bloqueio deste usuário?');">
+            <?= zubbo_csrf_input() ?>
+            <input type="hidden" name="id_user" value="<?= (int)$id_user ?>">
+            <input type="hidden" name="acao" value="<?= $euBloqueei ? 'desbloquear' : 'bloquear' ?>">
+            <button type="submit" class="btn-bloquear-usuario"><?= $euBloqueei ? 'Desbloquear usuário' : 'Bloquear usuário' ?></button>
+        </form>
+        <?php if (!$euBloqueei): ?>
         <button type="button" class="btn-conversar"
             onclick="window.location.href='../chats/chats-conversas.php?id=<?= $id_user ?>'">
             Conversar
         </button>
+        <?php endif; ?>
 
     </div>
 

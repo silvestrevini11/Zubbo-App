@@ -54,7 +54,7 @@ if (!$notificacao) {
 
 $stmt = $conn->prepare("
     UPDATE Notificacao
-    SET lida = TRUE
+    SET lida = TRUE, data_leitura = COALESCE(data_leitura, NOW())
     WHERE id_notificacao = ?
       AND id_destinatario = ?
 ");

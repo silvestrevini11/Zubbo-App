@@ -13,7 +13,7 @@ if (
 include __DIR__ . '/../../../config/database.php';
 
 $stmt = $conn->query(
-    'SELECT id_esporte, nome_esporte
+    'SELECT id_esporte, nome_esporte, imagem_esporte
      FROM Esporte
      ORDER BY nome_esporte'
 );
@@ -58,6 +58,9 @@ include __DIR__ . '/../includes/head.php';
                         value="<?= (int) $esporte['id_esporte'] ?>"
                     >
 
+                    <?php if (!empty($esporte['imagem_esporte'])): ?>
+                      <img class="esporte-imagem-upload" src="<?= htmlspecialchars(zubbo_url('/'.ltrim((string)$esporte['imagem_esporte'],'/')), ENT_QUOTES, 'UTF-8') ?>" alt="" loading="lazy">
+                    <?php endif; ?>
                     <span class="esporte-nome">
                         <?= htmlspecialchars($nome) ?>
                     </span>

@@ -189,9 +189,9 @@ Zubbo-App/
 
 ---
 
-## Pré-requisitos
+##Para executar localmente
 
-Para executar localmente:
+Pré-requisitos: 
 
 1. Windows com XAMPP instalado;
 2. Apache;

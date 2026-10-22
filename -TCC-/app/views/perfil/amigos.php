@@ -29,8 +29,8 @@ $stmt = $conn->prepare("
                 ELSE a.id_user_1
             END
 
-    WHERE a.id_user_1 = ?
-       OR a.id_user_2 = ?
+    WHERE (a.id_user_1 = ? OR a.id_user_2 = ?)
+      AND u.status_user = 'ativo'
 
     ORDER BY u.nome_user
 ");

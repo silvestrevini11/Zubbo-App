@@ -1,4 +1,4 @@
--- Bloqueio de contatos privados; executar antes de ativar a funcionalidade.
+-- Bloqueio de contatos privados. Executar antes de ativar a funcionalidade.
 CREATE TABLE IF NOT EXISTS Bloqueio_Usuario (
     id_bloqueador INT NOT NULL,
     id_bloqueado INT NOT NULL,

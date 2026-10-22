@@ -1352,3 +1352,17 @@ html.tema-escuro .evento-fila-espera { background:#2b271e; color:#f1e9d7; border
 .evento-editar-times button { background:#ef4b25;color:#fff;border:0;border-radius:9px;padding:10px 15px;cursor:pointer }
 html.tema-escuro .evento-editar-times { background:#20252b; color:#fff; border-color:#555d65; }
 html.tema-escuro .evento-editar-times input,html.tema-escuro .evento-editar-times textarea { background:#15191d;color:#fff;border-color:#676c73; }
+
+.agenda-local { padding-bottom:110px; }
+.agenda-aviso { margin:18px 0; padding:15px; border-left:4px solid #ef4b25; background:#fff6ed; color:#573f30; }
+.agenda-lista { list-style:none; padding:0; display:grid; gap:12px; }
+.agenda-lista li { padding:16px; background:#fff; border:1px solid #ddd; border-radius:12px; display:grid; gap:6px; }
+html.tema-escuro .agenda-aviso { background:#29231d;color:#f6ddc8; }
+html.tema-escuro .agenda-lista li { background:#20252a;color:#f3f3f3;border-color:#475058; }
+/* Contraste do tema escuro em telas de eventos */
+html.tema-escuro .eventos-card, html.tema-escuro .eventos-vazio { background:#20252a; color:#f7f8fa; border-color:#3d464f; }
+html.tema-escuro .eventos-card h2,html.tema-escuro .eventos-dados dd { color:#f7f8fa; }
+html.tema-escuro .eventos-dados dt, html.tema-escuro .eventos-endereco,
+html.tema-escuro .eventos-card-rodape>span { color:#c2cbd4; }
+html.tema-escuro .eventos-card .eventos-times-resumo { background:#242d35; }
+html.tema-escuro .evento-slot-vazio { background:#293038; color:#dae0e5; }

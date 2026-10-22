@@ -7793,3 +7793,6 @@ html.tema-escuro .pesquisa-catalogo-hr { border-top-color: #45464c; }
 
 .esporte-card:has(.esporte-imagem-upload)::before { display:none; }
 .esporte-imagem-upload { display:block; width:72px; height:72px; object-fit:contain; margin:0 auto 8px; }
+
+.btn-alertas { cursor:pointer;border:1px solid #f26939;border-radius:8px;padding:8px 11px;background:transparent;color:inherit;font:inherit; }
+#alertas-estado { margin:8px 14px;color:inherit;font-size:13px; }

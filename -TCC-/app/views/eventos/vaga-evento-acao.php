@@ -6,6 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit('Método não permitido.');
 }
 require_once __DIR__ . '/_regras-equipes.php';
+require_once __DIR__ . '/_fila-espera.php';
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $idEvento = filter_var($_POST['id_evento'] ?? null, FILTER_VALIDATE_INT);
@@ -234,6 +235,14 @@ try {
                 WHERE id_solicitacao = ?
             ");
             $stmt->execute([(int) $solicitacao['id_solicitacao']]);
+            if ($solicitacao['status_solicitacao'] === 'aprovada') {
+                $vagaLiberada = $conn->prepare('SELECT time_num, numero_vaga FROM Solicitacao_Vaga_Evento WHERE id_solicitacao=?');
+                $vagaLiberada->execute([(int)$solicitacao['id_solicitacao']]);
+                $pos = $vagaLiberada->fetch(PDO::FETCH_ASSOC);
+                if ($pos && $pos['time_num'] !== null && $pos['numero_vaga'] !== null) {
+                    evento_promover_fila($conn,$idEvento,(int)$pos['time_num'],(int)$pos['numero_vaga']);
+                }
+            }
 
             $stmt = $conn->prepare('DELETE FROM Lista_Evento WHERE id_evento = ? AND id_user = ?');
             $stmt->execute([$idEvento, $idUsuario]);
@@ -397,6 +406,9 @@ try {
             $stmt = $conn->prepare('DELETE FROM Lista_Evento WHERE id_evento = ? AND id_user = ?');
             $stmt->execute([$idEvento, (int) $solicitacao['id_user']]);
 
+            if ($solicitacao['time_num'] !== null && $solicitacao['numero_vaga'] !== null) {
+                evento_promover_fila($conn, $idEvento, (int)$solicitacao['time_num'], (int)$solicitacao['numero_vaga']);
+            }
             vaga_flash($idEvento, 'sucesso', 'Participante removido do evento.');
         }
     }

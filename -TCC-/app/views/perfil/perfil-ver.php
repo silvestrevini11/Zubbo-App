@@ -138,6 +138,13 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
                 </button>
             </form>
 
+        <?php else: ?>
+            <form action="desfazer-amizade.php" method="POST"
+                  onsubmit="return confirm('Deseja desfazer esta amizade?');">
+                <?= zubbo_csrf_input() ?>
+                <input type="hidden" name="id_amigo" value="<?= (int)$id_user ?>">
+                <button type="submit" class="btn-desfazer-amizade">Desfazer amizade</button>
+            </form>
         <?php endif; ?>
 
         <button type="button" class="btn-conversar"

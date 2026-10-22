@@ -7790,3 +7790,6 @@ html.tema-escuro .pesquisa-catalogo-hr { border-top-color: #45464c; }
 
 .btn-bloquear-usuario { padding: 10px 14px; color:#b53939; border:1px solid currentColor; background:transparent; border-radius:10px; cursor:pointer; font:inherit; }
 .tema-escuro .btn-bloquear-usuario { color:#ff8a8a; }
+
+.esporte-card:has(.esporte-imagem-upload)::before { display:none; }
+.esporte-imagem-upload { display:block; width:72px; height:72px; object-fit:contain; margin:0 auto 8px; }

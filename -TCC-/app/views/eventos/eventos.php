@@ -4,9 +4,12 @@ require_once __DIR__ . '/_regras-equipes.php';
 
 $eventos = [];
 $erro = false;
+$idLocalFiltro = filter_var($_GET['id_local'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+$locaisFiltro = [];
+
 
 try {
-    $stmt = $conn->query("
+    $stmt = $conn->prepare("
         SELECT ev.id_evento, ev.nome_evento, ev.data_evento, ev.horario_evento,
                ev.status_evento, e.nome_esporte, l.nome_local, l.endereco_local,
                u.nome_user AS criador,
@@ -22,6 +25,7 @@ try {
         INNER JOIN LocalEsp l ON l.id_local = ev.id_local
         LEFT JOIN Usuario u ON u.id_user = ev.id_criador
         WHERE ev.status_evento <> 'removido'
+          AND (? = 0 OR ev.id_local = ?)
         ORDER BY
             (ev.status_evento = 'ativo' AND TIMESTAMP(ev.data_evento, ev.horario_evento) >= NOW()) DESC,
             CASE
@@ -32,7 +36,9 @@ try {
             ev.horario_evento DESC,
             ev.id_evento DESC
     ");
+    $stmt->execute([$idLocalFiltro, $idLocalFiltro]);
     $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $locaisFiltro = $conn->query("SELECT id_local, nome_local FROM LocalEsp WHERE status_local = 'aprovado' ORDER BY nome_local")->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     error_log('Erro ao listar eventos: ' . $e->getMessage());
     $erro = true;
@@ -68,6 +74,19 @@ function escaparEvento($valor): string
         <a class="eventos-criar" href="criar-evento.php">+ Criar evento</a>
     </header>
 
+    <form class="eventos-filtro-local" action="eventos.php" method="get">
+        <label for="filtro-local">Filtrar eventos por local</label>
+        <select id="filtro-local" name="id_local">
+            <option value="0">Todos os locais</option>
+            <?php foreach ($locaisFiltro as $localFiltro): ?>
+                <option value="<?= (int)$localFiltro['id_local'] ?>" <?= $idLocalFiltro === (int)$localFiltro['id_local'] ? 'selected' : '' ?>>
+                    <?= escaparEvento($localFiltro['nome_local']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit">Filtrar</button>
+        <?php if ($idLocalFiltro): ?><a href="eventos.php">Limpar</a><?php endif; ?>
+    </form>
     <?php if ($erro): ?>
         <section class="eventos-vazio" role="alert">
             <h2>Não foi possível carregar os eventos</h2>

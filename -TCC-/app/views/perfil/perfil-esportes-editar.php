@@ -14,7 +14,7 @@ if (empty($_SESSION['csrf_token'])) {
 
 $id_user = (int) $_SESSION['usuario']['id'];
 
-$stmt = $conn->query('SELECT id_esporte, nome_esporte FROM Esporte ORDER BY nome_esporte');
+$stmt = $conn->query('SELECT id_esporte, nome_esporte, imagem_esporte FROM Esporte ORDER BY nome_esporte');
 $esportes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $stmtSelecionados = $conn->prepare('SELECT id_esporte FROM Usuario_Esporte WHERE id_user = ?');
@@ -60,6 +60,8 @@ include __DIR__ . '/../includes/head.php';
                     $id = (int) $esporte['id_esporte'];
                     $nome = $esporte['nome_esporte'];
                     $imagem = $imagensEsportes[$nome] ?? null;
+                    $fotoPersonalizada = !empty($esporte['imagem_esporte'])
+                        ? zubbo_url('/'.ltrim((string)$esporte['imagem_esporte'],'/')) : null;
                     $checked = in_array($id, $selecionados, true);
                 ?>
 
@@ -72,7 +74,9 @@ include __DIR__ . '/../includes/head.php';
                     >
 
                     <span class="editar-esportes-icone" aria-hidden="true">
-                        <?php if ($imagem): ?>
+                        <?php if ($fotoPersonalizada): ?>
+                            <img src="<?= htmlspecialchars($fotoPersonalizada, ENT_QUOTES, 'UTF-8') ?>" alt="">
+                        <?php elseif ($imagem): ?>
                             <img src="<?= htmlspecialchars(zubbo_url('/public/imagem/' . $imagem), ENT_QUOTES, 'UTF-8') ?>" alt="">
                         <?php else: ?>
                             ★

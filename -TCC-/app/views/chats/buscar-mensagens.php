@@ -22,6 +22,20 @@ if (!$stmt->fetchColumn()) {
     exit;
 }
 
+// Bloqueios também são respeitados na consulta assíncrona das conversas privadas.
+$stBloqueio = $conn->prepare("SELECT 1 FROM Conversa c
+    INNER JOIN Participantes_Conversa p ON p.id_conversa = c.id_conversa
+        AND p.id_user <> ?
+    INNER JOIN Bloqueio_Usuario b ON
+        (b.id_bloqueador = ? AND b.id_bloqueado = p.id_user) OR
+        (b.id_bloqueado = ? AND b.id_bloqueador = p.id_user)
+    WHERE c.id_conversa = ? AND c.tipo_conversa = 'privado' LIMIT 1");
+$stBloqueio->execute([$idUsuario, $idUsuario, $idUsuario, $idConversa]);
+if ($stBloqueio->fetchColumn()) {
+    http_response_code(403);
+    exit;
+}
+
 $stmt = $conn->prepare(
     'SELECT m.id_mensagem, m.id_remetente, m.mensagem, m.data_envio, u.nome_user
      FROM Mensagem m

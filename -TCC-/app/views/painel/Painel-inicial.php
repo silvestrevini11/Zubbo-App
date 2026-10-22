@@ -163,6 +163,15 @@ include __DIR__ . '/../includes/head.php';
     new mapboxgl.NavigationControl(),
     'top-right'
   );
+  // A localização é solicitada somente quando o usuário clicar no controle.
+  if ('geolocation' in navigator) {
+    map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: false },
+      trackUserLocation: false,
+      showUserHeading: false
+    }), 'top-right');
+  }
+
 
   function criarPopupLocal(nome, endereco, fotoUrl = null, idLocal = null) {
     const conteudo = document.createElement('div');
@@ -187,6 +196,12 @@ include __DIR__ . '/../includes/head.php';
       eventos.textContent = 'Ver eventos neste local →';
       eventos.style.cssText = 'display:block;margin-top:8px;color:#b93817;font-weight:bold';
       conteudo.appendChild(eventos);
+      const agenda = document.createElement('a');
+      const urlAgenda = <?= json_encode(zubbo_url('/app/views/eventos/agenda-local.php')) ?>;
+      agenda.href = urlAgenda + '?id_local=' + encodeURIComponent(idLocal);
+      agenda.textContent = 'Horários cadastrados no Zubbo →';
+      agenda.style.cssText = 'display:block;margin-top:6px;color:#b93817;font-weight:bold';
+      conteudo.appendChild(agenda);
     }
     return new mapboxgl.Popup({ offset: 25 }).setDOMContent(conteudo);
   }

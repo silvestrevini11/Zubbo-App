@@ -44,6 +44,19 @@ include __DIR__ . '/../includes/head.php';
         </div>
     </section>
 
+    <section class="configuracoes-grupo" aria-labelledby="alertas-titulo">
+        <h2 id="alertas-titulo">Alertas de mensagens</h2>
+        <div class="configuracoes-item">
+            <span class="configuracoes-icone" aria-hidden="true">◉</span>
+            <span class="configuracoes-item-texto">
+                <strong>Notificações do navegador</strong>
+                <span>Alertas apenas enquanto o Zubbo estiver aberto. Notificações push em segundo plano exigem configuração adicional.</span>
+            </span>
+            <button type="button" id="notificacoes-optin" class="btn-alertas">Ativar</button>
+        </div>
+        <p id="alertas-estado" role="status"></p>
+    </section>
+
     <section class="configuracoes-grupo" aria-labelledby="suporte-titulo">
         <h2 id="suporte-titulo">Comunidade e suporte</h2>
 
@@ -101,6 +114,28 @@ include __DIR__ . '/../includes/head.php';
 </dialog>
 
 <script>
+    const alertasBotao = document.getElementById('notificacoes-optin');
+    const alertasEstado = document.getElementById('alertas-estado');
+    function mostrarEstado() {
+        const ativo = localStorage.getItem('zubbo-alertas') === 'sim';
+        alertasBotao.textContent = ativo ? 'Desativar' : 'Ativar';
+        alertasEstado.textContent = !('Notification' in window)
+          ? 'Este navegador não oferece notificações.'
+          : ativo ? 'Alertas ativados para esta instalação.' : 'Alertas desativados.';
+        alertasBotao.disabled = !('Notification' in window);
+    }
+    alertasBotao.addEventListener('click', async () => {
+        if (localStorage.getItem('zubbo-alertas') === 'sim') {
+            localStorage.removeItem('zubbo-alertas');
+        } else if ('Notification' in window) {
+            const permissao = await Notification.requestPermission();
+            if (permissao === 'granted') localStorage.setItem('zubbo-alertas','sim');
+            else alertasEstado.textContent = 'O navegador não autorizou notificações.';
+        }
+        mostrarEstado();
+    });
+    mostrarEstado();
+
     const temaEscuro = document.getElementById('tema-escuro');
     const aplicarTema = (escuro) => {
         document.documentElement.classList.toggle('tema-escuro', escuro);

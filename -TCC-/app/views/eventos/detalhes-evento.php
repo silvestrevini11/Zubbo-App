@@ -191,6 +191,19 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
         </section>
     <?php endif; ?>
 
+    <?php if ($organizador && $limite !== null): ?>
+        <details class="evento-editar-times">
+            <summary>Editar informações dos times</summary>
+            <form action="editar-times.php" method="post">
+                <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                <input type="hidden" name="id_evento" value="<?= (int)$idEvento ?>">
+                <label>Nome do time 1 <input name="nome_time_1" maxlength="30" required value="<?= escaparDetalhe($evento['nome_time_1']) ?>"></label>
+                <label>Nome do time 2 <input name="nome_time_2" maxlength="30" required value="<?= escaparDetalhe($evento['nome_time_2']) ?>"></label>
+                <label>Descrição das equipes <textarea name="descricao_times" maxlength="180"><?= escaparDetalhe($evento['descricao_times'] ?? '') ?></textarea></label>
+                <button type="submit">Salvar times</button>
+            </form>
+        </details>
+    <?php endif; ?>
     <?php if ($flash): ?>
         <p
             class="evento-aviso <?= $flash['tipo'] === 'sucesso' ? 'evento-aviso-sucesso' : '' ?>"
@@ -251,7 +264,7 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                     <span>SUA PARTICIPAÇÃO</span>
 
                     <strong>
-                        Time <?= (int) $minhaSolicitacao['time_num'] ?> ·
+                        <?= escaparDetalhe($evento[(int)$minhaSolicitacao['time_num'] === 1 ? 'nome_time_1' : 'nome_time_2']) ?> ·
                         #<?= str_pad((string) $minhaSolicitacao['numero_vaga'], 2, '0', STR_PAD_LEFT) ?>
                     </strong>
 
@@ -427,7 +440,7 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
 
                                 <small>
                                     <?php if ($solicitacao['time_num'] !== null): ?>
-                                        Time <?= (int) $solicitacao['time_num'] ?> ·
+                                        <?= escaparDetalhe($evento[(int)$solicitacao['time_num'] === 1 ? 'nome_time_1' : 'nome_time_2']) ?> ·
                                         vaga #<?= (int) $solicitacao['numero_vaga'] ?>
                                     <?php else: ?>
                                         Participação individual

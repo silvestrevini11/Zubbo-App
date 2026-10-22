@@ -33,6 +33,7 @@
     const inicio = document.getElementById('nav-inicio-notificacoes');
     if (!badge) return;
     const url = <?= json_encode(zubbo_url('/app/views/notificacoes/buscar-notificacoes.php')) ?>;
+    let totalAnterior = null;
     async function carregarNaoLidas() {
         try {
             const resposta = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
@@ -42,6 +43,19 @@
             badge.hidden = quantidade === 0;
             badge.textContent = quantidade > 99 ? '99+' : String(quantidade);
             if (inicio) inicio.hidden = (Number(dados.quantidade) || 0) <= 0;
+            const total = Math.max(0, Number(dados.quantidade) || 0);
+            if (totalAnterior !== null && total > totalAnterior &&
+                localStorage.getItem('zubbo-alertas') === 'sim' &&
+                'Notification' in window && Notification.permission === 'granted' &&
+                document.hidden) {
+                try {
+                    new Notification('Zubbo: novas notificações', {
+                        body: 'Você recebeu novas atualizações no aplicativo.',
+                        tag: 'zubbo-novas-notificacoes'
+                    });
+                } catch (e) { /* Alguns navegadores móveis exigem service worker. */ }
+            }
+            totalAnterior = total;
         } catch (erro) {
             console.warn('Não foi possível atualizar mensagens não lidas.');
         }

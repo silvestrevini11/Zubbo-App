@@ -14,8 +14,17 @@ function evento_normalizar_esporte(string $nome): string
     ]);
 }
 
-function evento_vagas_por_time(string $esporte): ?int
+function evento_vagas_por_time(string $esporte, ?PDO $conn = null): ?int
 {
+    if ($conn !== null) {
+        $stmt = $conn->prepare('SELECT jogadores_por_time FROM Esporte WHERE LOWER(nome_esporte)=LOWER(?) LIMIT 1');
+        $stmt->execute([$esporte]);
+        $jogadores = $stmt->fetchColumn();
+        if ($jogadores !== false && $jogadores !== null && (int)$jogadores > 0) {
+            return (int)$jogadores;
+        }
+    }
+
     $regras = [
         'futebol' => 11,
         'futsal' => 5,

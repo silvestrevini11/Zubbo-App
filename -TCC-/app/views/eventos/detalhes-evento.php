@@ -62,6 +62,13 @@ foreach ($confirmadosSemVaga as $participanteSemVaga) {
     }
 }
 
+$stFila = $conn->prepare("SELECT id_user FROM Fila_Espera_Evento
+   WHERE id_evento = ? ORDER BY data_entrada, id_user");
+$stFila->execute([$idEvento]);
+$usuariosFila = array_map('intval', $stFila->fetchAll(PDO::FETCH_COLUMN));
+$indiceFila = array_search($idUsuario, $usuariosFila, true);
+$filaCheia = $limite !== null && $totalConfirmados >= $limite * 2;
+
 $flash = $_SESSION['flash_vaga_evento'][$idEvento] ?? null;
 unset($_SESSION['flash_vaga_evento'][$idEvento]);
 ?>
@@ -132,6 +139,27 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
         </div>
     </section>
 
+    <?php if ($limite !== null && ($filaCheia || $indiceFila !== false)): ?>
+        <section class="evento-fila-espera" aria-label="Fila de espera">
+            <div>
+                <strong>Fila de espera</strong>
+                <p><?= count($usuariosFila) ?> pessoa(s) aguardando uma vaga.</p>
+                <?php if ($indiceFila !== false): ?>
+                    <p>Você está na posição <?= (int)$indiceFila + 1 ?>.
+                    Se uma vaga abrir, sua solicitação será enviada ao organizador para aprovação.</p>
+                <?php endif; ?>
+            </div>
+            <?php if ($indiceFila !== false || ($filaCheia && $aberto && !$minhaSolicitacao && !$minhaParticipacaoSemVaga)): ?>
+                <form method="post" action="fila-espera-acao.php">
+                    <input type="hidden" name="csrf" value="<?= escaparDetalhe($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="id_evento" value="<?= (int)$idEvento ?>">
+                    <input type="hidden" name="origem" value="detalhes">
+                    <input type="hidden" name="acao" value="<?= $indiceFila !== false ? 'sair' : 'entrar' ?>">
+                    <button type="submit"><?= $indiceFila !== false ? 'Sair da fila' : 'Entrar na fila' ?></button>
+                </form>
+            <?php endif; ?>
+        </section>
+    <?php endif; ?>
     <?php if ($organizador && $evento['status_evento'] !== 'removido'): ?>
         <section class="evento-score-acoes">
             <div>

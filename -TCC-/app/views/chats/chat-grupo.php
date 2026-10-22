@@ -31,7 +31,7 @@ $stmt = $conn->prepare("
 $stmt->execute([$id_conversa]);
 $mensagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
+$conn->prepare("UPDATE Notificacao SET lida = TRUE, data_leitura = COALESCE(data_leitura, NOW()) WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
     ->execute([$id_usuario, $id_conversa]);
 
 include __DIR__ . '/../includes/head.php';

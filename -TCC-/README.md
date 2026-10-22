@@ -19,8 +19,7 @@ Para conhecer o tema, a proposta, os objetivos, a instituição e a equipe, cons
 9. [Railway e modo de demonstração](#9-railway-e-modo-de-demonstração)
 10. [Segurança e privacidade](#10-segurança-e-privacidade)
 11. [Logs e testes automatizados](#11-logs-e-testes-automatizados)
-12. [APK Android: integração prevista](#12-apk-android-integração-prevista)
-13. [Problemas comuns e referências](#13-problemas-comuns-e-referências)
+12. [Problemas comuns e referências](#12-problemas-comuns-e-referências)
 
 ## 1. Arquitetura e tecnologias
 

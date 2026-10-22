@@ -69,15 +69,15 @@ include __DIR__ . '/../includes/head.php';
     <?php endif; ?>
 
 
-    <div class="amigos-lista">
+    <div class="amigos-lista" aria-label="Lista de amigos">
 
         <?php foreach ($amigos as $amigo): ?>
 
             <?php
 
                 $foto = !empty($amigo['foto_user'])
-                    ? '/Zubbo-app/-TCC-/' . $amigo['foto_user']
-                    : '/Zubbo-app/-TCC-/public/imagem/blank.png';
+                    ? zubbo_url('/' . ltrim((string) $amigo['foto_user'], '/'))
+                    : zubbo_url('/public/imagem/blank.png');
 
             ?>
 
@@ -90,6 +90,7 @@ include __DIR__ . '/../includes/head.php';
                     src="<?= htmlspecialchars($foto) ?>"
                     alt="Foto de perfil"
                     class="chat-item-foto"
+                    onerror="this.onerror=null;this.src='<?= htmlspecialchars(zubbo_url('/public/imagem/blank.png'), ENT_QUOTES, 'UTF-8') ?>'"
                 >
 
                 <div class="chat-item-info">

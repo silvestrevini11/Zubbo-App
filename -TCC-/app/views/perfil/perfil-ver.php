@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (!isset($_SESSION['usuario']['id'])) {
     header('Location: ../auth/login.php');
@@ -74,8 +75,8 @@ $stmt->execute([$id_user]);
 $esportes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $fotoPerfil = !empty($usuario['foto_user'])
-    ? '/Zubbo-App/-TCC-/' . $usuario['foto_user']
-    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
+    ? zubbo_url('/' . ltrim((string) $usuario['foto_user'], '/'))
+    : zubbo_url('/public/imagem/blank.png');
 
 include __DIR__ . '/../includes/head.php';
 
@@ -109,9 +110,7 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
         <?= htmlspecialchars($usuario['nome_user']) ?>
     </h1>
 
-    <h3 class="perfil-email">
-        <?= htmlspecialchars($usuario['email_user']) ?>
-    </h3>
+    <p class="perfil-email">Perfil da comunidade Zubbo</p>
 
     <div class="perfil-status">
         <div class="perfil-eventos">
@@ -131,6 +130,7 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
         <?php if (!$saoAmigos): ?>
 
             <form action="adicionar-amigo.php" method="POST">
+                <?= zubbo_csrf_input() ?>
                 <input type="hidden" name="id_amigo" value="<?= $id_user ?>">
 
                 <button type="submit" class="btn-adicionar-amigo">

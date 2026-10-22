@@ -14,8 +14,8 @@ $erro = $mensagens[$erroCodigo] ?? '';
 include __DIR__ . '/../includes/head.php';
 ?>
 <section class="Tela-cad">
-    <button class="btn-voltar" type="button" onclick="window.location.href='../../../public/index.php'">←</button>
-    <img class="logo-cad" src="../../../public/imagem/LogooZ.png" alt="Zubbo">
+    <button class="btn-voltar" type="button" onclick="window.location.href='<?= htmlspecialchars(zubbo_url('/public/index.php'), ENT_QUOTES, 'UTF-8') ?>'">←</button>
+    <img class="logo-cad" src="<?= htmlspecialchars(zubbo_url('/public/imagem/LogooZ.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Zubbo">
 
     <h1 class="title-cad">Criar Conta</h1>
     <p class="desc-cad">Junte-se à comunidade e viva o esporte</p>
@@ -62,6 +62,7 @@ include __DIR__ . '/../includes/head.php';
             <input type="date" name="data-nasc" required>
         </div>
 
+        <p class="par-cad">Antes de continuar, conheça como a versão de demonstração trata dados em <a href="<?= htmlspecialchars(zubbo_url('/public/privacidade.php'), ENT_QUOTES, 'UTF-8') ?>">Privacidade e uso responsável</a>.</p>
         <button class="btn-cad" type="submit">Criar conta</button>
     </form>
 

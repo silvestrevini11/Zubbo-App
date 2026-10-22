@@ -3,7 +3,7 @@
 session_start();
 
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../usuario/form-usuario.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
@@ -61,6 +61,10 @@ $stmt->execute([
 ]);
 
 $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmtNaoLidas = $conn->prepare("SELECT id_conversa, COUNT(*) AS total FROM Notificacao WHERE id_destinatario = ? AND tipo = 'mensagem' AND lida = FALSE AND id_conversa IS NOT NULL GROUP BY id_conversa");
+$stmtNaoLidas->execute([$id_usuario]);
+$naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
+
 
 ?>
 
@@ -111,8 +115,8 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php
 
                 $foto = !empty($conversa['foto_user'])
-                    ? '/Zubbo-App/-TCC-/' . $conversa['foto_user']
-                    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
+                    ? zubbo_url('/' . ltrim((string) $conversa['foto_user'], '/'))
+                    : zubbo_url('/public/imagem/blank.png');
 
             ?>
 
@@ -142,6 +146,10 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </span>
 
                 </div>
+                <?php $totalNaoLidas = (int)($naoLidas[$conversa['id_conversa']] ?? 0); ?>
+                <?php if ($totalNaoLidas > 0): ?>
+                    <span class="chat-item-unread" aria-label="<?= $totalNaoLidas ?> mensagens não lidas"><?= $totalNaoLidas > 99 ? '99+' : $totalNaoLidas ?></span>
+                <?php endif; ?>
 
             </a>
             <hr class="perfil-hr">
@@ -151,7 +159,7 @@ $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-<script src="/../-TCC-/public/js/conversas.js"></script>
+<script src="<?= htmlspecialchars(zubbo_url('/public/js/conversas.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 
 </section>
 

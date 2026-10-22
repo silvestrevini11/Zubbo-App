@@ -1,9 +1,17 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
+
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+    http_response_code(405);
+    exit('Método não permitido.');
+}
+
+zubbo_require_csrf();
 
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../login/login.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
@@ -184,9 +192,8 @@ try {
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
+    error_log('Erro ao aceitar amizade: ' . $e->getMessage());
+    http_response_code(500);
+    exit('Não foi possível aceitar a amizade. Tente novamente.');
 
-    die(
-        '<h2>Erro ao aceitar amizade</h2>' .
-        '<p>' . htmlspecialchars($e->getMessage()) . '</p>'
-    );
 }

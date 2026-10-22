@@ -25,41 +25,18 @@ final class AdminService
 
     public static function buscarIdAtivo(PDO $conn, int $idUsuario, string $email): ?int
     {
-        if (self::possuiRelacaoUsuario($conn)) {
-            $stmt = $conn->prepare("
-                SELECT id_adm, id_user
-                FROM Administrador
-                WHERE ativo = 1
-                  AND (id_user = ? OR (id_user IS NULL AND email_adm = ?))
-                ORDER BY (id_user = ?) DESC
-                LIMIT 1
-            ");
-            $stmt->execute([$idUsuario, $email, $idUsuario]);
-            $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$admin) {
-                return null;
-            }
-
-            if ($admin['id_user'] === null) {
-                try {
-                    $conn->prepare(
-                        'UPDATE Administrador SET id_user = ? WHERE id_adm = ? AND id_user IS NULL'
-                    )->execute([$idUsuario, $admin['id_adm']]);
-                } catch (PDOException $e) {
-                    error_log('Não foi possível vincular administrador ao usuário: ' . $e->getMessage());
-                }
-            }
-
-            return (int) $admin['id_adm'];
+        // A identidade administrativa é o ID da conta, nunca o e-mail.
+        // Contas legadas sem id_user precisam de migração manual explícita.
+        if (!self::possuiRelacaoUsuario($conn)) {
+            error_log('Controle administrativo legado sem id_user: execute migration 002.');
+            return null;
         }
 
         $stmt = $conn->prepare(
-            'SELECT id_adm FROM Administrador WHERE email_adm = ? AND ativo = 1 LIMIT 1'
+            'SELECT id_adm FROM Administrador WHERE id_user = ? AND ativo = 1 LIMIT 1'
         );
-        $stmt->execute([$email]);
+        $stmt->execute([$idUsuario]);
         $id = $stmt->fetchColumn();
-
         return $id === false ? null : (int) $id;
     }
 
@@ -78,6 +55,16 @@ final class AdminService
             : $stmt->execute([$email]);
 
         $idExistente = $stmt->fetchColumn();
+        // O comando de provisionamento é explícito, mas jamais deve reatribuir
+        // silenciosamente uma conta administrativa que pertença a outro usuário.
+        if ($idExistente !== false && self::possuiRelacaoUsuario($conn)) {
+            $dono = $conn->prepare('SELECT id_user FROM Administrador WHERE id_adm = ? LIMIT 1');
+            $dono->execute([(int) $idExistente]);
+            $idDono = $dono->fetchColumn();
+            if ($idDono !== null && $idDono !== false && (int) $idDono !== $idUsuario) {
+                throw new RuntimeException('Administrador já associado a outro usuário.');
+            }
+        }
         $senhaLegada = password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT);
 
         if ($idExistente !== false) {

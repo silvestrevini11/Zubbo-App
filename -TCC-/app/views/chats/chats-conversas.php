@@ -1,13 +1,13 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../../../config/security.php';
+zubbo_start_session();
 
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../usuario/form-usuario.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
-include __DIR__ . '/../includes/head.php';
 include __DIR__ . '/../../../config/database.php';
 
 $id_usuario_logado = (int) $_SESSION['usuario']['id'];
@@ -136,15 +136,19 @@ $stmtMensagens->execute([$id_conversa]);
 
 $mensagens = $stmtMensagens->fetchAll(PDO::FETCH_ASSOC);
 
+$conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
+    ->execute([$id_usuario_logado, $id_conversa]);
+
 
 /* ==========================================
    FOTO
 ========================================== */
 
 $fotoPerfil = !empty($usuario['foto_user'])
-    ? '/Zubbo-App/-TCC-/' . $usuario['foto_user']
-    : '/Zubbo-App/-TCC-/public/imagem/blank.png';
+    ? zubbo_url('/' . ltrim((string) $usuario['foto_user'], '/'))
+    : zubbo_url('/public/imagem/blank.png');
 
+include __DIR__ . '/../includes/head.php';
 ?>
 
 <section class="chat-container">
@@ -217,6 +221,7 @@ $fotoPerfil = !empty($usuario['foto_user'])
         method="POST"
         class="chat-form"
     >
+        <?= zubbo_csrf_input() ?>
 
         <input
             type="hidden"
@@ -334,7 +339,7 @@ async function atualizarChat() {
     a cada 1 segundo.
 */
 
-setInterval(atualizarChat, 1000);
+setInterval(() => { if (!document.hidden) atualizarChat(); }, 4000);
 
 </script>
 

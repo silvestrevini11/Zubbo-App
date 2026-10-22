@@ -45,6 +45,13 @@ $naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
 
     <h1 class="chats-titulo">Conversas</h1>
 
+    <?php if (isset($_GET['saiu'])): ?>
+        <div class="grupo-lista-sucesso" role="status">Você saiu do grupo.</div>
+    <?php endif; ?>
+    <?php if (!empty($_SESSION['grupo_saida_erro'])): ?>
+        <div class="grupo-criar-alerta" role="alert"><?= htmlspecialchars($_SESSION['grupo_saida_erro'], ENT_QUOTES, 'UTF-8') ?></div>
+        <?php unset($_SESSION['grupo_saida_erro']); ?>
+    <?php endif; ?>
     <?php if (isset($_GET['criado'])): ?>
         <div class="grupo-lista-sucesso">Grupo criado com sucesso.</div>
     <?php endif; ?>

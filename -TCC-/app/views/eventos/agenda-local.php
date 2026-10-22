@@ -14,6 +14,7 @@ $st=$conn->prepare("SELECT ev.id_evento,ev.nome_evento,ev.data_evento,ev.horario
 $st->execute([$idLocal]);$eventos=$st->fetchAll(PDO::FETCH_ASSOC);
 function agenda_escape($v):string{return htmlspecialchars((string)$v,ENT_QUOTES,'UTF-8');}
 include __DIR__.'/../includes/head.php';
+?><link rel="stylesheet" href="<?= htmlspecialchars(zubbo_url('/public/css/eventos.css'), ENT_QUOTES, 'UTF-8') ?>"><?php
 ?>
 <main class="eventos-container agenda-local">
     <p><a href="../painel/Painel-inicial.php?id_local=<?= (int)$idLocal ?>">← Voltar ao mapa</a></p>

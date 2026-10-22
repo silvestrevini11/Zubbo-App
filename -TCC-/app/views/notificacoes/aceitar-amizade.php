@@ -81,6 +81,14 @@ if ($id_usuario === $id_remetente) {
    ORGANIZAR IDS DA AMIZADE
 ========================================== */
 
+$stmtBloqueio = $conn->prepare("SELECT 1 FROM Bloqueio_Usuario
+ WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?) LIMIT 1");
+$stmtBloqueio->execute([$id_usuario,$id_remetente,$id_remetente,$id_usuario]);
+if ($stmtBloqueio->fetchColumn()) {
+    http_response_code(403);
+    exit('Solicitação indisponível.');
+}
+
 $id1 = min($id_usuario, $id_remetente);
 $id2 = max($id_usuario, $id_remetente);
 

@@ -22,6 +22,25 @@ foreach (['criacaotables.sql', 'insertstables.sql'] as $nome) {
     }
 }
 
+// Executa também as migrações específicas da branch de testes no MySQL efêmero.
+foreach ([
+    '005_notificacao_leitura.sql',
+    '006_foto_local.sql',
+    '007_bloqueio_usuario.sql',
+    '008_fila_espera.sql',
+    '009_editar_times.sql',
+    '010_esporte_moderacao.sql',
+] as $migracao) {
+    $sql = file_get_contents(__DIR__ . '/../database/migrations/' . $migracao);
+    confirmar($sql !== false, 'ler migration ' . $migracao);
+    foreach (explode(';', $sql) as $comando) {
+        if (trim($comando) !== '') $conn->exec($comando);
+    }
+}
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='Evento' AND column_name='nome_time_1'")->fetchColumn() === 1, 'migração nomes dos times');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='Notificacao' AND column_name='data_leitura'")->fetchColumn() === 1, 'migração data de leitura');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='LocalEsp' AND column_name='foto_local'")->fetchColumn() === 1, 'migração foto dos locais');
+
 confirmar((int)$conn->query('SELECT COUNT(*) FROM Esporte')->fetchColumn() >= 3, 'esportes importados');
 $esporteId = (int)$conn->query('SELECT id_esporte FROM Esporte ORDER BY id_esporte LIMIT 1')->fetchColumn();
 $localId = (int)$conn->query('SELECT id_local FROM LocalEsp ORDER BY id_local LIMIT 1')->fetchColumn();

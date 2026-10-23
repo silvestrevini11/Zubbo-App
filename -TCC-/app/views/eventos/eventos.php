@@ -11,7 +11,7 @@ $locaisFiltro = [];
 try {
     $stmt = $conn->prepare("
         SELECT ev.id_evento, ev.nome_evento, ev.data_evento, ev.horario_evento,
-               ev.status_evento, e.nome_esporte, l.nome_local, l.endereco_local,
+               ev.status_evento, ev.nome_time_1, ev.nome_time_2, e.quantidade_times, e.nome_esporte, l.nome_local, l.endereco_local,
                u.nome_user AS criador,
                (SELECT COUNT(*) FROM Lista_Evento le WHERE le.id_evento = ev.id_evento) AS confirmados,
                (SELECT COUNT(*) FROM Solicitacao_Vaga_Evento s
@@ -107,6 +107,7 @@ function escaparEvento($valor): string
             <?php foreach ($eventos as $evento): ?>
                 <?php
                     $limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
+                    $quantidadeTimes = evento_quantidade_times((string)$evento['nome_esporte'],$conn);
                     $dataHoraEvento = strtotime($evento['data_evento'] . ' ' . $evento['horario_evento']);
                     $aberto = $evento['status_evento'] === 'ativo' && $dataHoraEvento >= time();
 
@@ -153,13 +154,15 @@ function escaparEvento($valor): string
                     <?php if ($limite !== null): ?>
                         <div class="eventos-times-resumo">
                             <div class="time-1">
-                                <span>TIME 1</span>
+                                <span><?= escaparEvento($evento['nome_time_1']) ?></span>
                                 <strong><?= (int) $evento['time_1'] ?> / <?= $limite ?></strong>
                             </div>
+                            <?php if ($quantidadeTimes === 2): ?>
                             <div class="time-2">
-                                <span>TIME 2</span>
+                                <span><?= escaparEvento($evento['nome_time_2']) ?></span>
                                 <strong><?= (int) $evento['time_2'] ?> / <?= $limite ?></strong>
                             </div>
+                            <?php endif; ?>
                         </div>
                     <?php else: ?>
                         <div class="eventos-individual-resumo">

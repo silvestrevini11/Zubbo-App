@@ -14,7 +14,7 @@ $sucesso = $_SESSION['sucesso_verificacao'] ?? null;
 unset($_SESSION['sucesso_verificacao']);
 unset($_SESSION['erro_verificacao']);
 
-$demoMode = filter_var((string) getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN);
+$demoMode = zubbo_demo_mode();
 $codigoDemo = $demoMode ? (string) ($_SESSION['codigo_demo'] ?? '') : '';
 ?>
 <main class="verificar-container">

@@ -27,6 +27,7 @@ function evento_vagas_por_time(string $esporte, ?PDO $conn = null): ?int
 
     $regras = [
         'futebol' => 11,
+        'futebol society' => 7,
         'futsal' => 5,
         'volei' => 6,
         'basquete' => 5,

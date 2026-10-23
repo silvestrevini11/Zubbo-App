@@ -438,6 +438,16 @@ try {
     }
 
     $conn->commit();
+    if ($acao === 'aprovar' && isset($solicitacao['id_user'])) {
+        require_once __DIR__ . '/../../services/PushService.php';
+        try {
+            PushService::sendToUser($conn, (int)$solicitacao['id_user'],
+                'Zubbo · Participação aprovada',
+                'Sua participação em um evento foi aprovada!',
+                '/app/views/eventos/detalhes-evento.php?id_evento='.$idEvento);
+        } catch (Throwable $e) { error_log('Web Push evento: '.get_class($e)); }
+    }
+
     $_SESSION['csrf_eventos'] = bin2hex(random_bytes(32));
 } catch (PDOException $e) {
     if ($conn->inTransaction()) {

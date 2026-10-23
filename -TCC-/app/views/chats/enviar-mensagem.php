@@ -139,6 +139,15 @@ $stmt->execute([
    VOLTAR PARA A CONVERSA
 ========================================== */
 
+require_once __DIR__ . '/../../services/PushService.php';
+try {
+    PushService::sendToUser($conn, $id_destinatario, 'Zubbo · Mensagem privada',
+        'Você recebeu uma mensagem privada.',
+        '/app/views/chats/chats-conversas.php?id=' . $id_usuario);
+} catch (Throwable $e) {
+    error_log('Web Push privado: ' . get_class($e));
+}
+
 header(
     'Location: chats-conversas.php?id=' . $id_destinatario
 );

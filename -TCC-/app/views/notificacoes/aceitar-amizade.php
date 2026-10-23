@@ -184,6 +184,14 @@ try {
 
     $conn->commit();
 
+    require_once __DIR__ . '/../../services/PushService.php';
+    try {
+        PushService::sendToUser($conn, $id_remetente, 'Zubbo · Amizade aceita',
+            'Sua solicitação de amizade foi aceita.',
+            '/app/views/perfil/perfil-ver.php?id='.$id_usuario);
+    } catch (Throwable $e) { error_log('Web Push aceite: '.get_class($e)); }
+
+
 
     /*
      * Volta para a página de notificações.

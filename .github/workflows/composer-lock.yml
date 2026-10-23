@@ -1,0 +1,40 @@
+name: Atualizar Composer Lock (Web Push)
+
+on:
+  push:
+    branches:
+      - teste-alteracoes
+    paths:
+      - '-TCC-/composer.json'
+      - '.github/workflows/composer-lock.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout teste-alteracoes
+        uses: actions/checkout@v4
+        with:
+          ref: teste-alteracoes
+
+      - name: Instalar PHP 8.4 e Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: curl, mbstring, openssl
+          tools: composer:v2
+
+      - name: Atualizar composer.lock
+        working-directory: ./-TCC-
+        run: composer update minishlink/web-push guzzlehttp/guzzle --with-all-dependencies --no-interaction --no-progress --prefer-dist
+
+      - name: Commitar lock apenas se foi atualizado
+        run: |
+          git add -- -TCC-/composer.lock
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'build: travar dependencias do Web Push no Composer'
+            git push origin HEAD:teste-alteracoes
+          fi

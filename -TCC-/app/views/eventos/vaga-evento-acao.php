@@ -112,6 +112,29 @@ try {
         $stmt->execute([$idEvento, $idUsuario]);
         $participacaoAntiga = (bool) $stmt->fetchColumn();
 
+        if ($limite !== null && !$participacaoAntiga) {
+            // Inclui participantes de cadastros antigos, ainda sem time/vaga.
+            $totalSt = $conn->prepare("SELECT
+                (SELECT COUNT(*) FROM Solicitacao_Vaga_Evento sv
+                   WHERE sv.id_evento = ? AND sv.status_solicitacao='aprovada'
+                     AND sv.time_num IN (1,2))
+              + (SELECT COUNT(*) FROM Lista_Evento le
+                   WHERE le.id_evento = ?
+                     AND NOT EXISTS (SELECT 1 FROM Solicitacao_Vaga_Evento sv
+                       WHERE sv.id_evento=le.id_evento AND sv.id_user=le.id_user
+                         AND sv.status_solicitacao='aprovada'))");
+            $totalSt->execute([$idEvento,$idEvento]);
+            if ((int)$totalSt->fetchColumn() >= $limite * 2) {
+                throw new RuntimeException('Evento lotado. Entre na fila de espera.');
+            }
+            // Evita ultrapassar a vez dos usuários que já aguardam.
+            $filaSt = $conn->prepare("SELECT 1 FROM Fila_Espera_Evento WHERE id_evento=? LIMIT 1");
+            $filaSt->execute([$idEvento]);
+            if ($filaSt->fetchColumn()) {
+                throw new RuntimeException('Há uma fila de espera ativa. Aguarde a liberação de vagas.');
+            }
+        }
+
         if ($limite !== null) {
             $time = filter_var($_POST['time_num'] ?? null, FILTER_VALIDATE_INT);
             $vaga = filter_var($_POST['numero_vaga'] ?? null, FILTER_VALIDATE_INT);

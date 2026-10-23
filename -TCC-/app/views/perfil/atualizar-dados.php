@@ -88,6 +88,7 @@ try {
                 'codigo_hash' => hash('sha256', $codigo),
                 'expira_em' => time() + 600,
                 'tentativas' => 0,
+                'ultimo_envio' => time(),
             ];
 
             if (zubbo_demo_mode()) {

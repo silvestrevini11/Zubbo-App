@@ -119,5 +119,12 @@ $stmt->execute([
     $id_remetente
 ]);
 
+require_once __DIR__ . '/../../services/PushService.php';
+try {
+    PushService::sendToUser($conn, $id_destinatario, 'Zubbo · Amizade',
+        'Você recebeu uma solicitação de amizade.',
+        '/app/views/notificacoes/notificacoes.php');
+} catch (Throwable $e) { error_log('Web Push amizade: '.get_class($e)); }
+
 header('Location: perfil-ver.php?id=' . $id_destinatario);
 exit;

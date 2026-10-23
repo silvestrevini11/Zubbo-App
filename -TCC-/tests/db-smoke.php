@@ -32,6 +32,7 @@ foreach ([
     '010_esporte_moderacao.sql',
     '011_duracao_eventos.sql',
     '012_confirmacao_esportes_locais.sql',
+    '013_web_push.sql',
 ] as $migracao) {
     $sql = file_get_contents(__DIR__ . '/../database/migrations/' . $migracao);
     confirmar($sql !== false, 'ler migration ' . $migracao);
@@ -45,6 +46,14 @@ confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHE
 
 confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='Evento' AND column_name='duracao_minutos'")->fetchColumn() === 1, 'migration duracao do evento');
 confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='Local_Esporte_Confirmacao'")->fetchColumn() === 1, 'migration confirmacao esporte-local');
+require_once __DIR__ . '/../app/services/PushService.php';
+confirmar(PushService::allowedEndpoint('https://fcm.googleapis.com/fcm/send/abcdefghijk1234567890'),
+    'endpoint push conhecido permitido');
+confirmar(!PushService::allowedEndpoint('https://example.org/private/abc'),
+    'endpoint push desconhecido recusado');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.tables
+    WHERE table_schema=DATABASE() AND table_name='PushSubscription'")->fetchColumn() === 1,
+    'migration de web push aplicada');
 confirmar((int)$conn->query('SELECT COUNT(*) FROM Esporte')->fetchColumn() >= 3, 'esportes importados');
 $esporteId = (int)$conn->query('SELECT id_esporte FROM Esporte ORDER BY id_esporte LIMIT 1')->fetchColumn();
 $localId = (int)$conn->query('SELECT id_local FROM LocalEsp ORDER BY id_local LIMIT 1')->fetchColumn();
@@ -80,6 +89,13 @@ confirmar(!zubbo_amizade_aceita($conn, $id1, $id2),
 $conn->prepare('INSERT INTO Amizade (id_user_1, id_user_2) VALUES (?, ?)')->execute([$id1, $id2]);
 confirmar(zubbo_amizade_aceita($conn, $id1, $id2),
     'chat privado autorizado apos amizade aceita');
+$conn->prepare("INSERT INTO PushSubscription(id_user,endpoint_hash,dados_json) VALUES (?,?,?)")
+    ->execute([$id1,hash('sha256','https://fcm.googleapis.com/fcm/send/teste1234567890'),
+        json_encode(['endpoint'=>'https://fcm.googleapis.com/fcm/send/teste1234567890',
+        'keys'=>['p256dh'=>str_repeat('A',87),'auth'=>str_repeat('B',22)]])]);
+confirmar((int)$conn->query('SELECT COUNT(*) FROM PushSubscription')->fetchColumn()===1,
+    'dispositivo inscrito no banco');
+
 $amizade = $conn->query('SELECT id_amizade, data_aceita FROM Amizade LIMIT 1')->fetch(PDO::FETCH_ASSOC);
 confirmar((int)$amizade['id_amizade'] > 0 && $amizade['data_aceita'] !== null, 'amizade e DEFAULT CURRENT_TIMESTAMP');
 

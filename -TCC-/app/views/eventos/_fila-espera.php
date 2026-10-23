@@ -5,6 +5,11 @@
  */
 function evento_promover_fila(PDO $conn, int $idEvento, int $time, int $vaga): void
 {
+    $ativo=$conn->prepare("SELECT 1 FROM Evento WHERE id_evento=? AND status_evento='ativo'
+        AND TIMESTAMP(data_evento,horario_evento)>=NOW()");
+    $ativo->execute([$idEvento]);
+    if (!$ativo->fetchColumn()) return;
+
     for ($tentativas=0; $tentativas<100; $tentativas++) {
         $st = $conn->prepare("SELECT f.id_user
             FROM Fila_Espera_Evento f

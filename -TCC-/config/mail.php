@@ -71,6 +71,10 @@ function zubbo_enviar_email(
         return;
     }
 
+    if ($provider === 'resend' || ($provider === '' && $resendKey === '')) {
+        throw new RuntimeException('Resend sem chave de API. Configure ZUBBO_RESEND_API_KEY e um remetente autorizado, ou use SMTP.');
+    }
+
     if ($provider === 'smtp') {
         $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
         zubbo_configurar_mail($mail);
@@ -172,9 +176,8 @@ function zubbo_enviar_email_resend(
     }
 
     if ($status < 200 || $status >= 300) {
-        $detalhe = is_string($response) ? trim($response) : '';
-        throw new RuntimeException(
-            'API de e-mail retornou HTTP ' . $status . ($detalhe !== '' ? ': ' . $detalhe : '')
-        );
+        // Não revelar o corpo retornado pelo provedor (pode conter informações sensíveis).
+        throw new RuntimeException('Provedor de e-mail retornou HTTP ' . $status .
+            '. Confirme remetente, domínio e destinatário autorizados.');
     }
 }

@@ -8,6 +8,7 @@ $permitidos = ['ativo', 'suspenso', 'banido'];
 
 $sql = "
     SELECT u.id_user, u.nome_user, u.email_user, u.tel_user, u.date_user, u.email_verificado, u.status_user,
+           EXISTS (SELECT 1 FROM Administrador a WHERE a.id_user=u.id_user AND a.ativo=1) AS eh_admin,
            (
                SELECT COUNT(*)
                FROM Usuario_Esporte ue
@@ -57,7 +58,7 @@ require __DIR__ . '/includes/header.php';
                 <td><?= htmlspecialchars($u['tel_user']) ?></td>
                 <td><?= date('d/m/Y', strtotime($u['date_user'])) ?></td>
                 <td><?= (int)$u['qtd_esportes'] ?></td>
-                <td><span class="admin-status status-<?= htmlspecialchars($u['status_user']) ?>"><?= htmlspecialchars($u['status_user']) ?></span></td>
+                <td><span class="admin-status status-<?= htmlspecialchars($u['status_user']) ?>"><?= htmlspecialchars($u['status_user']) ?></span><?php if ($u['eh_admin']): ?> <strong>· ADM</strong><?php endif; ?></td>
                 <td>
                     <form class="admin-acoes-inline" action="usuario-acao.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
@@ -70,6 +71,16 @@ require __DIR__ . '/includes/header.php';
                         <input type="text" name="motivo" maxlength="255" placeholder="Motivo" required>
                         <button type="submit">Aplicar</button>
                     </form>
+                    <?php if (!$u['eh_admin'] && $u['status_user'] === 'ativo' && (int)$u['id_user'] !== (int)$_SESSION['usuario']['id']): ?>
+                    <form class="admin-acoes-inline" action="usuario-acao.php" method="post"
+                          onsubmit="return confirm('Conceder acesso administrativo completo a este usuário?');">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="hidden" name="id_user" value="<?= (int)$u['id_user'] ?>">
+                        <input type="hidden" name="acao" value="tornar_admin">
+                        <input type="text" name="motivo" minlength="8" maxlength="255" placeholder="Motivo da promoção" required>
+                        <button type="submit">Tornar ADM</button>
+                    </form>
+                    <?php endif; ?>
                 </td>
             </tr>
         <?php endforeach; ?>

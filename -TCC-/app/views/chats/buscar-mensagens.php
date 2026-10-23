@@ -22,6 +22,25 @@ if (!$stmt->fetchColumn()) {
     exit;
 }
 
+// Impede ler mensagens de chats privados sem amizade atualmente aceita.
+require_once __DIR__ . '/../../services/AmizadeService.php';
+$parConversa = $conn->prepare("
+    SELECT c.tipo_conversa,
+           (SELECT pc2.id_user FROM Participantes_Conversa pc2
+            WHERE pc2.id_conversa = c.id_conversa AND pc2.id_user <> ?
+            LIMIT 1) AS outro_id
+    FROM Conversa c WHERE c.id_conversa = ? LIMIT 1
+");
+$parConversa->execute([$idUsuario, $idConversa]);
+$tipo = $parConversa->fetch(PDO::FETCH_ASSOC);
+if (!$tipo || ($tipo['tipo_conversa'] === 'privado'
+    && !zubbo_amizade_aceita($conn, $idUsuario, (int)$tipo['outro_id']))) {
+    http_response_code(403);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['erro' => 'amizade_necessaria']);
+    exit;
+}
+
 // Bloqueios também são respeitados na consulta assíncrona das conversas privadas.
 $stBloqueio = $conn->prepare("SELECT 1 FROM Conversa c
     INNER JOIN Participantes_Conversa p ON p.id_conversa = c.id_conversa

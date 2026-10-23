@@ -25,9 +25,16 @@ try {
         $limite=evento_vagas_por_time((string)$evento['nome_esporte']);
         if (!$limite || $evento['status_evento']!=='ativo' || !$evento['aberto'])
             throw new RuntimeException('Fila indisponível neste evento.');
-        $st=$conn->prepare("SELECT COUNT(*) FROM Solicitacao_Vaga_Evento
-          WHERE id_evento=? AND status_solicitacao='aprovada' AND time_num IN (1,2)");
-        $st->execute([$idEvento]);
+        // O total inclui pessoas de inscrições antigas sem vaga no time.
+        $st=$conn->prepare("SELECT
+            (SELECT COUNT(*) FROM Solicitacao_Vaga_Evento s
+              WHERE s.id_evento=? AND s.status_solicitacao='aprovada' AND s.time_num IN (1,2))
+          + (SELECT COUNT(*) FROM Lista_Evento le
+              WHERE le.id_evento=?
+                AND NOT EXISTS (SELECT 1 FROM Solicitacao_Vaga_Evento s2
+                  WHERE s2.id_evento=le.id_evento AND s2.id_user=le.id_user
+                    AND s2.status_solicitacao='aprovada')) AS total");
+        $st->execute([$idEvento,$idEvento]);
         if ((int)$st->fetchColumn() < $limite*2)
             throw new RuntimeException('Ainda há vaga disponível. Solicite uma vaga na escalação.');
         $st=$conn->prepare("SELECT 1 FROM Lista_Evento WHERE id_evento=? AND id_user=?");

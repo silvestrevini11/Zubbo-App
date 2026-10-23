@@ -1,6 +1,6 @@
-<?php 
-include __DIR__ .'/../includes/head.php';
-include __DIR__.'/../../../config/database.php';
+<?php
+require_once __DIR__ . '/../../middleware/auth.php';
+include __DIR__ . '/../includes/head.php';
 ?>
 
 <section style="padding-bottom: 80px;">

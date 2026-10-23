@@ -1,62 +1,4 @@
-
-// =====================================================
-// ATUALIZAR TEXTO DO BOTÃO
-// =====================================================
-
-function atualizarBotao() {
-
-    const selecionadas = Array.from(opcoes)
-
-        .filter(function (opcao) {
-
-            return opcao.classList.contains("selecionada");
-
-        })
-
-        .map(function (opcao) {
-
-            return opcao.textContent.trim();
-
-        });
-
-
-    if (selecionadas.length === 0) {
-
-        botao.textContent = "Lista";
-
-    }
-
-    else if (selecionadas.length === 1) {
-
-        botao.textContent = selecionadas[0];
-
-    }
-
-    else {
-
-        botao.textContent =
-            selecionadas.length + " selecionadas";
-
-    }
-
-}
-
-
-// =====================================================
-// FECHAR CLICANDO FORA
-// =====================================================
-
-document.addEventListener("click", function (event) {
-
-    if (!event.target.closest(".dropdown-cad")) {
-
-        lista.classList.remove("aberta");
-
-    }
-
-});
-
-
+// Cadastro: removidos listeners antigos do dropdown que não existe mais.
 // =====================================================
 // TELEFONE - SOMENTE NÚMEROS
 // =====================================================
@@ -88,7 +30,7 @@ const confirmarSenha = document.getElementById("confirmar-senha");
 const erroSenha = document.getElementById("erro-senha");
 
 
-formulario.addEventListener("submit", function (event) {
+if (formulario && senha && confirmarSenha && erroSenha) formulario.addEventListener("submit", function (event) {
 
     if (senha.value !== confirmarSenha.value) {
 

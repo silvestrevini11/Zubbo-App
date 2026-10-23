@@ -7800,3 +7800,106 @@ html.tema-escuro .pesquisa-catalogo-hr { border-top-color: #45464c; }
 
 .btn-alertas { cursor:pointer;border:1px solid #f26939;border-radius:8px;padding:8px 11px;background:transparent;color:inherit;font:inherit; }
 #alertas-estado { margin:8px 14px;color:inherit;font-size:13px; }
+
+
+/* Perfil da comunidade: ações sem compressão em telas pequenas.
+   Os formulários são itens do grid, não apenas os botões. */
+.perfil-acoes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    align-items: stretch;
+    width: calc(100% - 32px);
+    max-width: 760px;
+    gap: 10px;
+    margin: 18px auto 0;
+}
+.perfil-acoes > form {
+    margin: 0;
+    min-width: 0;
+    width: 100%;
+    display: flex;
+}
+.perfil-acoes > form > button,
+.perfil-acoes > .btn-conversar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    height: auto;
+    padding: 10px 9px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+.perfil-acoes > .btn-conversar {
+    border-radius: 10px;
+    border: 1px solid #ee5b2b;
+    color: #bd3b19;
+    background: #fff;
+}
+.perfil-acoes > .btn-conversar:hover {
+    background: #fff0e9;
+}
+.perfil-chat-aviso {
+    width: calc(100% - 32px);
+    max-width: 760px;
+    box-sizing: border-box;
+    margin: 10px auto 16px;
+    color: #656565;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.45;
+}
+html.tema-escuro .perfil-chat-aviso { color: #cad0d7; }
+
+@media (max-width: 600px) {
+    .perfil-acoes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    /* Com três ações, a última ocupa a segunda linha inteira. */
+    .perfil-acoes > :last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Modal de desativação: contraste independente da regra global de botões. */
+html.tema-escuro body .modal-excluir {
+    color: #f5f7fa;
+    background: #1b1e22;
+}
+html.tema-escuro body .modal-excluir h2,
+html.tema-escuro body .modal-excluir label {
+    color: #f5f7fa;
+}
+html.tema-escuro body .modal-excluir p {
+    color: #e0e5eb;
+}
+html.tema-escuro body .modal-excluir .modal-cancelar {
+    background: #39414b;
+    border: 1px solid #75808e;
+    color: #fff !important;
+}
+html.tema-escuro body .modal-excluir .modal-confirmar {
+    background: #c93036;
+    color: #fff !important;
+}
+html.tema-escuro body .modal-excluir .modal-cancelar:hover {
+    background: #46505c;
+}
+html.tema-escuro body .modal-excluir .modal-confirmar:hover {
+    background: #af242a;
+}
+.modal-excluir-acoes {
+    flex-wrap: wrap;
+}
+.modal-excluir-acoes > button {
+    flex: 1 1 110px;
+}

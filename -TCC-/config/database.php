@@ -26,6 +26,9 @@ try {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]
     );
+    // MySQL/MariaDB usa o mesmo fuso do PHP para NOW() e CURRENT_TIMESTAMP.
+    // Usa offset calculado pelo PHP, sem depender de tabelas de timezone do MySQL.
+    $conn->prepare('SET time_zone = ?')->execute([date('P')]);
 } catch (PDOException $e) {
     zubbo_log('critical', 'db.connection_failed', ['reason_code' => 'pdo_unavailable']);
     http_response_code(500);

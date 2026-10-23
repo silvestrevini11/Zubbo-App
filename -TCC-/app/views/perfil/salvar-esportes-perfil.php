@@ -1,17 +1,12 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: perfil-esportes-editar.php');
     exit;
 }
 
-require_once __DIR__ . '/../../../config/database.php';
+
 
 $tokenRecebido = $_POST['csrf_token'] ?? '';
 $tokenSessao = $_SESSION['csrf_token'] ?? '';

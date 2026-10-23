@@ -56,7 +56,7 @@ INSERT INTO LocalEsp(nome_local,endereco_local,tipo_local,status_local,id_criado
  VALUES('Campo Vila Alice','Rua Guaíra, 345 - Vila Oriental, Diadema - SP','campo','aprovado',NULL)
  ON DUPLICATE KEY UPDATE id_local=id_local;
 INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
- SELECT l.id_local, e.id_esporte, 'https://www.locaisdobrasil.com.br/encontre/campo-de-futebol/diadema-sp'
+ SELECT l.id_local, e.id_esporte, 'https://www.futliga.com.br/Local/529'
  FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Futebol'
  WHERE l.nome_local='Campo Vila Alice' AND l.endereco_local='Rua Guaíra, 345 - Vila Oriental, Diadema - SP'
  ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;
@@ -65,7 +65,7 @@ INSERT INTO LocalEsp(nome_local,endereco_local,tipo_local,status_local,id_criado
  VALUES('Campo Casa Grande','Rua Jadeildo Pereira da Silva, 152 - Casa Grande, Diadema - SP','campo','aprovado',NULL)
  ON DUPLICATE KEY UPDATE id_local=id_local;
 INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
- SELECT l.id_local, e.id_esporte, 'https://www.locaisdobrasil.com.br/encontre/campo-de-futebol/diadema-sp'
+ SELECT l.id_local, e.id_esporte, 'https://www.abcdoabc.com.br/oitavas-de-final-da-copa-diadema-de-futebol-ocorrem-neste-sabado-8-4-2/'
  FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Futebol'
  WHERE l.nome_local='Campo Casa Grande' AND l.endereco_local='Rua Jadeildo Pereira da Silva, 152 - Casa Grande, Diadema - SP'
  ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;
@@ -83,7 +83,7 @@ INSERT INTO LocalEsp(nome_local,endereco_local,tipo_local,status_local,id_criado
  VALUES('Quadra da 10','Rua Dona Divina Pereira Chaves, 16 - Serraria, Diadema - SP','quadra','aprovado',NULL)
  ON DUPLICATE KEY UPDATE id_local=id_local;
 INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
- SELECT l.id_local, e.id_esporte, 'https://www.locaisdobrasil.com.br/encontre/quadra-de-esportes/diadema-sp'
+ SELECT l.id_local, e.id_esporte, 'https://www.futliga.com.br/Local/171'
  FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Futsal'
  WHERE l.nome_local='Quadra da 10' AND l.endereco_local='Rua Dona Divina Pereira Chaves, 16 - Serraria, Diadema - SP'
  ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;
@@ -124,3 +124,14 @@ INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
  WHERE l.nome_local='City Sports Empreend' AND l.endereco_local='Rua São Luíz, 158 - Centro, Diadema - SP'
  ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;
 
+
+-- Campo usado em campeonato municipal de futebol de campo.
+INSERT INTO LocalEsp(nome_local,endereco_local,tipo_local,status_local,id_criador)
+ VALUES('Campo Piraporinha','Avenida Dona Ida Cerati Magrini, 721 - Piraporinha, Diadema - SP','campo','aprovado',NULL)
+ ON DUPLICATE KEY UPDATE id_local=id_local;
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+ SELECT l.id_local,e.id_esporte,'https://www.abcdoabc.com.br/oitavas-de-final-da-copa-diadema-de-futebol-ocorrem-neste-sabado-8-4-2/'
+ FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Futebol'
+ WHERE l.nome_local='Campo Piraporinha'
+   AND l.endereco_local='Avenida Dona Ida Cerati Magrini, 721 - Piraporinha, Diadema - SP'
+ ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;

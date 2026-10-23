@@ -42,7 +42,7 @@ jobs:
       - name: Validar biblioteca Web Push / VAPID
         working-directory: ./-TCC-
         run: |
-          php -r 'require "vendor/autoload.php"; if (!class_exists("Minishlink\\WebPush\\WebPush") || !class_exists("Minishlink\\WebPush\\VAPID")) exit(1); $k=Minishlink\\WebPush\\VAPID::createVapidKeys(); if (!isset($k["publicKey"],$k["privateKey"])) exit(1); echo "Web Push disponivel no Composer.\\n";'
+          php tests/push-library-smoke.php
 
       - name: Database integration smoke
         working-directory: ./-TCC-

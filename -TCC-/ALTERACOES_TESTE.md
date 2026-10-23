@@ -15,7 +15,8 @@
    - `database/migrations/010_esporte_moderacao.sql`
    - `database/migrations/011_duracao_eventos.sql`
    - `database/migrations/012_confirmacao_esportes_locais.sql`
-4. No XAMPP, configure variáveis de conexão `ZUBBO_DB_*`, rode `composer install` e habilite PHP com extensões `pdo_mysql`, `mbstring`, `fileinfo` e `openssl`.
+   - `database/migrations/013_web_push.sql`
+4. No XAMPP, configure variáveis de conexão `ZUBBO_DB_*`, rode `composer install` e habilite PHP com extensões `pdo_mysql`, `mbstring`, `curl`, `fileinfo` e `openssl`.
 5. Para **cadastro sem e-mail real apenas em ambiente isolado**, configure `ZUBBO_ENV=local` ou `ZUBBO_ENV=demo` **e** `ZUBBO_DEMO_MODE=true`. Um serviço marcado `production`, `prod` ou sem identificação de ambiente não revela códigos, mesmo que a flag demo seja definida.
 6. Para testar o envio real, mantenha `ZUBBO_DEMO_MODE=false`, configure `ZUBBO_MAIL_PROVIDER=resend`, `ZUBBO_RESEND_API_KEY` e `ZUBBO_MAIL_FROM` com remetente verificado. No modo de teste padrão do Resend, destinatários externos não autorizados podem receber HTTP 403; só configurar o PHP não remove restrições do provedor. SMTP é alternativa.
 7. Verifique o ciclo completo cadastro → receber ou visualizar código autorizado → digitar código → escolher esportes → login; tente código incorreto, expirado, reenvio antes/depois de 60 s, conta suspensa, troca de senha e e-mail.
@@ -33,12 +34,14 @@
 - [x] **Agenda interna de locais:** transação bloqueia registro do local e verifica sobreposição entre eventos de 60/90/120 minutos. Teste automatizado usa duas conexões MySQL para validar bloqueio da linha. **Não são reservas oficiais do local.**
 - [x] **Esportes sugeridos:** administrador registra foto/regras/jogadores/quantidade de times; pode selecionar locais cuja aceitação foi verificada manualmente, com referência do contato; para modalidades que exigem confirmação, novos eventos só podem usar locais aprovados no cadastro administrativo. **Não há consulta externa automática**.
 - [x] **Notificações lidas:** data de leitura gravada e limpeza oportunista após 20 minutos; job independente `jobs/limpar-notificacoes.php` criado para execução CLI periódica. **Precisa agendar cron/Task Scheduler** para cumprir a cadência mesmo sem usuários abrirem o app.
-- [~] **Alertas no navegador:** opt-in e alerta de novos itens enquanto a página do Zubbo continua aberta. **Push verdadeiro após fechar o navegador NÃO está implementado**: exige infraestrutura de Web Push, service worker e configuração segura das chaves VAPID.
+- [x] **Web Push:** PWA e Service Worker, inscrição por dispositivo, chaves VAPID via ambiente e envio de mensagens privadas, grupos, amizade e aprovação de evento. **Ativação real depende de VAPID, Composer, migração 013 e teste no navegador**. Consulte `WEB_PUSH.md`.
 - [~] **Tema escuro:** revisados contraste nos eventos e fundo diagonal da faixa de placar; **precisa de inspeção real de todas as telas em navegadores desktop/mobile**, inclusive triângulo relatado pela equipe.
 - [x] **Permissões:** mapa solicita localização quando o usuário clica no controle nativo. Upload abre seletor de arquivos do navegador sem exigir permissão irrestrita de armazenamento.
 - [x] **Timezone:** PHP e sessão MySQL configurados para horário de São Paulo.
 - [ ] **Limpeza de registros de teste:** não executar sem confirmação dos IDs e backup; operação deliberadamente mantida pendente.
 - [ ] **Monetização:** deliberadamente fora do escopo desta revisão.
+
+**Guia de configuração do Web Push:** [`WEB_PUSH.md`](WEB_PUSH.md). O conteúdo e as chaves VAPID não são armazenados no Git.
 
 ## Agendamento de notificações vencidas
 

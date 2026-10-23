@@ -43,6 +43,7 @@ $pendentes = $estado['pendentes'];
 $minhaSolicitacao = $estado['minha_solicitacao'];
 
 $limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
+$quantidadeTimes = evento_quantidade_times((string)$evento['nome_esporte'],$conn);
 $organizador = (int) $evento['id_criador'] === $idUsuario;
 $aberto = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
 $totalConfirmados = count($confirmadosSemVaga);
@@ -66,12 +67,12 @@ $stFila = $conn->prepare("SELECT id_user FROM Fila_Espera_Evento
 $stFila->execute([$idEvento]);
 $usuariosFila = array_map('intval', $stFila->fetchAll(PDO::FETCH_COLUMN));
 $indiceFila = array_search($idUsuario, $usuariosFila, true);
-$filaCheia = $limite !== null && $totalConfirmados >= $limite * 2;
+$filaCheia = $limite !== null && $totalConfirmados >= $limite * $quantidadeTimes;
 
 $flash = $_SESSION['flash_vaga_evento'][$idEvento] ?? null;
 unset($_SESSION['flash_vaga_evento'][$idEvento]);
 
-$totalVagas = $limite !== null ? $limite * 2 : null;
+$totalVagas = $limite !== null ? $limite * $quantidadeTimes : null;
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -198,8 +199,8 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
             </section>
         <?php endif; ?>
 
-        <section class="presenca-times" aria-label="Escalação dos dois times">
-            <?php foreach ([1, 2] as $time): ?>
+        <section class="presenca-times" aria-label="Escalação das equipes">
+            <?php foreach (range(1, $quantidadeTimes) as $time): ?>
                 <article class="presenca-time presenca-time-<?= $time ?>">
                     <header>
                         <div class="presenca-time-identidade">

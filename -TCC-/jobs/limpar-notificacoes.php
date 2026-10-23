@@ -10,7 +10,7 @@ require_once __DIR__ . '/../config/database.php';
 try {
     $stmt = $conn->prepare("DELETE FROM Notificacao
         WHERE lida = TRUE AND data_leitura IS NOT NULL
-          AND data_leitura <= DATE_SUB(NOW(), INTERVAL 20 MINUTE)");
+          AND data_leitura <= DATE_SUB(NOW(), INTERVAL 5 MINUTE)");
     $stmt->execute();
     echo 'Notificações lidas expiradas: '.$stmt->rowCount().PHP_EOL;
 } catch (Throwable $e) {

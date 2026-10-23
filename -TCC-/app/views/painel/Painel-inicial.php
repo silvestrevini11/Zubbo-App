@@ -123,6 +123,21 @@ include __DIR__ . '/../includes/head.php';
 />
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.29.0/mapbox-gl.js"></script>
+<style>
+.zubbo-marcador-local {
+  display:block;width:13px;height:13px;box-sizing:border-box;
+  border:2px solid #fff;border-radius:50%;
+  box-shadow:0 1px 6px #0008;cursor:pointer;
+  transition:transform .15s ease;
+}
+.zubbo-marcador-local:hover {transform:scale(1.3)}
+.zubbo-legenda-marcadores {
+ position:absolute;z-index:2;bottom:12px;left:12px;max-width:calc(100% - 24px);
+ border-radius:10px;padding:6px 10px;font-size:11px;line-height:1.5;
+ background:#ffffffeb;color:#222;box-shadow:0 2px 12px #0002;pointer-events:none;
+}
+html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
+</style>
 
 <script>
   mapboxgl.accessToken = 'REMOVED_MAPBOX_TOKEN';
@@ -203,6 +218,12 @@ include __DIR__ . '/../includes/head.php';
     .setPopup(criarPopupLocal('Centro de Diadema', 'Diadema - SP'))
     .addTo(map);
 
+  const legendaMarcadores = document.createElement('div');
+  legendaMarcadores.className = 'zubbo-legenda-marcadores';
+  legendaMarcadores.textContent = '🟢 Campos · 🔵 Quadras · 🟣 Ginásios · 🟠 Poliesportivos · 🟦 Clubes';
+  const mapaContainer = map.getContainer();
+  mapaContainer.appendChild(legendaMarcadores);
+
   const locaisMapa = <?= json_encode($locaisMapa, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE) ?>;
   const erroLocaisMapa = <?= $erroLocaisMapa ? 'true' : 'false' ?>;
   const localSelecionadoId = new URLSearchParams(window.location.search).get('id_local');
@@ -276,7 +297,20 @@ include __DIR__ . '/../includes/head.php';
             coordenadas[1] < limitesDiadema[0][1] || coordenadas[1] > limitesDiadema[1][1]) {
           throw new Error('Endereço não localizado em Diadema');
         }
-        const marcador = new mapboxgl.Marker({ color: '#ef4b25' })
+        const classePorTipo = {
+          campo: ['#16895c', 'Campo de futebol'],
+          quadra: ['#2563eb', 'Quadra esportiva'],
+          'ginásio': ['#8b5cf6', 'Ginásio'],
+          poliesportivo: ['#f97316', 'Poliesportivo'],
+          clube: ['#0f8b91', 'Clube']
+        };
+        const [corMarcador, descricao] = classePorTipo[local.tipo_local] || classePorTipo.quadra;
+        const bolinha = document.createElement('span');
+        bolinha.className = 'zubbo-marcador-local';
+        bolinha.style.backgroundColor = corMarcador;
+        bolinha.title = local.nome_local + ' · ' + descricao;
+        bolinha.setAttribute('aria-label', bolinha.title);
+        const marcador = new mapboxgl.Marker({ element: bolinha, anchor: 'center' })
           .setLngLat(coordenadas)
           .setPopup(criarPopupLocal(local.nome_local, local.endereco_local, local.foto_url, local.id_local))
           .addTo(map);

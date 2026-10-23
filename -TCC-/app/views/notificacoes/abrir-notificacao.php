@@ -1,80 +1,36 @@
 <?php
+require_once __DIR__ . '/../../middleware/auth.php';
 
-session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../auth/login.php');
+$idUsuario = (int) $_SESSION['usuario']['id'];
+$idNotificacao = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$idNotificacao) {
+    header('Location: notificacoes.php', true, 303);
     exit;
 }
-
-include __DIR__ . '/../../../config/database.php';
-
-$id_usuario = (int) $_SESSION['usuario']['id'];
-
-$id_notificacao =
-    (int) ($_GET['id'] ?? 0);
-
-if ($id_notificacao <= 0) {
-    header('Location: notificacoes.php');
-    exit;
-}
-
-
-/* ==========================================
-   PEGAR NOTIFICAÇÃO
-========================================== */
-
-$stmt = $conn->prepare("
-    SELECT
-        id_notificacao,
-        id_conversa,
-        id_remetente
-    FROM Notificacao
-    WHERE id_notificacao = ?
-      AND id_destinatario = ?
-");
-
-$stmt->execute([
-    $id_notificacao,
-    $id_usuario
-]);
-
+$stmt = $conn->prepare("SELECT n.id_conversa, n.id_remetente, n.tipo, c.tipo_conversa
+    FROM Notificacao n
+    LEFT JOIN Conversa c ON c.id_conversa = n.id_conversa
+    WHERE n.id_notificacao = ? AND n.id_destinatario = ?
+    LIMIT 1");
+$stmt->execute([$idNotificacao, $idUsuario]);
 $notificacao = $stmt->fetch(PDO::FETCH_ASSOC);
-
-
 if (!$notificacao) {
-    header('Location: notificacoes.php');
+    header('Location: notificacoes.php', true, 303);
     exit;
 }
-
-
-/* ==========================================
-   MARCAR COMO LIDA
-========================================== */
-
-$stmt = $conn->prepare("
-    UPDATE Notificacao
+$conn->prepare("UPDATE Notificacao
     SET lida = TRUE, data_leitura = COALESCE(data_leitura, NOW())
-    WHERE id_notificacao = ?
-      AND id_destinatario = ?
-");
+    WHERE id_notificacao = ? AND id_destinatario = ?")
+    ->execute([$idNotificacao, $idUsuario]);
 
-$stmt->execute([
-    $id_notificacao,
-    $id_usuario
-]);
-
-
-/* ==========================================
-   ABRIR CONVERSA
-========================================== */
-
-$id_remetente =
-    (int) $notificacao['id_remetente'];
-
-header(
-    'Location: ../chats/chats-conversas.php?id='
-    . $id_remetente
-);
-
+if ($notificacao['tipo'] === 'mensagem' && $notificacao['tipo_conversa'] === 'grupo') {
+    // O chat-grupo.php verifica a participação no grupo.
+    header('Location: ../chats/chat-grupo.php?id_conversa='.(int)$notificacao['id_conversa'], true, 303);
+    exit;
+}
+if ($notificacao['tipo'] === 'mensagem' && $notificacao['tipo_conversa'] === 'privado') {
+    header('Location: ../chats/chats-conversas.php?id='.(int)$notificacao['id_remetente'], true, 303);
+    exit;
+}
+header('Location: notificacoes.php', true, 303);
 exit;

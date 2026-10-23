@@ -31,7 +31,7 @@ if (zubbo_rate_limit_exceeded('reenvio_codigo', 5, 3600, $email)) {
     exit;
 }
 $novoCodigo = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-$demo = filter_var((string)getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN);
+$demo = zubbo_demo_mode();
 if (!$demo) {
     require_once __DIR__ . '/../../../vendor/autoload.php';
     require_once __DIR__ . '/../../../config/mail.php';

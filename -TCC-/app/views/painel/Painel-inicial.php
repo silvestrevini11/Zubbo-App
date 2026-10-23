@@ -1,13 +1,5 @@
 <?php
-
-session_start();
-
-include __DIR__.'/../../../config/database.php';
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
 
 $nomeUsuario = $_SESSION['usuario']['nome'];
 $locaisMapa = [];

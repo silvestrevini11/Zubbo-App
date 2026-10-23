@@ -107,6 +107,60 @@ confirmar((int)$contar->fetchColumn() === 0, 'contador zerado apos leitura');
 
 $conn->prepare('INSERT INTO Evento (nome_evento, data_evento, horario_evento, id_esporte, id_local, id_criador) VALUES (?, ?, ?, ?, ?, ?)')->execute(['Evento CI', '2030-01-01', '19:00:00', $esporteId, $localId, $id1]);
 $idEvento = (int)$conn->lastInsertId();
+
+// A fila usa a mesma trava do Evento; o primeiro elegível vira pedido pendente.
+$conn->prepare("INSERT INTO Solicitacao_Vaga_Evento (id_evento,id_user,time_num,numero_vaga,status_solicitacao)
+ VALUES (?,?,1,1,'aprovada')")->execute([$idEvento,$id1]);
+$conn->prepare("INSERT INTO Lista_Evento (id_user,id_evento) VALUES (?,?)")->execute([$id1,$idEvento]);
+$conn->prepare("INSERT INTO Fila_Espera_Evento (id_evento,id_user) VALUES (?,?)")->execute([$idEvento,$id2]);
+require_once __DIR__ . '/../app/views/eventos/_fila-espera.php';
+$conn->beginTransaction();
+$lock = $conn->prepare('SELECT id_evento FROM Evento WHERE id_evento=? FOR UPDATE');
+$lock->execute([$idEvento]);
+$conn->prepare("UPDATE Solicitacao_Vaga_Evento SET status_solicitacao='cancelada' WHERE id_evento=? AND id_user=?")
+  ->execute([$idEvento,$id1]);
+evento_promover_fila($conn,$idEvento,1,1);
+$conn->commit();
+$testarFila = $conn->prepare("SELECT COUNT(*) FROM Solicitacao_Vaga_Evento WHERE id_evento=? AND id_user=?
+  AND status_solicitacao='pendente' AND time_num=1 AND numero_vaga=1");
+$testarFila->execute([$idEvento,$id2]);
+confirmar((int)$testarFila->fetchColumn()===1, 'primeiro da fila promovido para pendente');
+$testarFila = $conn->prepare("SELECT COUNT(*) FROM Fila_Espera_Evento WHERE id_evento=?");
+$testarFila->execute([$idEvento]);
+confirmar((int)$testarFila->fetchColumn()===0, 'fila remove participante promovido');
+
+// Uma transação em outro processo/conexão não deve tomar o local reservado.
+// MySQL devolve timeout de lock, provando exclusão mútua para criações concorrentes.
+$segunda = new PDO(
+ 'mysql:host='.(getenv('ZUBBO_DB_HOST') ?: 'localhost').
+ ';port='.(getenv('ZUBBO_DB_PORT') ?: 3306).
+ ';dbname='.(getenv('ZUBBO_DB_NAME') ?: 'app_zubbo').';charset=utf8mb4',
+ getenv('ZUBBO_DB_USER') ?: 'root', getenv('ZUBBO_DB_PASSWORD') ?: '',
+ [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_EMULATE_PREPARES => false]
+);
+$segunda->exec('SET SESSION innodb_lock_wait_timeout=1');
+$conn->beginTransaction();
+$lock->execute([$localId]);
+$segunda->beginTransaction();
+$foiBloqueada = false;
+try {
+    $segundoLock = $segunda->prepare('SELECT id_local FROM LocalEsp WHERE id_local=? FOR UPDATE');
+    $segundoLock->execute([$localId]);
+} catch (PDOException $e) {
+    $foiBloqueada = (($e->errorInfo[1] ?? 0) == 1205);
+}
+$segunda->rollBack();
+$conn->rollBack();
+confirmar($foiBloqueada, 'trava por local impede duas criacoes simultaneas');
+
+// Só lidas e com data_leitura antiga devem ser descartadas.
+$conn->prepare('UPDATE Notificacao SET lida=TRUE, data_leitura=DATE_SUB(NOW(), INTERVAL 21 MINUTE)
+ WHERE id_destinatario=?')->execute([$id2]);
+$removerLidas = $conn->prepare("DELETE FROM Notificacao WHERE lida=TRUE
+ AND data_leitura IS NOT NULL AND data_leitura <= DATE_SUB(NOW(), INTERVAL 20 MINUTE)");
+$removerLidas->execute();
+confirmar($removerLidas->rowCount()>=1,'limpeza remove notificacoes lidas ha mais de 20 minutos');
+
 $conn->prepare('INSERT INTO Denuncia (id_denunciante, id_local, motivo, descricao) VALUES (?, ?, ?, ?)')->execute([$id2, $localId, 'Outro', 'Denúncia de teste sem dados reais.']);
 $conn->prepare('INSERT INTO Denuncia (id_denunciante, id_evento, motivo, descricao) VALUES (?, ?, ?, ?)')->execute([$id2, $idEvento, 'Outro', 'Evento simulado para testar a denúncia.']);
 confirmar((int)$conn->query('SELECT COUNT(*) FROM Denuncia WHERE id_local IS NOT NULL OR id_evento IS NOT NULL')->fetchColumn() === 2, 'denuncias de evento e local');

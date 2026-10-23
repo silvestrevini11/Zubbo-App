@@ -30,6 +30,8 @@ foreach ([
     '008_fila_espera.sql',
     '009_editar_times.sql',
     '010_esporte_moderacao.sql',
+    '011_duracao_eventos.sql',
+    '012_confirmacao_esportes_locais.sql',
 ] as $migracao) {
     $sql = file_get_contents(__DIR__ . '/../database/migrations/' . $migracao);
     confirmar($sql !== false, 'ler migration ' . $migracao);
@@ -41,6 +43,8 @@ confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHE
 confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='Notificacao' AND column_name='data_leitura'")->fetchColumn() === 1, 'migração data de leitura');
 confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='LocalEsp' AND column_name='foto_local'")->fetchColumn() === 1, 'migração foto dos locais');
 
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='Evento' AND column_name='duracao_minutos'")->fetchColumn() === 1, 'migration duracao do evento');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='Local_Esporte_Confirmacao'")->fetchColumn() === 1, 'migration confirmacao esporte-local');
 confirmar((int)$conn->query('SELECT COUNT(*) FROM Esporte')->fetchColumn() >= 3, 'esportes importados');
 $esporteId = (int)$conn->query('SELECT id_esporte FROM Esporte ORDER BY id_esporte LIMIT 1')->fetchColumn();
 $localId = (int)$conn->query('SELECT id_local FROM LocalEsp ORDER BY id_local LIMIT 1')->fetchColumn();

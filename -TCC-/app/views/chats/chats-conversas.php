@@ -76,46 +76,46 @@ $stmtConversa->execute([
 $conversa = $stmtConversa->fetch(PDO::FETCH_ASSOC);
 
 
-/* Se ainda não existe, cria */
-
+/* Criação de conversa privada protegida por locks para não duplicar com dois cliques. */
 if (!$conversa) {
+    try {
+        $conn->beginTransaction();
 
-    $stmtCriar = $conn->prepare("
-        INSERT INTO Conversa (tipo_conversa)
-        VALUES ('privado')
-    ");
+        // Bloqueios consistentes na mesma ordem evitam deadlock para o mesmo par.
+        $ids = [$id_usuario_logado, $id_outro_usuario];
+        sort($ids, SORT_NUMERIC);
+        $lock = $conn->prepare("SELECT id_user, status_user FROM Usuario
+            WHERE id_user IN (?, ?) ORDER BY id_user FOR UPDATE");
+        $lock->execute($ids);
+        $usuariosAtivos = $lock->fetchAll(PDO::FETCH_ASSOC);
+        if (count($usuariosAtivos) !== 2 ||
+            $usuariosAtivos[0]['status_user'] !== 'ativo' ||
+            $usuariosAtivos[1]['status_user'] !== 'ativo') {
+            throw new RuntimeException('Usuário indisponível.');
+        }
 
-    $stmtCriar->execute();
-
-    $id_conversa = $conn->lastInsertId();
-
-
-    /* Adiciona o usuário logado */
-
-    $stmtParticipante = $conn->prepare("
-        INSERT INTO Participantes_Conversa
-        (id_user, id_conversa)
-        VALUES (?, ?)
-    ");
-
-    $stmtParticipante->execute([
-        $id_usuario_logado,
-        $id_conversa
-    ]);
-
-
-    /* Adiciona o outro usuário */
-
-    $stmtParticipante->execute([
-        $id_outro_usuario,
-        $id_conversa
-    ]);
-
+        // Reconsultar depois do lock: outra requisição pode ter criado a conversa.
+        $stmtConversa->execute([$id_usuario_logado, $id_outro_usuario]);
+        $conversa = $stmtConversa->fetch(PDO::FETCH_ASSOC);
+        if (!$conversa) {
+            $conn->prepare("INSERT INTO Conversa (tipo_conversa) VALUES ('privado')")->execute();
+            $id_conversa = (int)$conn->lastInsertId();
+            $inserir = $conn->prepare("INSERT INTO Participantes_Conversa (id_user,id_conversa) VALUES (?,?)");
+            $inserir->execute([$id_usuario_logado,$id_conversa]);
+            $inserir->execute([$id_outro_usuario,$id_conversa]);
+        } else {
+            $id_conversa = (int)$conversa['id_conversa'];
+        }
+        $conn->commit();
+    } catch (Throwable $e) {
+        if ($conn->inTransaction()) $conn->rollBack();
+        error_log('Falha ao abrir conversa privada: '.get_class($e));
+        http_response_code(503);
+        exit('Não foi possível abrir a conversa agora.');
+    }
 } else {
-
-    $id_conversa = $conversa['id_conversa'];
+    $id_conversa = (int)$conversa['id_conversa'];
 }
-
 
 /* ==========================================
    PEGAR MENSAGENS

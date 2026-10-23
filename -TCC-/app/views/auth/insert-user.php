@@ -27,7 +27,8 @@ if (zubbo_rate_limit_exceeded('cadastro', 5, 3600, $email)) {
 
 if (
     $nome === ''
-    || mb_strlen($nome) > 100
+    || mb_strlen($nome) > 50
+    || strlen($email) > 70
     || !filter_var($email, FILTER_VALIDATE_EMAIL)
     || strlen($telefone) !== 11
     || strlen($senha) < 8
@@ -49,6 +50,8 @@ if ($stmt->fetch()) {
     exit;
 }
 
+// Nunca reaproveitar validação de um cadastro anterior nesta sessão.
+unset($_SESSION['email_verificado'], $_SESSION['codigo_demo'], $_SESSION['erro_verificacao']);
 $codigo = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
 $_SESSION['cadastro_pendente'] = [
@@ -60,6 +63,7 @@ $_SESSION['cadastro_pendente'] = [
     'codigo' => $codigo,
     'expiracao' => time() + 600,
     'tentativas_codigo' => 0,
+    'ultimo_envio' => time(),
 ];
 
 $demoMode = filter_var((string) getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN);

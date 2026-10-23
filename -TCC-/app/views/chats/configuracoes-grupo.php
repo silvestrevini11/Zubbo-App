@@ -31,7 +31,7 @@ include __DIR__.'/../includes/head.php';
     <h3>Administração do grupo</h3>
     <a class="configuracoes-item configuracoes-link"
        href="editar-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>">Editar nome, foto e participantes →</a>
-    <p>O criador não pode sair diretamente. Transfira a administração ou encerre o grupo antes.</p>
+    <p>O criador não pode sair diretamente pelo botão padrão. Use a edição do grupo para gerenciar participantes.</p>
   </section>
   <?php else: ?>
   <section class="configuracoes-grupo">

@@ -1366,3 +1366,50 @@ html.tema-escuro .eventos-dados dt, html.tema-escuro .eventos-endereco,
 html.tema-escuro .eventos-card-rodape>span { color:#c2cbd4; }
 html.tema-escuro .eventos-card .eventos-times-resumo { background:#242d35; }
 html.tema-escuro .evento-slot-vazio { background:#293038; color:#dae0e5; }
+
+/* Correcoes focadas no contraste de eventos e na faixa diagonal no modo escuro.
+ * Sobrescrevem estilos legados para evitar texto claro sobre card branco.
+ */
+html.tema-escuro .eventos-container,
+html.tema-escuro .evento-detalhes-shell,
+html.tema-escuro .presenca-container {
+    background: #171b20;
+    color: #f1f3f5;
+}
+html.tema-escuro .evento-score-faixa,
+html.tema-escuro .presenca-score-topo {
+    background: #1e252d !important;
+    background-image: none !important;
+    color: #f2f4f7;
+}
+html.tema-escuro .evento-score-hero,
+html.tema-escuro .evento-score-resumo,
+html.tema-escuro .evento-times-preview,
+html.tema-escuro .presenca-times,
+html.tema-escuro .presenca-individual,
+html.tema-escuro .presenca-legado,
+html.tema-escuro .presenca-fila,
+html.tema-escuro .presenca-slot,
+html.tema-escuro .evento-solicitacoes-lista article {
+    background: #212932;
+    color: #f1f3f5;
+    border-color: #414c56;
+}
+html.tema-escuro .evento-score-hero strong,
+html.tema-escuro .presenca-slot-nome strong,
+html.tema-escuro .presenca-fila-pessoa strong,
+html.tema-escuro .eventos-container h1,
+html.tema-escuro .eventos-container h2,
+html.tema-escuro .eventos-container h3 { color: #f3f5f7; }
+html.tema-escuro .presenca-slot-nome small,
+html.tema-escuro .presenca-fila-pessoa span,
+html.tema-escuro .eventos-container small { color: #b8c1cd; }
+html.tema-escuro .presenca-slot-avatar:not(.vazio) { color:#fefefe; }
+html:not(.tema-escuro) .presenca-slot-avatar:not(.vazio) { color:#2e3034; }
+html.tema-escuro .evento-solicitacoes-lista article button,
+html.tema-escuro .presenca-fila button { color:inherit; }
+@media (max-width: 640px) {
+  .evento-editar-times input, .evento-editar-times textarea,
+  .eventos-filtro-local select { width:100%; min-width:0; box-sizing:border-box; }
+  .evento-fila-espera { align-items:stretch; }
+}

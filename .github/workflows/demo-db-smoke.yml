@@ -33,7 +33,16 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: pdo_mysql
+          extensions: pdo_mysql, curl, mbstring, openssl
+
+      - name: Composer install (Web Push)
+        working-directory: ./-TCC-
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Validar biblioteca Web Push / VAPID
+        working-directory: ./-TCC-
+        run: |
+          php -r 'require "vendor/autoload.php"; if (!class_exists("Minishlink\\WebPush\\WebPush") || !class_exists("Minishlink\\WebPush\\VAPID")) exit(1); $k=Minishlink\\WebPush\\VAPID::createVapidKeys(); if (!isset($k["publicKey"],$k["privateKey"])) exit(1); echo "Web Push disponivel no Composer.\\n";'
 
       - name: Database integration smoke
         working-directory: ./-TCC-

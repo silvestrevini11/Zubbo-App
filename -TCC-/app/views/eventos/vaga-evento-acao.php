@@ -70,6 +70,7 @@ try {
     }
 
     $limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
+    $quantidadeTimes = evento_quantidade_times((string)$evento['nome_esporte'],$conn);
     $organizador = (int) $evento['id_criador'] === $idUsuario;
     $inscricoesAbertas = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
 
@@ -124,7 +125,7 @@ try {
                        WHERE sv.id_evento=le.id_evento AND sv.id_user=le.id_user
                          AND sv.status_solicitacao='aprovada'))");
             $totalSt->execute([$idEvento,$idEvento]);
-            if ((int)$totalSt->fetchColumn() >= $limite * 2) {
+            if ((int)$totalSt->fetchColumn() >= $limite * $quantidadeTimes) {
                 throw new RuntimeException('Evento lotado. Entre na fila de espera.');
             }
             // Evita ultrapassar a vez dos usuários que já aguardam.
@@ -139,7 +140,7 @@ try {
             $time = filter_var($_POST['time_num'] ?? null, FILTER_VALIDATE_INT);
             $vaga = filter_var($_POST['numero_vaga'] ?? null, FILTER_VALIDATE_INT);
 
-            if (!in_array($time, [1, 2], true) || !$vaga || $vaga < 1 || $vaga > $limite) {
+            if (!in_array($time, range(1, $quantidadeTimes), true) || !$vaga || $vaga < 1 || $vaga > $limite) {
                 throw new RuntimeException('A vaga escolhida é inválida.');
             }
 
@@ -331,7 +332,7 @@ try {
 
             if ($limite !== null) {
                 if (
-                    !in_array($timeSolicitado, [1, 2], true)
+                    !in_array($timeSolicitado, range(1, $quantidadeTimes), true)
                     || $vagaSolicitada === null
                     || $vagaSolicitada < 1
                     || $vagaSolicitada > $limite

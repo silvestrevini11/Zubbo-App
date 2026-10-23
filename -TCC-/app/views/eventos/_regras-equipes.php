@@ -36,6 +36,14 @@ function evento_vagas_por_time(string $esporte, ?PDO $conn = null): ?int
     return $regras[evento_normalizar_esporte($esporte)] ?? null;
 }
 
+function evento_quantidade_times(string $esporte, PDO $conn): int
+{
+    $stmt=$conn->prepare('SELECT quantidade_times FROM Esporte WHERE LOWER(nome_esporte)=LOWER(?) LIMIT 1');
+    $stmt->execute([$esporte]);
+    $n=(int)$stmt->fetchColumn();
+    return in_array($n, [1,2], true) ? $n : 2;
+}
+
 function evento_iniciais(string $nome): string
 {
     $partes = preg_split('/\s+/u', trim($nome)) ?: [];

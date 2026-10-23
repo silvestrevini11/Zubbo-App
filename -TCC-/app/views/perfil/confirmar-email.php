@@ -74,7 +74,7 @@ include __DIR__ . '/../includes/head.php';
     <h1>Confirmar novo e-mail</h1>
     <p>Enviamos um código para <strong><?= htmlspecialchars((string) $pendente['novo_email'], ENT_QUOTES, 'UTF-8') ?></strong>. Seu e-mail atual continua válido até a confirmação.</p>
     <?php if ($erro): ?><p class="editar-dados-alerta editar-dados-erro" role="alert"><?= htmlspecialchars($erro, ENT_QUOTES, 'UTF-8') ?></p><?php endif; ?>
-    <?php if (filter_var((string) getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN) && isset($_SESSION['codigo_email_demo'])): ?>
+    <?php if (zubbo_demo_mode() && isset($_SESSION['codigo_email_demo'])): ?>
       <p class="editar-dados-alerta editar-dados-sucesso"><strong>Somente na demo:</strong> código <?= htmlspecialchars((string) $_SESSION['codigo_email_demo'], ENT_QUOTES, 'UTF-8') ?></p>
     <?php endif; ?>
     <form class="editar-dados-form" method="post">

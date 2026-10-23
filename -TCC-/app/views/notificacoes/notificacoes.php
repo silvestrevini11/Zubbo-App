@@ -20,6 +20,7 @@ $stmt = $conn->prepare("
     SELECT
         n.id_notificacao,
         n.id_conversa,
+        n.id_evento,
         n.id_mensagem,
         n.tipo,
         n.lida,
@@ -126,7 +127,7 @@ html.tema-escuro .btn-limpar-notificacoes {color:#ffad8d;border-color:#e77759}
                  */
                 ?>
 
-                <?php if ($notificacao['tipo'] === 'mensagem'): ?>
+                <?php if (in_array($notificacao['tipo'], ['mensagem','convite_evento'], true)): ?>
 
                     <a
                         href="abrir-notificacao.php?id=<?= (int) $notificacao['id_notificacao'] ?>"
@@ -152,7 +153,7 @@ html.tema-escuro .btn-limpar-notificacoes {color:#ffad8d;border-color:#e77759}
 
                         <span class="notificacao-env-men">
 
-                            <?php if ($notificacao['tipo'] === 'mensagem'): ?>
+                            <?php if (in_array($notificacao['tipo'], ['mensagem','convite_evento'], true)): ?>
 
                                 enviou uma mensagem
 
@@ -163,6 +164,8 @@ html.tema-escuro .btn-limpar-notificacoes {color:#ffad8d;border-color:#e77759}
                             <?php elseif ($notificacao['tipo'] === 'amizade_aceita'): ?>
 
                                 aceitou sua solicitação de amizade
+                            <?php elseif ($notificacao['tipo'] === 'convite_evento'): ?>
+                                convidou você para um evento do grupo
 
                             <?php endif; ?>
 

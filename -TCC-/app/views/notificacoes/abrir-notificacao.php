@@ -7,7 +7,7 @@ if (!$idNotificacao) {
     header('Location: notificacoes.php', true, 303);
     exit;
 }
-$stmt = $conn->prepare("SELECT n.id_conversa, n.id_remetente, n.tipo, c.tipo_conversa
+$stmt = $conn->prepare("SELECT n.id_conversa, n.id_evento, n.id_remetente, n.tipo, c.tipo_conversa
     FROM Notificacao n
     LEFT JOIN Conversa c ON c.id_conversa = n.id_conversa
     WHERE n.id_notificacao = ? AND n.id_destinatario = ?
@@ -23,6 +23,10 @@ $conn->prepare("UPDATE Notificacao
     WHERE id_notificacao = ? AND id_destinatario = ?")
     ->execute([$idNotificacao, $idUsuario]);
 
+if($notificacao['tipo']==='convite_evento' && (int)$notificacao['id_evento']>0){
+    header('Location: ../eventos/detalhes-evento.php?id_evento='.(int)$notificacao['id_evento'],true,303);
+    exit;
+}
 if ($notificacao['tipo'] === 'mensagem' && $notificacao['tipo_conversa'] === 'grupo') {
     // O chat-grupo.php verifica a participação no grupo.
     header('Location: ../chats/chat-grupo.php?id_conversa='.(int)$notificacao['id_conversa'], true, 303);

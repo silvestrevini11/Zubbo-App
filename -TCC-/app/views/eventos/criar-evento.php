@@ -3,6 +3,20 @@ require_once __DIR__ . '/../../middleware/auth.php';
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $erro = '';
+$idGrupoEvento=filter_var($_POST['id_grupo']??$_GET['id_grupo']??null,FILTER_VALIDATE_INT)?:0;
+$grupoConvite=null;
+if($idGrupoEvento){
+    $buscarGrupo=$conn->prepare("SELECT g.id_grupo,g.id_conversa,g.nome_grupo,
+      (SELECT COUNT(*) FROM Participantes_Conversa pc2
+       JOIN Usuario u ON u.id_user=pc2.id_user AND u.status_user='ativo'
+       WHERE pc2.id_conversa=g.id_conversa) AS participantes
+      FROM Grupo g JOIN Participantes_Conversa pc ON pc.id_conversa=g.id_conversa
+      WHERE g.id_grupo=? AND pc.id_user=? LIMIT 1");
+    $buscarGrupo->execute([$idGrupoEvento,$idUsuario]);
+    $grupoConvite=$buscarGrupo->fetch(PDO::FETCH_ASSOC);
+    if(!$grupoConvite){http_response_code(403);exit('Você não participa desse grupo.');}
+}
+
 
 if (empty($_SESSION['csrf_criar_evento'])) {
     $_SESSION['csrf_criar_evento'] = bin2hex(random_bytes(32));
@@ -161,6 +175,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $novoEvento = (int) $conn->lastInsertId();
+            if($grupoConvite){
+                $conn->prepare("INSERT INTO Grupo_Evento(id_grupo,id_evento) VALUES(?,?)")
+                    ->execute([(int)$grupoConvite['id_grupo'],$novoEvento]);
+                $avisos=$conn->prepare("INSERT INTO Notificacao
+                  (id_destinatario,id_remetente,id_conversa,id_mensagem,id_evento,tipo)
+                  SELECT pc.id_user,?,NULL,NULL,?,'convite_evento'
+                  FROM Participantes_Conversa pc
+                  JOIN Usuario u ON u.id_user=pc.id_user AND u.status_user='ativo'
+                  WHERE pc.id_conversa=? AND pc.id_user<>?");
+                $avisos->execute([$idUsuario,$novoEvento,(int)$grupoConvite['id_conversa'],$idUsuario]);
+            }
             $conn->commit();
             $_SESSION['csrf_criar_evento'] = bin2hex(random_bytes(32));
 
@@ -186,7 +211,12 @@ function escaparCriarEvento($valor): string
 ?>
 
 <section class="evento-criar-container">
-    <h1>Criar evento</h1>
+    <h1><?= $grupoConvite ? 'Criar evento do grupo' : 'Criar evento' ?></h1>
+    <?php if ($grupoConvite): ?>
+    <p>Grupo: <strong><?= htmlspecialchars($grupoConvite['nome_grupo'],ENT_QUOTES,'UTF-8') ?></strong> ·
+       <?= (int)$grupoConvite['participantes'] ?> participantes.
+       Ao salvar, todos os outros participantes receberão um convite. Ninguém será inscrito sem confirmar.</p>
+    <?php endif; ?>
 
     <?php if ($erro): ?>
         <p class="evento-erro" role="alert"><?= escaparCriarEvento($erro) ?></p>
@@ -194,6 +224,9 @@ function escaparCriarEvento($valor): string
 
     <form method="post">
         <input type="hidden" name="csrf" value="<?= escaparCriarEvento($_SESSION['csrf_criar_evento']) ?>">
+        <?php if($grupoConvite): ?>
+            <input type="hidden" name="id_grupo" value="<?= (int)$grupoConvite['id_grupo'] ?>">
+        <?php endif; ?>
 
         <div>
             <label for="nome_evento">Nome do evento</label>

@@ -48,6 +48,14 @@ Para limpeza que independe da abertura do aplicativo, execute no servidor onde o
 ```
 O script recusa chamadas HTTP e depende de `ZUBBO_DB_*` no ambiente do processo. **Não foi agendado ou executado no Railway.**
 
+## Atualização — amizade, mobile, conflito e modal
+
+- **Chat privado:** somente usuários com registro em `Amizade` (amizade aceita) podem abrir, enviar, consultar mensagens e aparecer na listagem de conversas privadas. Rotas diretas também respeitam essa verificação. Grupos permanecem independentes.
+- **Perfil mobile:** ações agora usam grid responsivo; com três ações, o botão Conversar fica em uma linha inteira na largura de celular. Usuários ainda não amigos veem explicação no lugar do botão.
+- **Eventos:** criação permanece transacional e bloqueia o local para evitar duas criações simultâneas; checa sobreposição real de intervalos conforme `duracao_minutos` e informa título do evento existente e seu período ocupado. Depende da migration `011_duracao_eventos.sql` já documentada.
+- **Tema escuro:** modal Desativar/anonimizar com texto de ajuda e botões Cancelar/Confirmar legíveis, inclusive em celular.
+- **Testes:** `tests/db-smoke.php` testa permissão de amizade aceita e conflitos de horários contíguos/sobrepostos. Conferir resultado da execução mais recente no GitHub Actions.
+
 ## Pendências de integração externa e limitações
 
 - **Web Push real:** precisa de serviço VAPID/HTTPS e assinaturas do navegador, não é equivalente a notificações de página aberta.

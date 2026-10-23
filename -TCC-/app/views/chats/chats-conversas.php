@@ -36,7 +36,7 @@ if ($id_outro_usuario <= 0 || $id_outro_usuario == $id_usuario_logado) {
 $stmtUsuario = $conn->prepare("
     SELECT nome_user, foto_user
     FROM Usuario
-    WHERE id_user = ?
+    WHERE id_user = ? AND status_user = 'ativo'
 ");
 
 $stmtUsuario->execute([$id_outro_usuario]);

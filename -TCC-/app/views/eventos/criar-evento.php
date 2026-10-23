@@ -97,16 +97,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new RuntimeException('O local selecionado não está disponível.');
             }
 
-            // Prevenção básica de conflito: horário idêntico no mesmo local.
-            // Não substitui a confirmação de disponibilidade junto ao estabelecimento.
-            $checar = $conn->prepare("SELECT 1 FROM Evento
-                WHERE id_local = ? AND data_evento = ? AND status_evento = 'ativo'
+            // A linha LocalEsp permanece bloqueada até o COMMIT, impedindo
+            // criação simultânea de dois eventos no mesmo intervalo do local.
+            // Reserva interna do Zubbo; não equivale a reserva oficial da quadra.
+            $checar = $conn->prepare("
+                SELECT id_evento, nome_evento, data_evento, horario_evento, duracao_minutos
+                FROM Evento
+                WHERE id_local = ?
+                  AND data_evento = ?
+                  AND status_evento = 'ativo'
                   AND TIME_TO_SEC(horario_evento) < TIME_TO_SEC(?) + ? * 60
                   AND TIME_TO_SEC(horario_evento) + duracao_minutos * 60 > TIME_TO_SEC(?)
-                LIMIT 1");
-            $checar->execute([$idLocal,$dataEvento,$horarioEvento,$duracao,$horarioEvento]);
-            if ($checar->fetchColumn()) {
-                throw new RuntimeException('O horário se sobrepõe a um evento Zubbo neste local.');
+                ORDER BY horario_evento, id_evento
+                LIMIT 1
+            ");
+            $checar->execute([$idLocal, $dataEvento, $horarioEvento, $duracao, $horarioEvento]);
+            $conflito = $checar->fetch(PDO::FETCH_ASSOC);
+            if ($conflito) {
+                $inicioOcupado = substr((string)$conflito['horario_evento'], 0, 5);
+                $fimOcupado = (new DateTimeImmutable(
+                    $conflito['data_evento'] . ' ' . $conflito['horario_evento']
+                ))->modify('+' . (int)$conflito['duracao_minutos'] . ' minutes')->format('H:i');
+                throw new RuntimeException(
+                    'Não foi possível criar o evento: este local já possui "' .
+                    $conflito['nome_evento'] . '" das ' . $inicioOcupado .
+                    ' às ' . $fimOcupado . '. Escolha outro horário ou outro local.'
+                );
             }
 
             $stmt = $conn->prepare("

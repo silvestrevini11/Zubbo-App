@@ -1,12 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../middleware/auth.php';
 
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
 
-require_once __DIR__ . '/../../../config/database.php';
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

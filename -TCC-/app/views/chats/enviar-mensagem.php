@@ -48,6 +48,8 @@ $stmt = $conn->prepare("
     INNER JOIN Participantes_Conversa pc_outro
         ON pc_outro.id_conversa = c.id_conversa
         AND pc_outro.id_user <> ?
+    INNER JOIN Usuario u_destino ON u_destino.id_user = pc_outro.id_user
+        AND u_destino.status_user = 'ativo'
 
     WHERE c.id_conversa = ?
       AND c.tipo_conversa = 'privado'

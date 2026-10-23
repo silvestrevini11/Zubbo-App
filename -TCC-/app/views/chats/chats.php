@@ -43,6 +43,11 @@ $stmt = $conn->prepare("
 
     WHERE c.tipo_conversa = 'privado'
       AND u.status_user = 'ativo'
+      AND EXISTS (
+          SELECT 1 FROM Amizade a
+          WHERE a.id_user_1 = LEAST(pc.id_user, pc_outro.id_user)
+            AND a.id_user_2 = GREATEST(pc.id_user, pc_outro.id_user)
+      )
       AND NOT EXISTS (SELECT 1 FROM Bloqueio_Usuario b
         WHERE (b.id_bloqueador = :id_bloq_1 AND b.id_bloqueado = pc_outro.id_user)
            OR (b.id_bloqueado = :id_bloq_2 AND b.id_bloqueador = pc_outro.id_user))

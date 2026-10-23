@@ -12,11 +12,11 @@ include __DIR__ . '/../../../config/database.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 
-// Limpeza oportunista após 20 minutos da leitura, sem eliminar não lidas.
+// Limpeza oportunista após 5 minutos da leitura, sem eliminar não lidas.
 $conn->prepare("DELETE FROM Notificacao
     WHERE id_destinatario = ? AND lida = TRUE
       AND data_leitura IS NOT NULL
-      AND data_leitura <= DATE_SUB(NOW(), INTERVAL 20 MINUTE)")
+      AND data_leitura <= DATE_SUB(NOW(), INTERVAL 5 MINUTE)")
     ->execute([$id_usuario]);
 
 

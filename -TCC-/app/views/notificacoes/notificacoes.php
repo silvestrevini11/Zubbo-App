@@ -6,7 +6,7 @@ $id_usuario = (int) $_SESSION['usuario']['id'];
 $conn->prepare("DELETE FROM Notificacao
     WHERE id_destinatario = ? AND lida = TRUE
       AND data_leitura IS NOT NULL
-      AND data_leitura <= DATE_SUB(NOW(), INTERVAL 20 MINUTE)")
+      AND data_leitura <= DATE_SUB(NOW(), INTERVAL 5 MINUTE)")
     ->execute([$id_usuario]);
 
 
@@ -57,6 +57,10 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
+<style>
+.btn-limpar-notificacoes {border:1px solid #e64e2c;border-radius:10px;background:transparent;color:#cf4521;padding:10px 14px;font-weight:700;cursor:pointer}
+html.tema-escuro .btn-limpar-notificacoes {color:#ffad8d;border-color:#e77759}
+</style>
 <section
     class="notificacoes-container"
     style="padding-bottom: 80px;"
@@ -77,6 +81,14 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </h1>
 
 
+    <form action="limpar-lidas.php" method="post" style="margin:10px 0 18px"
+          onsubmit="return confirm('Remover as notificações já lidas?');">
+        <?= zubbo_csrf_input() ?>
+        <button type="submit" class="btn-limpar-notificacoes">Limpar notificações lidas</button>
+    </form>
+    <?php if (isset($_GET['limpo'])): ?>
+        <p role="status">As notificações já lidas foram removidas.</p>
+    <?php endif; ?>
     <div class="notificacoes-lista">
 
         <?php if (empty($notificacoes)): ?>

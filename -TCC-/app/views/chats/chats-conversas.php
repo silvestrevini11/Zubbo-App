@@ -1,14 +1,5 @@
 <?php
-
-require_once __DIR__ . '/../../../config/security.php';
-zubbo_start_session();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
-
-include __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../middleware/auth.php';
 
 $id_usuario_logado = (int) $_SESSION['usuario']['id'];
 

@@ -74,7 +74,12 @@ confirmar($idAdm > 0 && AdminService::buscarIdAtivo($conn, $id1, 'primeiro-ci@lo
     'admin autorizado por id_user');
 
 
+require_once __DIR__ . '/../app/services/AmizadeService.php';
+confirmar(!zubbo_amizade_aceita($conn, $id1, $id2),
+    'chat privado bloqueado antes de aceitar amizade');
 $conn->prepare('INSERT INTO Amizade (id_user_1, id_user_2) VALUES (?, ?)')->execute([$id1, $id2]);
+confirmar(zubbo_amizade_aceita($conn, $id1, $id2),
+    'chat privado autorizado apos amizade aceita');
 $amizade = $conn->query('SELECT id_amizade, data_aceita FROM Amizade LIMIT 1')->fetch(PDO::FETCH_ASSOC);
 confirmar((int)$amizade['id_amizade'] > 0 && $amizade['data_aceita'] !== null, 'amizade e DEFAULT CURRENT_TIMESTAMP');
 
@@ -107,6 +112,19 @@ confirmar((int)$contar->fetchColumn() === 0, 'contador zerado apos leitura');
 
 $conn->prepare('INSERT INTO Evento (nome_evento, data_evento, horario_evento, id_esporte, id_local, id_criador) VALUES (?, ?, ?, ?, ?, ?)')->execute(['Evento CI', '2030-01-01', '19:00:00', $esporteId, $localId, $id1]);
 $idEvento = (int)$conn->lastInsertId();
+
+// Mesmo local e dia: sobreposição proibida, faixa imediatamente posterior liberada.
+$checarHorario = $conn->prepare("SELECT COUNT(*) FROM Evento
+    WHERE id_local = ? AND data_evento = ? AND status_evento = 'ativo'
+      AND TIME_TO_SEC(horario_evento) < TIME_TO_SEC(?) + ? * 60
+      AND TIME_TO_SEC(horario_evento) + duracao_minutos * 60 > TIME_TO_SEC(?)");
+$checarHorario->execute([$localId, '2030-01-01', '19:30:00', 60, '19:30:00']);
+confirmar((int)$checarHorario->fetchColumn() === 1,
+    'rejeitar evento que coincide com agendamento existente');
+$checarHorario->execute([$localId, '2030-01-01', '20:00:00', 60, '20:00:00']);
+confirmar((int)$checarHorario->fetchColumn() === 0,
+    'permitir horario posterior sem sobreposicao');
+
 
 // A fila usa a mesma trava do Evento; o primeiro elegível vira pedido pendente.
 $conn->prepare("INSERT INTO Solicitacao_Vaga_Evento (id_evento,id_user,time_num,numero_vaga,status_solicitacao)

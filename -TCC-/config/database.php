@@ -52,6 +52,15 @@ if (PHP_SAPI !== 'cli' && !empty($_SESSION['usuario']['id'])) {
         ]);
         $_SESSION = [];
         session_regenerate_id(true);
+        if (str_contains((string)($_SERVER['SCRIPT_NAME'] ?? ''), '/buscar-')
+            || str_contains((string)($_SERVER['SCRIPT_NAME'] ?? ''), '/pesquisar-')
+            || str_contains((string)($_SERVER['SCRIPT_NAME'] ?? ''), '/sugestoes-busca.php')) {
+            http_response_code(401);
+            header('Content-Type: application/json; charset=utf-8');
+            header('Cache-Control: no-store');
+            echo json_encode(['erro' => 'sessao_expirada']);
+            exit;
+        }
         header('Location: ' . zubbo_url('/app/views/auth/login.php?conta=inativa'));
         exit;
     }

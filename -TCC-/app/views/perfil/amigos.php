@@ -1,13 +1,5 @@
 <?php
-
-session_start();
-
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
-
-include __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../middleware/auth.php';
 
 $id_user = (int) $_SESSION['usuario']['id'];
 

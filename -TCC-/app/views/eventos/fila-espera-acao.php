@@ -22,7 +22,8 @@ try {
     $evento=$st->fetch(PDO::FETCH_ASSOC);
     if (!$evento) throw new RuntimeException('Evento indisponível.');
     if ($acao === 'entrar') {
-        $limite=evento_vagas_por_time((string)$evento['nome_esporte']);
+        $limite=evento_vagas_por_time((string)$evento['nome_esporte'],$conn);
+        $quantidadeTimes=evento_quantidade_times((string)$evento['nome_esporte'],$conn);
         if (!$limite || $evento['status_evento']!=='ativo' || !$evento['aberto'])
             throw new RuntimeException('Fila indisponível neste evento.');
         // O total inclui pessoas de inscrições antigas sem vaga no time.
@@ -35,7 +36,7 @@ try {
                   WHERE s2.id_evento=le.id_evento AND s2.id_user=le.id_user
                     AND s2.status_solicitacao='aprovada')) AS total");
         $st->execute([$idEvento,$idEvento]);
-        if ((int)$st->fetchColumn() < $limite*2)
+        if ((int)$st->fetchColumn() < $limite*$quantidadeTimes)
             throw new RuntimeException('Ainda há vaga disponível. Solicite uma vaga na escalação.');
         $st=$conn->prepare("SELECT 1 FROM Lista_Evento WHERE id_evento=? AND id_user=?");
         $st->execute([$idEvento,$idUsuario]);

@@ -11,6 +11,9 @@ require_once __DIR__ . '/../../../config/logger.php';
 $uid = (int) $_SESSION['usuario']['id'];
 $pendente = $_SESSION['alteracao_email'] ?? null;
 $erro = '';
+$erroReenvio = $_SESSION['erro_email_reenvio'] ?? '';
+$sucessoReenvio = $_SESSION['sucesso_email_reenvio'] ?? '';
+unset($_SESSION['erro_email_reenvio'], $_SESSION['sucesso_email_reenvio']);
 
 if (!is_array($pendente) || (int) ($pendente['id_user'] ?? 0) !== $uid
     || (int) ($pendente['expira_em'] ?? 0) < time()) {
@@ -77,11 +80,18 @@ include __DIR__ . '/../includes/head.php';
     <?php if (zubbo_demo_mode() && isset($_SESSION['codigo_email_demo'])): ?>
       <p class="editar-dados-alerta editar-dados-sucesso"><strong>Somente na demo:</strong> código <?= htmlspecialchars((string) $_SESSION['codigo_email_demo'], ENT_QUOTES, 'UTF-8') ?></p>
     <?php endif; ?>
+    <?php if ($erroReenvio): ?><p role="alert"><?= htmlspecialchars($erroReenvio, ENT_QUOTES, 'UTF-8') ?></p><?php endif; ?>
+    <?php if ($sucessoReenvio): ?><p role="status"><?= htmlspecialchars($sucessoReenvio, ENT_QUOTES, 'UTF-8') ?></p><?php endif; ?>
     <form class="editar-dados-form" method="post">
         <?= zubbo_csrf_input() ?>
         <label for="codigo">Código de seis dígitos</label>
         <input id="codigo" name="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required>
         <button type="submit" class="editar-campo-btn">Confirmar alteração</button>
+    </form>
+    <form action="reenviar-confirmacao-email.php" method="post" style="margin-top:14px">
+      <?= zubbo_csrf_input() ?>
+      <button type="submit" class="editar-campo-btn">Reenviar código</button>
+      <p>Aguarde 60 segundos entre os envios.</p>
     </form>
 </main>
 <?php

@@ -10,6 +10,8 @@ if (empty($_SESSION['cadastro_pendente']) || !is_array($_SESSION['cadastro_pende
 include __DIR__ . '/../includes/head.php';
 
 $erro = $_SESSION['erro_verificacao'] ?? null;
+$sucesso = $_SESSION['sucesso_verificacao'] ?? null;
+unset($_SESSION['sucesso_verificacao']);
 unset($_SESSION['erro_verificacao']);
 
 $demoMode = filter_var((string) getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN);
@@ -34,6 +36,9 @@ $codigoDemo = $demoMode ? (string) ($_SESSION['codigo_demo'] ?? '') : '';
         </div>
     <?php endif; ?>
 
+    <?php if ($sucesso): ?>
+        <p class="alert sucesso-esqueci-senha" role="status"><?= htmlspecialchars((string)$sucesso, ENT_QUOTES, 'UTF-8') ?></p>
+    <?php endif; ?>
     <?php if ($erro): ?>
         <p class="verificar-mensagem-erro">
             <?= htmlspecialchars((string) $erro, ENT_QUOTES, 'UTF-8') ?>
@@ -58,6 +63,11 @@ $codigoDemo = $demoMode ? (string) ($_SESSION['codigo_demo'] ?? '') : '';
         >
 
         <button type="submit" class="verificar-btn">Verificar</button>
+    </form>
+    <form action="reenviar-codigo.php" method="post" style="margin-top:14px;text-align:center">
+        <?= zubbo_csrf_input() ?>
+        <button type="submit" class="verificar-btn">Reenviar código</button>
+        <p>Você pode solicitar um novo código após 60 segundos.</p>
     </form>
 </main>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

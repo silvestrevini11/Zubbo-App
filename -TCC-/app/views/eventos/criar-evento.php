@@ -36,13 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $horarioEvento = (string) ($_POST['horario_evento'] ?? '');
     $idEsporte = filter_var($_POST['id_esporte'] ?? null, FILTER_VALIDATE_INT);
     $idLocal = filter_var($_POST['id_local'] ?? null, FILTER_VALIDATE_INT);
+    $duracao = filter_var($_POST['duracao_minutos'] ?? 60, FILTER_VALIDATE_INT);
 
     if (!is_string($csrf) || !hash_equals($_SESSION['csrf_criar_evento'], $csrf)) {
         http_response_code(403);
         $erro = 'A sessão do formulário expirou. Atualize a página.';
     } elseif (mb_strlen($nomeEvento) < 3 || mb_strlen($nomeEvento) > 100) {
         $erro = 'O nome do evento deve ter entre 3 e 100 caracteres.';
-    } elseif (!$idEsporte || !$idLocal) {
+    } elseif (!$idEsporte || !$idLocal || !in_array($duracao, [60, 90, 120], true)) {
         $erro = 'Selecione um esporte e um local válidos.';
     } else {
         $dataHora = DateTime::createFromFormat('Y-m-d H:i', $dataEvento . ' ' . $horarioEvento);
@@ -52,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             !$dataHora
             || ($errosData !== false && ($errosData['warning_count'] > 0 || $errosData['error_count'] > 0))
             || $dataHora <= new DateTime('now')
+            || ((int)substr($horarioEvento,0,2)*60+(int)substr($horarioEvento,3,2)+$duracao > 1440)
         ) {
             $erro = 'Escolha uma data e um horário futuros.';
         }
@@ -59,6 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($erro === '') {
         try {
+            $conn->beginTransaction();
+            // Bloqueio por local serializa criações simultâneas nesse poliesportivo.
+            $bloquearLocal = $conn->prepare("SELECT id_local FROM LocalEsp WHERE id_local = ? AND status_local = 'aprovado' FOR UPDATE");
+            $bloquearLocal->execute([$idLocal]);
+            if (!$bloquearLocal->fetchColumn()) {
+                throw new RuntimeException('O local não está disponível.');
+            }
             $stmt = $conn->prepare('SELECT 1 FROM Esporte WHERE id_esporte = ? LIMIT 1');
             $stmt->execute([$idEsporte]);
 
@@ -81,11 +90,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Prevenção básica de conflito: horário idêntico no mesmo local.
             // Não substitui a confirmação de disponibilidade junto ao estabelecimento.
             $checar = $conn->prepare("SELECT 1 FROM Evento
-                WHERE id_local=? AND data_evento=? AND horario_evento=?
-                  AND status_evento='ativo' LIMIT 1");
-            $checar->execute([$idLocal,$dataEvento,$horarioEvento]);
+                WHERE id_local = ? AND data_evento = ? AND status_evento = 'ativo'
+                  AND TIME_TO_SEC(horario_evento) < TIME_TO_SEC(?) + ? * 60
+                  AND TIME_TO_SEC(horario_evento) + duracao_minutos * 60 > TIME_TO_SEC(?)
+                LIMIT 1");
+            $checar->execute([$idLocal,$dataEvento,$horarioEvento,$duracao,$horarioEvento]);
             if ($checar->fetchColumn()) {
-                throw new RuntimeException('Já existe um evento Zubbo neste local e horário.');
+                throw new RuntimeException('O horário se sobrepõe a um evento Zubbo neste local.');
             }
 
             $stmt = $conn->prepare("
@@ -93,30 +104,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     nome_evento,
                     data_evento,
                     horario_evento,
+                    duracao_minutos,
                     id_esporte,
                     id_local,
                     id_criador
                 )
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $nomeEvento,
                 $dataEvento,
                 $horarioEvento,
+                $duracao,
                 $idEsporte,
                 $idLocal,
                 $idUsuario,
             ]);
 
             $novoEvento = (int) $conn->lastInsertId();
+            $conn->commit();
             $_SESSION['csrf_criar_evento'] = bin2hex(random_bytes(32));
 
             header('Location: detalhes-evento.php?id_evento=' . $novoEvento, true, 303);
             exit;
         } catch (PDOException $e) {
+            if ($conn->inTransaction()) $conn->rollBack();
             error_log('Erro ao criar evento: ' . $e->getMessage());
             $erro = 'Não foi possível criar o evento. Tente novamente.';
         } catch (RuntimeException $e) {
+            if ($conn->inTransaction()) $conn->rollBack();
             $erro = $e->getMessage();
         }
     }
@@ -206,6 +222,14 @@ function escaparCriarEvento($valor): string
             </select>
         </div>
 
+        <div>
+            <label for="duracao_minutos">Duração estimada</label>
+            <select id="duracao_minutos" name="duracao_minutos" required>
+                <?php foreach ([60 => '1 hora', 90 => '1 hora e 30 minutos', 120 => '2 horas'] as $minutos => $texto): ?>
+                    <option value="<?= $minutos ?>" <?= (int)($_POST['duracao_minutos'] ?? 60) === $minutos ? 'selected' : '' ?>><?= $texto ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
         <button type="submit">Criar evento</button>
     </form>
 </section>

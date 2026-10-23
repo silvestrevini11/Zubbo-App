@@ -49,24 +49,8 @@ $foto = $grupo['foto_grupo']
             <span><?= (int)$grupo['total_participantes'] ?> participantes</span>
         </div>
 
-        <?php if ((int)$grupo['id_criador'] !== $id_usuario): ?>
-            <form action="sair-grupo.php" method="post"
-                  onsubmit="return confirm('Deseja realmente sair deste grupo?');"
-                  class="grupo-sair-form">
-                <?= zubbo_csrf_input() ?>
-                <input type="hidden" name="id_conversa" value="<?= (int)$id_conversa ?>">
-                <button type="submit" class="grupo-btn-sair" title="Sair do grupo">Sair do grupo</button>
-            </form>
-        <?php endif; ?>
-        <?php if ((int)$grupo['id_criador'] === $id_usuario): ?>
-            <button
-                type="button"
-                class="grupo-btn-editar"
-                onclick="location.href='editar-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>'"
-                aria-label="Editar grupo"
-                title="Editar grupo"
-            >⚙</button>
-        <?php endif; ?>
+        <a class="grupo-btn-editar" href="configuracoes-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>"
+           aria-label="Configurações do grupo" title="Configurações do grupo" style="text-decoration:none">⚙</a>
     </header>
 
     <div class="chat-mensagens" id="chat-mensagens"  data-conversa="<?= $id_conversa ?>">

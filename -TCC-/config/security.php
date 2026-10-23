@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 
+// Horários exibidos aos usuários e cadastrados no Zubbo usam o fuso de Diadema.
+date_default_timezone_set('America/Sao_Paulo');
+
 /**
  * Só exibe códigos de confirmação em ambientes explicitamente não produtivos.
  * Nunca ative ZUBBO_ENV=demo em serviços públicos de produção.

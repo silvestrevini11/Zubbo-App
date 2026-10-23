@@ -45,6 +45,7 @@ $minhaSolicitacao = $estado['minha_solicitacao'];
 $organizador = (int) $evento['id_criador'] === $idUsuario;
 $aberto = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
 $limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
+$quantidadeTimes = evento_quantidade_times((string)$evento['nome_esporte'],$conn);
 $totalConfirmados = count($confirmadosSemVaga);
 
 if ($limite !== null) {
@@ -67,7 +68,7 @@ $stFila = $conn->prepare("SELECT id_user FROM Fila_Espera_Evento
 $stFila->execute([$idEvento]);
 $usuariosFila = array_map('intval', $stFila->fetchAll(PDO::FETCH_COLUMN));
 $indiceFila = array_search($idUsuario, $usuariosFila, true);
-$filaCheia = $limite !== null && $totalConfirmados >= $limite * 2;
+$filaCheia = $limite !== null && $totalConfirmados >= $limite * $quantidadeTimes;
 
 $flash = $_SESSION['flash_vaga_evento'][$idEvento] ?? null;
 unset($_SESSION['flash_vaga_evento'][$idEvento]);
@@ -124,7 +125,7 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
 
             <div>
                 <span>CONFIRMADOS</span>
-                <strong><?= $totalConfirmados ?><?= $limite ? ' / ' . ($limite * 2) : '' ?></strong>
+                <strong><?= $totalConfirmados ?><?= $limite ? ' / ' . ($limite * $quantidadeTimes) : '' ?></strong>
             </div>
 
             <div>
@@ -292,12 +293,12 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
         <?php endif; ?>
 
         <section class="evento-times-preview">
-            <?php foreach ([1, 2] as $time): ?>
+            <?php foreach (range(1, $quantidadeTimes) as $time): ?>
                 <article class="evento-time-preview evento-time-<?= $time ?>">
                     <header>
                         <div>
                             <span>TEAM <?= $time === 1 ? 'A' : 'B' ?></span>
-                            <h2>TIME <?= $time ?></h2>
+                            <h2><?= escaparDetalhe($evento[$time === 1 ? 'nome_time_1' : 'nome_time_2']) ?></h2>
                         </div>
 
                         <strong>

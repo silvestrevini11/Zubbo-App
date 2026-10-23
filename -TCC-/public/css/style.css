@@ -5809,10 +5809,14 @@ html.tema-escuro .evento-criar-container input[type="time"] {
     color-scheme: dark;
 }
 
+/* Tema escuro: não desenhar setas triangulares sobre o select nativo.
+   Mantém o indicador discreto do próprio navegador no lado direito. */
 html.tema-escuro .evento-criar-container select {
-    background-image:
-        linear-gradient(45deg, transparent 50%, #cccccc 50%),
-        linear-gradient(135deg, #cccccc 50%, transparent 50%);
+    appearance: auto;
+    -webkit-appearance: menulist;
+    background-image: none;
+    color-scheme: dark;
+    padding-right: 16px;
 }
 
 html.tema-escuro .evento-criar-container option {

@@ -293,6 +293,7 @@ function escaparCriarEvento($valor): string
                     </option>
                 <?php endforeach; ?>
             </select>
+            <p style="font-size:12px;line-height:1.4">A agenda do Zubbo não garante a reserva física deste espaço. Confirme com o responsável antes do encontro.</p>
         </div>
 
         <div>

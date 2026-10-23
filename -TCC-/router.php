@@ -11,12 +11,17 @@ if ($path === '' || strpos($path, "\0") !== false || str_contains($path, '..') |
     exit('Página não encontrada.');
 }
 
+if ($path === '/sw.js') {
+    header('Content-Type: application/javascript; charset=utf-8');
+    header('Service-Worker-Allowed: /');
+}
+
 if ($path === '/favicon.ico') {
     header('Location: /public/imagem/LogooZ.png', true, 302);
     exit;
 }
 
-$publicas = ['/', '/index.php', '/health.php', '/public/index.php', '/public/reset-password.php', '/public/privacidade.php'];
+$publicas = ['/', '/index.php', '/health.php', '/public/index.php', '/public/reset-password.php', '/public/privacidade.php', '/public/manifest.php', '/sw.js'];
 $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 $estaticas = ['css', 'js', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'ico', 'ttf', 'woff', 'woff2'];
 $appPhp = str_starts_with($path, '/app/views/')

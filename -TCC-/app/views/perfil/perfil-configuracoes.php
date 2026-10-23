@@ -44,11 +44,18 @@ include __DIR__ . '/../includes/head.php';
             <span class="configuracoes-icone" aria-hidden="true">◉</span>
             <span class="configuracoes-item-texto">
                 <strong>Notificações do navegador</strong>
-                <span>Alertas apenas enquanto o Zubbo estiver aberto. Notificações push em segundo plano exigem configuração adicional.</span>
+                <span>Receba avisos de mensagens, grupos, amizades e eventos, mesmo fora desta aba.</span>
             </span>
-            <button type="button" id="notificacoes-optin" class="btn-alertas">Ativar</button>
+            <button type="button" id="notificacoes-optin" class="btn-alertas"
+                data-vapid-key="<?= htmlspecialchars((string)getenv('ZUBBO_VAPID_PUBLIC_KEY'), ENT_QUOTES, 'UTF-8') ?>"
+                data-worker-url="<?= htmlspecialchars(zubbo_url('/sw.js'), ENT_QUOTES, 'UTF-8') ?>"
+                data-scope="<?= htmlspecialchars(zubbo_url('/'), ENT_QUOTES, 'UTF-8') ?>"
+                data-api-url="<?= htmlspecialchars(zubbo_url('/app/views/notificacoes/push-inscricao.php'), ENT_QUOTES, 'UTF-8') ?>"
+                data-teste-url="<?= htmlspecialchars(zubbo_url('/app/views/notificacoes/push-teste.php'), ENT_QUOTES, 'UTF-8') ?>"
+                data-csrf="<?= htmlspecialchars(zubbo_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">Ativar</button>
         </div>
         <p id="alertas-estado" role="status"></p>
+        <button type="button" id="notificacoes-teste" class="btn-alertas" hidden>Enviar notificação de teste</button>
     </section>
 
     <section class="configuracoes-grupo" aria-labelledby="suporte-titulo">
@@ -108,28 +115,6 @@ include __DIR__ . '/../includes/head.php';
 </dialog>
 
 <script>
-    const alertasBotao = document.getElementById('notificacoes-optin');
-    const alertasEstado = document.getElementById('alertas-estado');
-    function mostrarEstado() {
-        const ativo = localStorage.getItem('zubbo-alertas') === 'sim';
-        alertasBotao.textContent = ativo ? 'Desativar' : 'Ativar';
-        alertasEstado.textContent = !('Notification' in window)
-          ? 'Este navegador não oferece notificações.'
-          : ativo ? 'Alertas ativados para esta instalação.' : 'Alertas desativados.';
-        alertasBotao.disabled = !('Notification' in window);
-    }
-    alertasBotao.addEventListener('click', async () => {
-        if (localStorage.getItem('zubbo-alertas') === 'sim') {
-            localStorage.removeItem('zubbo-alertas');
-        } else if ('Notification' in window) {
-            const permissao = await Notification.requestPermission();
-            if (permissao === 'granted') localStorage.setItem('zubbo-alertas','sim');
-            else alertasEstado.textContent = 'O navegador não autorizou notificações.';
-        }
-        mostrarEstado();
-    });
-    mostrarEstado();
-
     const temaEscuro = document.getElementById('tema-escuro');
     const aplicarTema = (escuro) => {
         document.documentElement.classList.toggle('tema-escuro', escuro);
@@ -143,6 +128,7 @@ include __DIR__ . '/../includes/head.php';
     document.querySelector('[data-abrir-exclusao]').addEventListener('click', () => modalExclusao.showModal());
     document.querySelector('[data-fechar-exclusao]').addEventListener('click', () => modalExclusao.close());
 </script>
+<script defer src="<?= htmlspecialchars(zubbo_url('/public/js/push.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 <?php
 include __DIR__ . '/../../views/includes/under-bar.php';
 include __DIR__ . '/../../views/includes/footer.php';

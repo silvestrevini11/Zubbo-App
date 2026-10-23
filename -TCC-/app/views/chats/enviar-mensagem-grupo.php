@@ -45,6 +45,7 @@ try {
         INSERT INTO Notificacao (id_destinatario, id_remetente, id_conversa, id_mensagem, tipo)
         SELECT pc.id_user, ?, ?, ?, 'mensagem'
         FROM Participantes_Conversa pc
+        INNER JOIN Usuario u ON u.id_user=pc.id_user AND u.status_user='ativo'
         WHERE pc.id_conversa = ? AND pc.id_user <> ?
     ");
     $stmtNotificacao->execute([$idUsuario, $idConversa, $idMensagem, $idConversa, $idUsuario]);

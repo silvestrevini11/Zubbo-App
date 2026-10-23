@@ -5,6 +5,18 @@ $id_usuario_logado = (int) $_SESSION['usuario']['id'];
 
 $id_outro_usuario = (int) ($_GET['id'] ?? 0);
 
+require_once __DIR__ . '/../../services/AmizadeService.php';
+
+if (!zubbo_amizade_aceita($conn, $id_usuario_logado, $id_outro_usuario)) {
+    // Acesso por URL direta também precisa respeitar a amizade aceita.
+    if ($id_outro_usuario > 0 && $id_outro_usuario !== $id_usuario_logado) {
+        header('Location: ../perfil/perfil-ver.php?id=' . $id_outro_usuario . '&chat=amizade', true, 303);
+    } else {
+        header('Location: chats.php', true, 303);
+    }
+    exit;
+}
+
 $stmtBloqueio = $conn->prepare("SELECT 1 FROM Bloqueio_Usuario
  WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?) LIMIT 1");
 $stmtBloqueio->execute([$id_usuario_logado,$id_outro_usuario,$id_outro_usuario,$id_usuario_logado]);

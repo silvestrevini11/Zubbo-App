@@ -90,7 +90,7 @@ try {
                 'tentativas' => 0,
             ];
 
-            if (filter_var((string) getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN)) {
+            if (zubbo_demo_mode()) {
                 $_SESSION['codigo_email_demo'] = $codigo;
             } else {
                 require_once __DIR__ . '/../../../vendor/autoload.php';

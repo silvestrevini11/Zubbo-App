@@ -23,6 +23,12 @@ try {
         ORDER BY nome_local
     ");
     $locais = $stmtLocais->fetchAll(PDO::FETCH_ASSOC);
+    $modalidadesPermitidas=$conn->query("SELECT le.id_local,le.id_esporte
+      FROM Local_Esporte_Permitido le JOIN LocalEsp l ON l.id_local=le.id_local
+      WHERE l.status_local='aprovado'")->fetchAll(PDO::FETCH_ASSOC);
+    $permitidosPorLocal=[];
+    foreach($modalidadesPermitidas as $ml) $permitidosPorLocal[(int)$ml['id_local']][]=(int)$ml['id_esporte'];
+
 } catch (PDOException $e) {
     error_log('Erro ao carregar opções para criar evento: ' . $e->getMessage());
     http_response_code(503);
@@ -73,6 +79,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (!$stmt->fetchColumn()) {
                 throw new RuntimeException('O esporte selecionado não existe.');
+            }
+            // Nunca confiar somente no filtro JavaScript do formulário.
+            $verificarLocalModalidade=$conn->prepare("SELECT 1 FROM Local_Esporte_Permitido
+                WHERE id_local=? AND id_esporte=? LIMIT 1");
+            $verificarLocalModalidade->execute([$idLocal,$idEsporte]);
+            if (!$verificarLocalModalidade->fetchColumn()) {
+                throw new RuntimeException('Este local não possui confirmação para o esporte selecionado. Escolha outro esporte/local.');
             }
             // Modalidades que exigem confirmação só podem ser usadas em locais
             // cuja aceitação foi registrada pelo ZubboADM.
@@ -231,6 +244,7 @@ function escaparCriarEvento($valor): string
                     </option>
                 <?php endforeach; ?>
             </select>
+            <p id="aviso-modalidade" aria-live="polite">Selecione o local para ver os esportes disponíveis.</p>
         </div>
 
         <div>
@@ -260,6 +274,30 @@ function escaparCriarEvento($valor): string
     </form>
 </section>
 
+<script>
+(() => {
+ const esportesPorLocal=<?= json_encode($permitidosPorLocal,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;
+ const local=document.getElementById('id_local');
+ const esporte=document.getElementById('id_esporte');
+ const aviso=document.getElementById('aviso-modalidade');
+ if(!local||!esporte) return;
+ function atualizar() {
+   const permitidos=(esportesPorLocal[local.value]||[]).map(Number);
+   for(const opt of esporte.options) {
+     if(!opt.value) continue;
+     opt.disabled=!permitidos.includes(Number(opt.value));
+     opt.hidden=opt.disabled;
+   }
+   if(esporte.selectedOptions[0]?.disabled) esporte.value='';
+   aviso.textContent=local.value
+     ? (permitidos.length ? 'Escolha uma das modalidades disponíveis neste local.'
+       : 'Nenhuma modalidade confirmada para este local. Peça ao administrador para validar.')
+     : 'Selecione o local para ver os esportes disponíveis.';
+ }
+ local.addEventListener('change',atualizar);
+ atualizar();
+})();
+</script>
 <?php
 include __DIR__ . '/../includes/under-bar.php';
 include __DIR__ . '/../includes/footer.php';

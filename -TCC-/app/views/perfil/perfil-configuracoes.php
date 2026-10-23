@@ -1,11 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../config/security.php';
-zubbo_start_session();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

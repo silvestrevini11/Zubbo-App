@@ -1,6 +1,17 @@
 <?php
 declare(strict_types=1);
 
+/**
+ * Só exibe códigos de confirmação em ambientes explicitamente não produtivos.
+ * Nunca ative ZUBBO_ENV=demo em serviços públicos de produção.
+ */
+function zubbo_demo_mode(): bool
+{
+    $env = strtolower(trim((string)getenv('ZUBBO_ENV')));
+    return in_array($env, ['local','development','dev','demo','test'], true)
+        && filter_var((string)getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN);
+}
+
 function zubbo_is_https(): bool
 {
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')

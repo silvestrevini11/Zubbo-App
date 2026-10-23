@@ -135,3 +135,30 @@ INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
  WHERE l.nome_local='Campo Piraporinha'
    AND l.endereco_local='Avenida Dona Ida Cerati Magrini, 721 - Piraporinha, Diadema - SP'
  ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;
+
+-- Modalidades divulgadas na Virada Esportiva de Diadema em junho de 2026.
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+ SELECT l.id_local,e.id_esporte,'https://americatv.com.br/ver_noticia?id=50'
+ FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Vôlei'
+ WHERE l.nome_local='Ginásio Poliesportivo Ayrton Senna'
+ ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+ SELECT l.id_local,e.id_esporte,'https://americatv.com.br/ver_noticia?id=50'
+ FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Futsal'
+ WHERE l.nome_local='Ginásio Poliesportivo Mané Garrincha'
+ ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+ SELECT l.id_local,e.id_esporte,'https://americatv.com.br/ver_noticia?id=50'
+ FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Handebol'
+ WHERE l.nome_local='Ginásio Poliesportivo Mané Garrincha'
+ ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+ SELECT l.id_local,e.id_esporte,'https://americatv.com.br/ver_noticia?id=50'
+ FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Vôlei'
+ WHERE l.nome_local='Ginásio Poliesportivo Rômulo Arantes'
+ ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+ SELECT l.id_local,e.id_esporte,'https://americatv.com.br/ver_noticia?id=50'
+ FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Futsal'
+ WHERE l.nome_local='Ginásio Poliesportivo Ivanderlei Pereira - Vandão'
+ ON DUPLICATE KEY UPDATE fonte=VALUES(fonte), atualizado_em=CURRENT_TIMESTAMP;

@@ -70,6 +70,12 @@ if (!$conversa) {
 
 $id_destinatario = (int) $conversa['id_destinatario'];
 
+require_once __DIR__ . '/../../services/AmizadeService.php';
+if (!zubbo_amizade_aceita($conn, $id_usuario, $id_destinatario)) {
+    http_response_code(403);
+    exit('É necessário ter uma amizade aceita para enviar mensagens privadas.');
+}
+
 $stmtBloqueio = $conn->prepare("SELECT 1 FROM Bloqueio_Usuario
  WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?) LIMIT 1");
 $stmtBloqueio->execute([$id_usuario,$id_destinatario,$id_destinatario,$id_usuario]);

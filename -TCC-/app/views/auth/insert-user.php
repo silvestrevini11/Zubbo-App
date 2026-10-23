@@ -66,7 +66,7 @@ $_SESSION['cadastro_pendente'] = [
     'ultimo_envio' => time(),
 ];
 
-$demoMode = filter_var((string) getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN);
+$demoMode = zubbo_demo_mode();
 
 if ($demoMode) {
     $_SESSION['codigo_demo'] = $codigo;

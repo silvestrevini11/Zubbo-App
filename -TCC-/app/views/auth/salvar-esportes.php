@@ -27,6 +27,15 @@ require_once __DIR__ . '/../../../config/database.php';
 */
 
 $cadastro = $_SESSION['cadastro_pendente'];
+if ((int)($cadastro['expiracao'] ?? 0) < time()) {
+    unset($_SESSION['cadastro_pendente'], $_SESSION['email_verificado'], $_SESSION['codigo_demo']);
+    header('Location: cadastro.php?erro=codigo_expirado', true, 303);
+    exit;
+}
+if (mb_strlen((string)($cadastro['nome'] ?? '')) > 50 || strlen((string)($cadastro['email'] ?? '')) > 70) {
+    header('Location: cadastro.php?erro=dados', true, 303);
+    exit;
+}
 
 
 /*

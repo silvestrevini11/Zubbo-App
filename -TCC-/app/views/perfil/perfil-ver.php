@@ -61,7 +61,7 @@ $stmtAmizade = $conn->prepare("
 
 $stmtAmizade->execute([$id1, $id2]);
 
-$saoAmigos = $stmtAmizade->fetch();
+$saoAmigos = (bool)$stmtAmizade->fetchColumn();
 
 $stmtBloqueio = $conn->prepare("SELECT id_bloqueador FROM Bloqueio_Usuario
     WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?)");
@@ -166,14 +166,15 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
             <input type="hidden" name="acao" value="<?= $euBloqueei ? 'desbloquear' : 'bloquear' ?>">
             <button type="submit" class="btn-bloquear-usuario"><?= $euBloqueei ? 'Desbloquear usuário' : 'Bloquear usuário' ?></button>
         </form>
-        <?php if (!$euBloqueei): ?>
-        <button type="button" class="btn-conversar"
-            onclick="window.location.href='../chats/chats-conversas.php?id=<?= $id_user ?>'">
-            Conversar
-        </button>
+        <?php if ($saoAmigos && !$euBloqueei): ?>
+            <a class="btn-conversar" href="../chats/chats-conversas.php?id=<?= (int)$id_user ?>">Conversar</a>
         <?php endif; ?>
 
     </div>
+
+    <?php if (!$saoAmigos && !$euBloqueei): ?>
+        <p class="perfil-chat-aviso" role="status">A conversa privada ficará disponível quando a solicitação de amizade for aceita.</p>
+    <?php endif; ?>
 
     <div class="perfil-sobre">
         <h2 class="perfil-sobremim">Sobre Mim</h2>

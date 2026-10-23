@@ -74,6 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$stmt->fetchColumn()) {
                 throw new RuntimeException('O esporte selecionado não existe.');
             }
+            // Modalidades que exigem confirmação só podem ser usadas em locais
+            // cuja aceitação foi registrada pelo ZubboADM.
+            $verificarAceite=$conn->prepare("SELECT 1 FROM Esporte e
+              WHERE e.id_esporte = ? AND (e.exige_confirmacao_local = 0 OR
+                EXISTS (SELECT 1 FROM Local_Esporte_Confirmacao lc
+                  WHERE lc.id_esporte = e.id_esporte AND lc.id_local = ?))");
+            $verificarAceite->execute([$idEsporte,$idLocal]);
+            if (!$verificarAceite->fetchColumn()) {
+                throw new RuntimeException('Esta modalidade ainda não foi confirmada pelo administrador para o local escolhido.');
+            }
 
             $stmt = $conn->prepare("
                 SELECT 1

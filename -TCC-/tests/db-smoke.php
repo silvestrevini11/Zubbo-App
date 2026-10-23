@@ -140,7 +140,8 @@ $segunda = new PDO(
 );
 $segunda->exec('SET SESSION innodb_lock_wait_timeout=1');
 $conn->beginTransaction();
-$lock->execute([$localId]);
+$bloquearLocal = $conn->prepare('SELECT id_local FROM LocalEsp WHERE id_local=? FOR UPDATE');
+$bloquearLocal->execute([$localId]);
 $segunda->beginTransaction();
 $foiBloqueada = false;
 try {

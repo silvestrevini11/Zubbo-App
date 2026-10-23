@@ -33,6 +33,8 @@ foreach ([
     '011_duracao_eventos.sql',
     '012_confirmacao_esportes_locais.sql',
     '013_web_push.sql',
+    '014_quadras_diadema_modalidades.sql',
+    '015_eventos_em_grupo.sql',
 ] as $migracao) {
     $sql = file_get_contents(__DIR__ . '/../database/migrations/' . $migracao);
     confirmar($sql !== false, 'ler migration ' . $migracao);
@@ -54,6 +56,21 @@ confirmar(!PushService::allowedEndpoint('https://example.org/private/abc'),
 confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.tables
     WHERE table_schema=DATABASE() AND table_name='PushSubscription'")->fetchColumn() === 1,
     'migration de web push aplicada');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM LocalEsp WHERE tipo_local='campo'")->fetchColumn() >= 5,
+    'campos de Diadema importados');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM Local_Esporte_Permitido")->fetchColumn() >= 12,
+    'modalidades por local importadas');
+$verifSociety=$conn->query("SELECT COUNT(*) FROM Local_Esporte_Permitido p
+   JOIN LocalEsp l ON l.id_local=p.id_local JOIN Esporte e ON e.id_esporte=p.id_esporte
+   WHERE l.nome_local='Signello Esportes Society' AND e.nome_esporte='Futebol Society'")->fetchColumn();
+confirmar((int)$verifSociety===1,'society somente nas instalacoes informadas');
+$verifBasquete=$conn->query("SELECT COUNT(*) FROM Local_Esporte_Permitido p
+   JOIN LocalEsp l ON l.id_local=p.id_local JOIN Esporte e ON e.id_esporte=p.id_esporte
+   WHERE l.nome_local='Signello Esportes Society' AND e.nome_esporte='Basquete'")->fetchColumn();
+confirmar((int)$verifBasquete===0,'nao liberar esporte nao confirmado no local');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns
+ WHERE table_schema=DATABASE() AND table_name='Notificacao' AND column_name='id_evento'")->fetchColumn()===1,
+ 'notificacoes de evento suportadas');
 confirmar((int)$conn->query('SELECT COUNT(*) FROM Esporte')->fetchColumn() >= 3, 'esportes importados');
 $esporteId = (int)$conn->query('SELECT id_esporte FROM Esporte ORDER BY id_esporte LIMIT 1')->fetchColumn();
 $localId = (int)$conn->query('SELECT id_local FROM LocalEsp ORDER BY id_local LIMIT 1')->fetchColumn();
@@ -128,6 +145,14 @@ confirmar((int)$contar->fetchColumn() === 0, 'contador zerado apos leitura');
 
 $conn->prepare('INSERT INTO Evento (nome_evento, data_evento, horario_evento, id_esporte, id_local, id_criador) VALUES (?, ?, ?, ?, ?, ?)')->execute(['Evento CI', '2030-01-01', '19:00:00', $esporteId, $localId, $id1]);
 $idEvento = (int)$conn->lastInsertId();
+$conn->prepare('INSERT INTO Grupo_Evento(id_grupo,id_evento) VALUES(?,?)')
+    ->execute([$conn->query('SELECT id_grupo FROM Grupo LIMIT 1')->fetchColumn(),$idEvento]);
+$conn->prepare("INSERT INTO Notificacao(id_destinatario,id_remetente,id_evento,tipo)
+ VALUES (?,?,?,'convite_evento')")->execute([$id2,$id1,$idEvento]);
+confirmar((int)$conn->query("SELECT COUNT(*) FROM Notificacao
+ WHERE tipo='convite_evento' AND id_evento=$idEvento")->fetchColumn()===1,
+ 'convite para evento registrado');
+
 
 // Mesmo local e dia: sobreposição proibida, faixa imediatamente posterior liberada.
 $checarHorario = $conn->prepare("SELECT COUNT(*) FROM Evento

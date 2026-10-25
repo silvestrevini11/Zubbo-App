@@ -35,6 +35,7 @@ foreach ([
     '013_web_push.sql',
     '014_quadras_diadema_modalidades.sql',
     '015_eventos_em_grupo.sql',
+    '016_futsal_todos_ginasios.sql',
 ] as $migracao) {
     $sql = file_get_contents(__DIR__ . '/../database/migrations/' . $migracao);
     confirmar($sql !== false, 'ler migration ' . $migracao);
@@ -60,6 +61,13 @@ confirmar((int)$conn->query("SELECT COUNT(*) FROM LocalEsp WHERE tipo_local='cam
     'campos de Diadema importados');
 confirmar((int)$conn->query("SELECT COUNT(*) FROM Local_Esporte_Permitido")->fetchColumn() >= 12,
     'modalidades por local importadas');
+$futsalNaoAssociado = (int)$conn->query("SELECT COUNT(*) FROM LocalEsp l
+ LEFT JOIN Local_Esporte_Permitido p ON p.id_local=l.id_local
+    AND p.id_esporte=(SELECT id_esporte FROM Esporte WHERE nome_esporte='Futsal' LIMIT 1)
+ WHERE l.tipo_local='ginásio' AND p.id_local IS NULL")->fetchColumn();
+confirmar($futsalNaoAssociado===0,
+    'todos os ginasios do banco possuem futsal');
+
 $verifSociety=$conn->query("SELECT COUNT(*) FROM Local_Esporte_Permitido p
    JOIN LocalEsp l ON l.id_local=p.id_local JOIN Esporte e ON e.id_esporte=p.id_esporte
    WHERE l.nome_local='Signello Esportes Society' AND e.nome_esporte='Futebol Society'")->fetchColumn();
@@ -122,6 +130,15 @@ $conn->prepare('INSERT INTO Grupo (id_conversa, id_criador, nome_grupo) VALUES (
 $insParticipante = $conn->prepare('INSERT INTO Participantes_Conversa (id_conversa, id_user) VALUES (?, ?)');
 $insParticipante->execute([$idConversa, $id1]);
 $insParticipante->execute([$idConversa, $id2]);
+require_once __DIR__ . '/../app/services/NotificacaoService.php';
+confirmar(zubbo_notificar($conn,$id2,$id1,'grupo_adicionado',null,$idConversa),
+    'notificacao de novo integrante do grupo salva');
+$notificarGrupo=$conn->prepare("SELECT COUNT(*) FROM Notificacao
+ WHERE id_destinatario=? AND id_conversa=? AND tipo='grupo_adicionado'");
+$notificarGrupo->execute([$id2,$idConversa]);
+confirmar((int)$notificarGrupo->fetchColumn()===1,
+    'notificacao do novo grupo vinculada a conversa');
+
 $conn->exec("SET SESSION sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'");
 $grupo = $conn->prepare("
     SELECT g.*, (SELECT COUNT(*) FROM Participantes_Conversa p WHERE p.id_conversa = g.id_conversa) AS total_participantes
@@ -145,6 +162,16 @@ confirmar((int)$contar->fetchColumn() === 0, 'contador zerado apos leitura');
 
 $conn->prepare('INSERT INTO Evento (nome_evento, data_evento, horario_evento, id_esporte, id_local, id_criador) VALUES (?, ?, ?, ?, ?, ?)')->execute(['Evento CI', '2030-01-01', '19:00:00', $esporteId, $localId, $id1]);
 $idEvento = (int)$conn->lastInsertId();
+confirmar(zubbo_notificar($conn,$id1,$id2,'vaga_solicitada',$idEvento),
+    'solicitacao de vaga notifica organizador');
+confirmar(zubbo_notificar($conn,$id2,$id1,'vaga_aprovada',$idEvento),
+    'aprovacao de vaga notifica participante');
+$tiposEvento=$conn->prepare("SELECT COUNT(DISTINCT tipo) FROM Notificacao
+ WHERE id_evento=? AND tipo IN ('vaga_solicitada','vaga_aprovada')");
+$tiposEvento->execute([$idEvento]);
+confirmar((int)$tiposEvento->fetchColumn()===2,
+    'ambas as notificacoes de evento foram salvas');
+
 $conn->prepare('INSERT INTO Grupo_Evento(id_grupo,id_evento) VALUES(?,?)')
     ->execute([$conn->query('SELECT id_grupo FROM Grupo LIMIT 1')->fetchColumn(),$idEvento]);
 $conn->prepare("INSERT INTO Notificacao(id_destinatario,id_remetente,id_evento,tipo)
@@ -213,13 +240,27 @@ $segunda->rollBack();
 $conn->rollBack();
 confirmar($foiBloqueada, 'trava por local impede duas criacoes simultaneas');
 
-// Só lidas e com data_leitura antiga devem ser descartadas.
-$conn->prepare('UPDATE Notificacao SET lida=TRUE, data_leitura=DATE_SUB(NOW(), INTERVAL 21 MINUTE)
- WHERE id_destinatario=?')->execute([$id2]);
-$removerLidas = $conn->prepare("DELETE FROM Notificacao WHERE lida=TRUE
- AND data_leitura IS NOT NULL AND data_leitura <= DATE_SUB(NOW(), INTERVAL 20 MINUTE)");
-$removerLidas->execute();
-confirmar($removerLidas->rowCount()>=1,'limpeza remove notificacoes lidas ha mais de 20 minutos');
+// Abrir a caixa deve marcar todas as categorias como lidas, não só mensagens.
+$conn->prepare("INSERT INTO Notificacao(id_destinatario,id_remetente,tipo)
+ VALUES (?,?,'amizade_aceita')")->execute([$id2,$id1]);
+$conn->prepare("UPDATE Notificacao SET lida=TRUE,
+ data_leitura=COALESCE(data_leitura,NOW())
+ WHERE id_destinatario=? AND (lida=FALSE OR data_leitura IS NULL)")
+ ->execute([$id2]);
+$contarNaoLidas=$conn->prepare("SELECT COUNT(*) FROM Notificacao
+ WHERE id_destinatario=? AND (lida=FALSE OR data_leitura IS NULL)");
+$contarNaoLidas->execute([$id2]);
+confirmar((int)$contarNaoLidas->fetchColumn()===0,
+    'entrada em notificacoes leu todos os tipos');
+$conn->prepare("UPDATE Notificacao SET data_leitura=DATE_SUB(NOW(),INTERVAL 6 MINUTE)
+ WHERE id_destinatario=?")->execute([$id2]);
+$removerLidas=$conn->prepare("DELETE FROM Notificacao WHERE id_destinatario=?
+ AND lida=TRUE AND data_leitura IS NOT NULL
+ AND data_leitura<=DATE_SUB(NOW(),INTERVAL 5 MINUTE)");
+$removerLidas->execute([$id2]);
+confirmar($removerLidas->rowCount()>=3,
+    'limpeza em 5 minutos remove grupo amizade e evento');
+
 
 $conn->prepare('INSERT INTO Denuncia (id_denunciante, id_local, motivo, descricao) VALUES (?, ?, ?, ?)')->execute([$id2, $localId, 'Outro', 'Denúncia de teste sem dados reais.']);
 $conn->prepare('INSERT INTO Denuncia (id_denunciante, id_evento, motivo, descricao) VALUES (?, ?, ?, ?)')->execute([$id2, $idEvento, 'Outro', 'Evento simulado para testar a denúncia.']);

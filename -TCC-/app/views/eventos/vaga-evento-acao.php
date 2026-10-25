@@ -7,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 require_once __DIR__ . '/_regras-equipes.php';
 require_once __DIR__ . '/_fila-espera.php';
+require_once __DIR__ . '/../../services/NotificacaoService.php';
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $idEvento = filter_var($_POST['id_evento'] ?? null, FILTER_VALIDATE_INT);
@@ -50,6 +51,7 @@ if (!in_array($acao, $acoesPermitidas, true)) {
     vaga_redirecionar($idEvento, $origem);
 }
 
+$avisosPush = [];
 try {
     $conn->beginTransaction();
 
@@ -211,6 +213,18 @@ try {
                   AND status_solicitacao = 'pendente'
             ");
             $stmt->execute([$idEvento, $time, $vaga, $idUsuario]);
+        }
+
+        // Somente pedidos novos geram aviso ao organizador.
+        // A notificação é gravada antes do COMMIT junto com a solicitação.
+        $idOrganizador = (int)$evento['id_criador'];
+        if (!$participacaoAntiga && $idOrganizador > 0
+            && zubbo_notificar($conn, $idOrganizador, $idUsuario, 'vaga_solicitada', $idEvento)) {
+            $avisosPush[] = [
+                $idOrganizador, 'Zubbo · Nova solicitação',
+                'Alguém solicitou participação no seu evento.',
+                '/app/views/eventos/detalhes-evento.php?id_evento='.$idEvento
+            ];
         }
 
         vaga_flash(
@@ -395,6 +409,15 @@ try {
                 $idEvento,
             ]);
 
+            $idParticipanteAprovado = (int)$solicitacao['id_user'];
+            if (zubbo_notificar($conn, $idParticipanteAprovado,
+                $idUsuario, 'vaga_aprovada', $idEvento)) {
+                $avisosPush[] = [
+                    $idParticipanteAprovado, 'Zubbo · Participação aprovada',
+                    'Sua participação em um evento foi aprovada!',
+                    '/app/views/eventos/detalhes-evento.php?id_evento='.$idEvento
+                ];
+            }
             vaga_flash($idEvento, 'sucesso', 'Solicitação aprovada e participante confirmado.');
         }
 
@@ -438,14 +461,17 @@ try {
     }
 
     $conn->commit();
-    if ($acao === 'aprovar' && isset($solicitacao['id_user'])) {
+    // Push é complementar à notificação no banco; nunca deixa falha de push
+    // desfazer a aprovação ou solicitação já confirmada no banco.
+    if ($avisosPush) {
         require_once __DIR__ . '/../../services/PushService.php';
-        try {
-            PushService::sendToUser($conn, (int)$solicitacao['id_user'],
-                'Zubbo · Participação aprovada',
-                'Sua participação em um evento foi aprovada!',
-                '/app/views/eventos/detalhes-evento.php?id_evento='.$idEvento);
-        } catch (Throwable $e) { error_log('Web Push evento: '.get_class($e)); }
+        foreach ($avisosPush as [$destinatario,$titulo,$texto,$url]) {
+            try {
+                PushService::sendToUser($conn,$destinatario,$titulo,$texto,$url);
+            } catch (Throwable $pushError) {
+                error_log('Web Push evento: '.get_class($pushError));
+            }
+        }
     }
 
     $_SESSION['csrf_eventos'] = bin2hex(random_bytes(32));

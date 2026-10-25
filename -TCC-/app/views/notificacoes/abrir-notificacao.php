@@ -23,8 +23,17 @@ $conn->prepare("UPDATE Notificacao
     WHERE id_notificacao = ? AND id_destinatario = ?")
     ->execute([$idNotificacao, $idUsuario]);
 
-if($notificacao['tipo']==='convite_evento' && (int)$notificacao['id_evento']>0){
+if (in_array($notificacao['tipo'], ['convite_evento','vaga_solicitada','vaga_aprovada'], true)
+    && (int)$notificacao['id_evento'] > 0) {
     header('Location: ../eventos/detalhes-evento.php?id_evento='.(int)$notificacao['id_evento'],true,303);
+    exit;
+}
+if ($notificacao['tipo'] === 'grupo_adicionado' && (int)$notificacao['id_conversa'] > 0) {
+    header('Location: ../chats/chat-grupo.php?id_conversa='.(int)$notificacao['id_conversa'], true, 303);
+    exit;
+}
+if ($notificacao['tipo'] === 'amizade_aceita' && (int)$notificacao['id_remetente'] > 0) {
+    header('Location: ../perfil/perfil-ver.php?id='.(int)$notificacao['id_remetente'], true, 303);
     exit;
 }
 if ($notificacao['tipo'] === 'mensagem' && $notificacao['tipo_conversa'] === 'grupo') {

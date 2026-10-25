@@ -3,12 +3,19 @@ require_once __DIR__ . '/../../middleware/auth.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 
+// Limpa somente notificações antigas, já lidas há pelo menos cinco minutos.
 $conn->prepare("DELETE FROM Notificacao
-    WHERE id_destinatario = ? AND lida = TRUE
+    WHERE id_destinatario=? AND lida=TRUE
       AND data_leitura IS NOT NULL
       AND data_leitura <= DATE_SUB(NOW(), INTERVAL 5 MINUTE)")
     ->execute([$id_usuario]);
 
+// A visita à caixa marca TODAS as categorias como lidas, não só mensagens.
+// A data é gravada apenas na primeira leitura: o prazo não reinicia no refresh.
+$conn->prepare("UPDATE Notificacao
+    SET lida=TRUE, data_leitura=COALESCE(data_leitura, NOW())
+    WHERE id_destinatario=? AND (lida=FALSE OR data_leitura IS NULL)")
+    ->execute([$id_usuario]);
 
 include __DIR__ . '/../includes/head.php';
 
@@ -37,7 +44,7 @@ $stmt = $conn->prepare("
 
     FROM Notificacao n
 
-    INNER JOIN Usuario u
+    LEFT JOIN Usuario u
         ON u.id_user = n.id_remetente
 
     LEFT JOIN Mensagem m
@@ -127,7 +134,7 @@ html.tema-escuro .btn-limpar-notificacoes {color:#ffad8d;border-color:#e77759}
                  */
                 ?>
 
-                <?php if (in_array($notificacao['tipo'], ['mensagem','convite_evento'], true)): ?>
+                <?php if (in_array($notificacao['tipo'], ['mensagem','convite_evento','amizade_aceita','vaga_solicitada','vaga_aprovada','grupo_adicionado'], true)): ?>
 
                     <a
                         href="abrir-notificacao.php?id=<?= (int) $notificacao['id_notificacao'] ?>"
@@ -147,14 +154,13 @@ html.tema-escuro .btn-limpar-notificacoes {color:#ffad8d;border-color:#e77759}
                     <div class="notificacao-info">
 
                         <strong class="notificacao-nome-user">
-                            <?= htmlspecialchars($notificacao['nome_user']) ?>
+                            <?= htmlspecialchars($notificacao['nome_user'] ?? 'Usuário indisponível', ENT_QUOTES, 'UTF-8') ?>
                         </strong>
 
 
                         <span class="notificacao-env-men">
 
-                            <?php if (in_array($notificacao['tipo'], ['mensagem','convite_evento'], true)): ?>
-
+                            <?php if ($notificacao['tipo'] === 'mensagem'): ?>
                                 enviou uma mensagem
 
                             <?php elseif ($notificacao['tipo'] === 'amizade'): ?>
@@ -166,6 +172,12 @@ html.tema-escuro .btn-limpar-notificacoes {color:#ffad8d;border-color:#e77759}
                                 aceitou sua solicitação de amizade
                             <?php elseif ($notificacao['tipo'] === 'convite_evento'): ?>
                                 convidou você para um evento do grupo
+                            <?php elseif ($notificacao['tipo'] === 'vaga_solicitada'): ?>
+                                solicitou uma vaga no seu evento
+                            <?php elseif ($notificacao['tipo'] === 'vaga_aprovada'): ?>
+                                aprovou sua participação em um evento
+                            <?php elseif ($notificacao['tipo'] === 'grupo_adicionado'): ?>
+                                adicionou você a um grupo
 
                             <?php endif; ?>
 
@@ -183,7 +195,7 @@ html.tema-escuro .btn-limpar-notificacoes {color:#ffad8d;border-color:#e77759}
                     </div>
 
 
-                <?php if ($notificacao['tipo'] === 'mensagem'): ?>
+                <?php if (in_array($notificacao['tipo'], ['mensagem','convite_evento','amizade_aceita','vaga_solicitada','vaga_aprovada','grupo_adicionado'], true)): ?>
 
                     </a>
 

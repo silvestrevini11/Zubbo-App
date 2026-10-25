@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
+require_once __DIR__ . '/../../services/NotificacaoService.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: chats-grupos.php');
@@ -115,11 +116,30 @@ try {
         INSERT IGNORE INTO Participantes_Conversa (id_user, id_conversa)
         VALUES (?, ?)
     ");
+    $novosMembros = [];
     foreach ($permitidosAdicionar as $id_amigo) {
         $stmtAdd->execute([$id_amigo, $grupo['id_conversa']]);
+        // INSERT IGNORE retorna zero para membros já existentes.
+        if ($stmtAdd->rowCount() === 1 &&
+            zubbo_notificar($conn, $id_amigo, $id_usuario,
+                'grupo_adicionado', null, (int)$grupo['id_conversa'])) {
+            $novosMembros[] = $id_amigo;
+        }
     }
 
     $conn->commit();
+    if ($novosMembros) {
+        require_once __DIR__ . '/../../services/PushService.php';
+        foreach ($novosMembros as $novoMembro) {
+            try {
+                PushService::sendToUser($conn, $novoMembro, 'Zubbo · Novo grupo',
+                    'Você foi adicionado a um grupo.',
+                    '/app/views/chats/chat-grupo.php?id_conversa='.(int)$grupo['id_conversa']);
+            } catch (Throwable $e) {
+                error_log('Web Push grupo: '.get_class($e));
+            }
+        }
+    }
 
     if ($novaFoto && !empty($grupo['foto_grupo'])) {
         $antiga = __DIR__.'/../../../'.$grupo['foto_grupo'];

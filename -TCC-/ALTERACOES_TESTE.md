@@ -18,6 +18,7 @@
    - `database/migrations/013_web_push.sql`
    - `database/migrations/014_quadras_diadema_modalidades.sql`
    - `database/migrations/015_eventos_em_grupo.sql`
+   - `database/migrations/016_futsal_todos_ginasios.sql`
 4. No XAMPP, configure variáveis de conexão `ZUBBO_DB_*`, rode `composer install` e habilite PHP com extensões `pdo_mysql`, `mbstring`, `curl`, `fileinfo` e `openssl`.
 5. Para **cadastro sem e-mail real apenas em ambiente isolado**, configure `ZUBBO_ENV=local` ou `ZUBBO_ENV=demo` **e** `ZUBBO_DEMO_MODE=true`. Um serviço marcado `production`, `prod` ou sem identificação de ambiente não revela códigos, mesmo que a flag demo seja definida.
 6. Para testar o envio real, mantenha `ZUBBO_DEMO_MODE=false`, configure `ZUBBO_MAIL_PROVIDER=resend`, `ZUBBO_RESEND_API_KEY` e `ZUBBO_MAIL_FROM` com remetente verificado. No modo de teste padrão do Resend, destinatários externos não autorizados podem receber HTTP 403; só configurar o PHP não remove restrições do provedor. SMTP é alternativa.
@@ -60,6 +61,22 @@
 **Instalação do banco:** execute 014 e 015 nesta ordem, após 005–013. Não reexecute a migration 015 em banco já alterado; a coluna `Notificacao.id_evento` seria duplicada.
 
 **Fontes principais dos dados de Diadema:** [Marcelão Society](https://naquadra.com.br/perfil-quadra-de-futebol-society-marcelao-society-sp-diadema-casa-grande-id-00110), [Signello](https://www.futliga.com.br/Local/261), [Quadra da 10](https://www.futliga.com.br/Local/171), [Vila Alice](https://www.futliga.com.br/Local/529), [Copa Diadema / campos](https://www.abcdoabc.com.br/oitavas-de-final-da-copa-diadema-de-futebol-ocorrem-neste-sabado-8-4-2/), [SESI Diadema](https://diadema.sesisp.org.br/noticia/sesi-diadema-inaugura-novo-campo-de-futebol-society). Os demais endereços também contêm `fonte` na relação do SQL.
+
+## Revisão de 25/10/2026 — mapa, avisos e futsal
+
+- [x] **Marcadores Mapbox:** substituídas as bolinhas HTML pelos pins nativos `mapboxgl.Marker`, idênticos em forma ao pin central, com escala 0,65 e cores por tipo. A ponta é ancorada na coordenada geográfica (`anchor: bottom`), e o CSS não interfere mais no `transform` controlado pelo Mapbox. Os pins acompanham corretamente o pan/zoom do mapa **sem escorregar da localização**.
+- [x] **Caixa de notificações:** ao entrar em `notificacoes.php`, todas as categorias são marcadas `lida=TRUE`, com `data_leitura` preenchida uma única vez. O botão **Limpar notificações lidas** remove todos os tipos, inclusive eventos, grupos e amizades. A exclusão após 5 minutos continua oportunista no acesso/API, ou via job agendado.
+- [x] **Aceite de amizade:** já existia notificação persistente `amizade_aceita` e Web Push; a revisão preserva e passa a permitir abrir o perfil do amigo clicando nesse aviso.
+- [x] **Solicitar vaga:** criação de notificação persistida `vaga_solicitada` para o organizador e Web Push após COMMIT; não envia duplicata ao renovar uma participação legada.
+- [x] **Aprovar vaga:** criação de notificação persistida `vaga_aprovada` para o participante; mantém Web Push após COMMIT. Mensagem encaminha à tela do evento.
+- [x] **Adicionar amigo ao grupo:** durante a criação e edição do grupo, gera `grupo_adicionado` para os novos participantes e Web Push após COMMIT. `INSERT IGNORE` evita avisos ao editar alguém que já participava.
+- [x] **Futsal para todos os ginásios:** migration idempotente `016_futsal_todos_ginasios.sql` preenche modalidades em todos os `LocalEsp.tipo_local='ginásio'`. Novos ginásios cadastrados pelo ADM também ganham futsal automaticamente. Não altera fonte das associações anteriores.
+- [x] **Integração:** `tests/db-smoke.php` ampliado para testar ginásios, grupos, solicitação/aprovação de evento, leitura global e expiração em cinco minutos. Lint PHP e teste MySQL rodam na branch.
+- [ ] **Teste visual e entrega real Web Push:** conferir em navegador desktop e mobile após executar a migration 016 no banco de teste e configurar VAPID. O CI não valida posicionamento visual, geocodificação Mapbox nem notificações de sistema reais.
+
+**Como instalar no banco local de teste:** após aplicar as migrations anteriores até 015, execute somente `database/migrations/016_futsal_todos_ginasios.sql`. Ela usa `INSERT IGNORE` e pode ser reexecutada sem duplicação. Não realizar alterações diretas no banco de produção.
+
+**Observações:** o marcador fica ancorado à longitude/latitude encontrada pela API Mapbox, mas seu posicionamento inicial depende da geocodificação de endereço; se o serviço localizar o endereço errado, deve-se corrigir a coordenada cadastral, não o CSS. O Zubbo **não confirma autorização física para futsal**: consulte a administração do ginásio antes de anunciar encontros.
 
 ## Agendamento de notificações vencidas
 

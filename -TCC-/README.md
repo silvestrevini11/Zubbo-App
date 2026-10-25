@@ -374,3 +374,6 @@ git status
 ---
 
 Este README é a fonte de referência **técnica** da versão presente na branch **teste-railway**. Para a apresentação acadêmica do projeto, utilize o README da raiz.
+
+
+O mapa requer `ZUBBO_MAPBOX_PUBLIC_TOKEN` configurado no servidor. Consulte [segurança e configuração do mapa](SECURITY.md).

@@ -1,0 +1,15 @@
+# Private configuration and generated data at any depth
+.env
+.env.*
+!.env.example
+.local/
+*.log
+*.bundle
+*.dump
+*.sql.gz
+*.sql.zip
+*.bak
+*.pem
+*.key
+*.p12
+*.pfx

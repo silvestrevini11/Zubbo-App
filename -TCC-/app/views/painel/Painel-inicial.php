@@ -126,7 +126,14 @@ include __DIR__ . '/../includes/head.php';
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.29.0/mapbox-gl.js"></script>
 
 <script>
-  mapboxgl.accessToken = 'REMOVED_MAPBOX_TOKEN';
+  (() => {
+  const mapConfig = <?= json_encode($mapConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE) ?>;
+  if (!mapConfig.public_token || typeof mapboxgl === 'undefined') {
+    const status = document.getElementById('painel-status-mapa') || document.getElementById('map');
+    if (status) status.textContent = 'Mapa temporariamente indisponível.';
+    return;
+  }
+  mapboxgl.accessToken = mapConfig.public_token;
 
   const centroDiadema = [-46.623, -23.686];
   
@@ -139,8 +146,8 @@ include __DIR__ . '/../includes/head.php';
     [-46.59, -23.64]
   ];
 
-  const estiloClaro = 'mapbox://styles/mapbox/streets-v12';
-  const estiloEscuro = 'mapbox://styles/mapbox/streets-v12';
+  const estiloClaro = mapConfig.light_style;
+  const estiloEscuro = mapConfig.dark_style;
 
   const map = new mapboxgl.Map({
     container: 'map',
@@ -289,6 +296,7 @@ include __DIR__ . '/../includes/head.php';
     attributes: true,
     attributeFilter: ['class']
   });
+  })();
 </script>
 
 

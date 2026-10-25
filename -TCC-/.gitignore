@@ -11,3 +11,16 @@ config/env.php
 public/uploads/perfis/*
 public/uploads/grupos/*
 !public/uploads/.htaccess
+
+.local/
+*.sql.gz
+*.sql.zip
+*.dump
+*.bak
+*.bundle
+*.pem
+*.key
+*.p12
+*.pfx
+database/diagrams/*.mwb
+docs/Revista/

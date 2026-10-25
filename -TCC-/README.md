@@ -93,3 +93,6 @@ O teste `tests/db-smoke.php` altera dados e deve ser executado somente em banco 
 Para hospedar a aplicação, siga o [guia do Railway](RAILWAY_TEST.md). Antes de disponibilizá-la ao público, revise a [documentação de segurança](SECURITY.md), a política de privacidade e o armazenamento persistente de uploads, sessões e limites de requisições.
 
 Para configurar notificações push, consulte [WEB_PUSH.md](WEB_PUSH.md).
+
+
+O mapa requer `ZUBBO_MAPBOX_PUBLIC_TOKEN` configurado no servidor. Consulte [segurança e configuração do mapa](SECURITY.md).

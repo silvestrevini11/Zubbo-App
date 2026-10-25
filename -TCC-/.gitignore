@@ -15,3 +15,16 @@ public/uploads/grupos/*
 # Novas fotos geradas por moderacao de locais/esportes
 public/uploads/locais/*
 public/uploads/esportes/*
+
+.local/
+*.sql.gz
+*.sql.zip
+*.dump
+*.bak
+*.bundle
+*.pem
+*.key
+*.p12
+*.pfx
+database/diagrams/*.mwb
+docs/Revista/

@@ -110,3 +110,8 @@ Confirme na demo:
 O servidor embutido do PHP serve como adaptação temporária para demonstração;
 em produção pública definitiva, considere servidor web apropriado e armazenamento
 persistente para fotos e sessões.
+
+
+## Mapbox
+
+Configure `ZUBBO_MAPBOX_PUBLIC_TOKEN` no serviço PHP antes de testar o mapa. Use um token público restrito ao domínio deste ambiente. Os estilos opcionais e a política de arquivos privados estão descritos em [SECURITY.md](SECURITY.md).

@@ -43,3 +43,23 @@ Execute também database/migrations/003_deduplicate_locations.sql para consolida
 - SMTP configurado fora do código;
 - uploads com validação de tipo/tamanho e sem execução de PHP;
 - recuperação de senha com token de uso único e relógio UTC do banco.
+
+
+## Configuração pública do mapa
+
+O código não contém token de conta Mapbox. Configure no servidor:
+
+- `ZUBBO_MAPBOX_PUBLIC_TOKEN`: token público próprio, começando com `pk.`, com escopos mínimos e restrições aos domínios autorizados.
+- `ZUBBO_MAPBOX_STYLE_LIGHT`: opcional; padrão `mapbox://styles/mapbox/streets-v12`.
+- `ZUBBO_MAPBOX_STYLE_DARK`: opcional; padrão `mapbox://styles/mapbox/dark-v11`.
+
+Tokens públicos são enviados ao navegador; variáveis de ambiente não os tornam secretos.
+Nunca use um token `sk.` nessa configuração. Sem token válido, o painel continua funcionando e o mapa informa indisponibilidade.
+
+## Arquivos privados e histórico
+
+Não publique dumps com dados reais, backups, logs, chaves privadas ou arquivos `.env`.
+Os documentos com identificação pessoal foram retirados do repositório e do histórico reescrito.
+Uma credencial anteriormente publicada deve ser revogada no provedor, mesmo após a limpeza do Git.
+Após a reescrita, obtenha um clone novo; não faça merge ou push de branches antigas sem sanear seu histórico.
+Referências de pull requests e caches do GitHub podem exigir limpeza pelo suporte.

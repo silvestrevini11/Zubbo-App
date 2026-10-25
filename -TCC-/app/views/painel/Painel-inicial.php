@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
+require_once __DIR__ . '/../../../config/map.php';
+$mapConfig = zubbo_map_config();
 
 $nomeUsuario = $_SESSION['usuario']['nome'];
 $locaisMapa = [];
@@ -136,7 +138,14 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
 </style>
 
 <script>
-  mapboxgl.accessToken = 'REMOVED_MAPBOX_TOKEN';
+  (() => {
+  const mapConfig = <?= json_encode($mapConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE) ?>;
+  if (!mapConfig.public_token || typeof mapboxgl === 'undefined') {
+    const status = document.getElementById('painel-status-mapa') || document.getElementById('map');
+    if (status) status.textContent = 'Mapa temporariamente indisponível.';
+    return;
+  }
+  mapboxgl.accessToken = mapConfig.public_token;
 
   const centroDiadema = [-46.623, -23.686];
   
@@ -149,8 +158,8 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
     [-46.59, -23.64]
   ];
 
-  const estiloClaro = 'mapbox://styles/mapbox/streets-v12';
-  const estiloEscuro = 'mapbox://styles/mapbox/streets-v12';
+  const estiloClaro = mapConfig.light_style;
+  const estiloEscuro = mapConfig.dark_style;
 
   const map = new mapboxgl.Map({
     container: 'map',
@@ -353,6 +362,7 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
     attributes: true,
     attributeFilter: ['class']
   });
+  })();
 </script>
 
 

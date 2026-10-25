@@ -1,0 +1,13 @@
+# Mesma superfície pública de router.php para Apache/XAMPP.
+Options -Indexes
+RewriteEngine On
+RewriteRule (^|/)\. - [R=404,L]
+RewriteRule ^app/views/(?:.*/)?includes/ - [R=404,L,NC]
+RewriteRule ^app/views/(?:.*/)?_[^/]*\.php$ - [R=404,L,NC]
+RewriteRule ^(?:index|health)\.php$ - [L]
+RewriteRule ^sw\.js$ - [L]
+RewriteRule ^public/(?:index|reset-password|privacidade|manifest)\.php$ - [L]
+RewriteRule ^app/views/.*\.php$ - [L]
+RewriteRule ^public/.*\.(?:css|js|png|jpg|jpeg|webp|gif|svg|ico|ttf|woff|woff2)$ - [L,NC]
+RewriteRule ^$ - [L]
+RewriteRule . - [R=404,L]

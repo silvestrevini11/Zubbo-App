@@ -1,8 +1,19 @@
 <?php
 declare(strict_types=1);
 
-// Teste de integração exclusivamente em MySQL efêmero do CI.
+// O teste cria tabelas e fixtures: recuse bancos reais antes de conectar.
+if (PHP_SAPI !== 'cli'
+    || getenv('ZUBBO_TEST_ALLOW_SCHEMA') !== '1'
+    || !preg_match('/^zubbo_(?:ci|test_[a-z0-9_]+)$/D', (string)getenv('ZUBBO_DB_NAME'))) {
+    fwrite(STDERR, "Use ZUBBO_TEST_ALLOW_SCHEMA=1 e banco descartável zubbo_ci ou zubbo_test_*.\n");
+    exit(1);
+}
 require __DIR__ . '/../config/database.php';
+if ((int)$conn->query('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE()')->fetchColumn() !== 0) {
+    fwrite(STDERR, "O banco de teste deve estar vazio. Nenhuma alteração executada.\n");
+    exit(1);
+}
+session_start();
 
 function confirmar(bool $condicao, string $mensagem): void
 {
@@ -22,40 +33,20 @@ foreach (['criacaotables.sql', 'insertstables.sql'] as $nome) {
     }
 }
 
-// Executa também as migrações específicas da branch de testes no MySQL efêmero.
-foreach ([
-    '005_notificacao_leitura.sql',
-    '006_foto_local.sql',
-    '007_bloqueio_usuario.sql',
-    '008_fila_espera.sql',
-    '009_editar_times.sql',
-    '010_esporte_moderacao.sql',
-    '011_duracao_eventos.sql',
-    '012_confirmacao_esportes_locais.sql',
-    '013_web_push.sql',
-    '014_quadras_diadema_modalidades.sql',
-    '015_eventos_em_grupo.sql',
-    '016_futsal_todos_ginasios.sql',
-] as $migracao) {
-    $sql = file_get_contents(__DIR__ . '/../database/migrations/' . $migracao);
-    confirmar($sql !== false, 'ler migration ' . $migracao);
-    foreach (explode(';', $sql) as $comando) {
-        if (trim($comando) !== '') $conn->exec($comando);
-    }
-}
-confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='Evento' AND column_name='nome_time_1'")->fetchColumn() === 1, 'migração nomes dos times');
-confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='Notificacao' AND column_name='data_leitura'")->fetchColumn() === 1, 'migração data de leitura');
-confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='LocalEsp' AND column_name='foto_local'")->fetchColumn() === 1, 'migração foto dos locais');
+// A instalação nova já contém o esquema final; não reaplicar migrations históricas.
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND LOWER(table_name)='evento' AND column_name='nome_time_1'")->fetchColumn() === 1, 'migração nomes dos times');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND LOWER(table_name)='notificacao' AND column_name='data_leitura'")->fetchColumn() === 1, 'migração data de leitura');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND LOWER(table_name)='localesp' AND column_name='foto_local'")->fetchColumn() === 1, 'migração foto dos locais');
 
-confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='Evento' AND column_name='duracao_minutos'")->fetchColumn() === 1, 'migration duracao do evento');
-confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='Local_Esporte_Confirmacao'")->fetchColumn() === 1, 'migration confirmacao esporte-local');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND LOWER(table_name)='evento' AND column_name='duracao_minutos'")->fetchColumn() === 1, 'migration duracao do evento');
+confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND LOWER(table_name)='local_esporte_confirmacao'")->fetchColumn() === 1, 'migration confirmacao esporte-local');
 require_once __DIR__ . '/../app/services/PushService.php';
 confirmar(PushService::allowedEndpoint('https://fcm.googleapis.com/fcm/send/abcdefghijk1234567890'),
     'endpoint push conhecido permitido');
 confirmar(!PushService::allowedEndpoint('https://example.org/private/abc'),
     'endpoint push desconhecido recusado');
 confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.tables
-    WHERE table_schema=DATABASE() AND table_name='PushSubscription'")->fetchColumn() === 1,
+    WHERE table_schema=DATABASE() AND LOWER(table_name)='pushsubscription'")->fetchColumn() === 1,
     'migration de web push aplicada');
 confirmar((int)$conn->query("SELECT COUNT(*) FROM LocalEsp WHERE tipo_local='campo'")->fetchColumn() >= 5,
     'campos de Diadema importados');
@@ -77,7 +68,7 @@ $verifBasquete=$conn->query("SELECT COUNT(*) FROM Local_Esporte_Permitido p
    WHERE l.nome_local='Signello Esportes Society' AND e.nome_esporte='Basquete'")->fetchColumn();
 confirmar((int)$verifBasquete===0,'nao liberar esporte nao confirmado no local');
 confirmar((int)$conn->query("SELECT COUNT(*) FROM information_schema.columns
- WHERE table_schema=DATABASE() AND table_name='Notificacao' AND column_name='id_evento'")->fetchColumn()===1,
+ WHERE table_schema=DATABASE() AND LOWER(table_name)='notificacao' AND column_name='id_evento'")->fetchColumn()===1,
  'notificacoes de evento suportadas');
 confirmar((int)$conn->query('SELECT COUNT(*) FROM Esporte')->fetchColumn() >= 3, 'esportes importados');
 $esporteId = (int)$conn->query('SELECT id_esporte FROM Esporte ORDER BY id_esporte LIMIT 1')->fetchColumn();

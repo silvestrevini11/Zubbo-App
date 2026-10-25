@@ -53,7 +53,7 @@ $esportes = $_POST['esportes'] ?? [];
 |--------------------------------------------------------------------------
 */
 
-if (empty($esportes)) {
+if (!is_array($esportes) || empty($esportes)) {
     header('Location: escolher-esportes.php?erro=nenhum');
     exit;
 }
@@ -65,6 +65,12 @@ if (empty($esportes)) {
 |--------------------------------------------------------------------------
 */
 
+foreach ($esportes as $idEsporte) {
+    if (!is_scalar($idEsporte) || filter_var($idEsporte, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+        header('Location: escolher-esportes.php?erro=nenhum');
+        exit;
+    }
+}
 $esportes = array_map('intval', $esportes);
 
 $esportes = array_unique($esportes);

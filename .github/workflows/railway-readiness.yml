@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - teste-railway
+      - teste-alteracoes
   workflow_dispatch:
 
 jobs:

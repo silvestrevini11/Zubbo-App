@@ -44,6 +44,11 @@ jobs:
         run: |
           php tests/push-library-smoke.php
 
+      - name: Backup do banco efêmero vazio antes do schema
+        env:
+          MYSQL_PWD: ci_only_password
+        run: mysqldump --host=127.0.0.1 --port=3306 --user=root --no-tablespaces zubbo_ci > "$RUNNER_TEMP/zubbo-ci-before.sql"
+
       - name: Database integration smoke
         working-directory: ./-TCC-
         env:
@@ -52,4 +57,28 @@ jobs:
           ZUBBO_DB_USER: root
           ZUBBO_DB_PASSWORD: ci_only_password
           ZUBBO_DB_NAME: zubbo_ci
+          ZUBBO_TEST_ALLOW_SCHEMA: '1'
         run: php tests/db-smoke.php
+
+      - name: Fluxos HTTP locais
+        working-directory: ./-TCC-
+        env:
+          ZUBBO_DB_HOST: 127.0.0.1
+          ZUBBO_DB_PORT: 3306
+          ZUBBO_DB_USER: root
+          ZUBBO_DB_PASSWORD: ci_only_password
+          ZUBBO_DB_NAME: zubbo_ci
+          ZUBBO_TEST_ALLOW_SCHEMA: '1'
+          ZUBBO_TEST_BASE_URL: http://127.0.0.1:8999
+          ZUBBO_BASE_PATH: /
+          ZUBBO_ENV: test
+          ZUBBO_DEMO_MODE: 'true'
+        run: |
+          php -S 127.0.0.1:8999 router.php > "$RUNNER_TEMP/zubbo-http.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:8999/health.php > /dev/null; then break; fi
+            sleep 1
+          done
+          php tests/http-smoke.php

@@ -1,4 +1,4 @@
-USE app_zubbo;
+-- Execute somente no banco selecionado, depois de backup e conferência do schema.
 
 SET @tem_coluna_admin = (
     SELECT COUNT(*)

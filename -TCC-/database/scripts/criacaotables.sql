@@ -1,16 +1,5 @@
--- =========================================================
--- 1. TABELAS PRINCIPAIS / CADASTROS
--- =========================================================
-
-CREATE TABLE Administrador (
-    id_adm INT PRIMARY KEY AUTO_INCREMENT,
-    id_user INT NULL UNIQUE,
-    nome_adm VARCHAR(50) NOT NULL,
-    email_adm VARCHAR(70) NOT NULL UNIQUE,
-    senha_adm VARCHAR(255) NOT NULL,
-    ativo BOOLEAN NOT NULL DEFAULT TRUE,
-    data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+-- Instalação nova: estrutura final. Selecione explicitamente o banco vazio.
+-- Dados iniciais: insertstables.sql. Bancos existentes: ../migrations/001 a 005.
 
 CREATE TABLE Usuario (
     id_user INT PRIMARY KEY AUTO_INCREMENT,
@@ -21,22 +10,19 @@ CREATE TABLE Usuario (
     date_user DATE NOT NULL,
     foto_user VARCHAR(255) NULL,
     email_verificado BOOLEAN NOT NULL DEFAULT FALSE,
-    status_user ENUM('ativo', 'suspenso', 'banido') NOT NULL DEFAULT 'ativo'
-);
-
-ALTER TABLE Usuario
-ADD COLUMN sobre_mim TEXT NULL AFTER nome_user;
-
-ALTER TABLE Administrador
-    ADD CONSTRAINT fk_admin_usuario
-    FOREIGN KEY (id_user)
-    REFERENCES Usuario(id_user)
-    ON DELETE CASCADE;
+    status_user ENUM('ativo', 'suspenso', 'banido') NOT NULL DEFAULT 'ativo',
+    sobre_mim TEXT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Esporte (
     id_esporte INT PRIMARY KEY AUTO_INCREMENT,
-    nome_esporte VARCHAR(50) NOT NULL UNIQUE
-);
+    nome_esporte VARCHAR(50) NOT NULL UNIQUE,
+    imagem_esporte VARCHAR(255) NULL,
+    regras_esporte TEXT NULL,
+    jogadores_por_time SMALLINT NULL,
+    quantidade_times TINYINT NOT NULL DEFAULT 2,
+    exige_confirmacao_local BOOLEAN NOT NULL DEFAULT FALSE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE LocalEsp (
     id_local INT PRIMARY KEY AUTO_INCREMENT,
@@ -46,7 +32,7 @@ CREATE TABLE LocalEsp (
         'quadra',
         'poliesportivo',
         'clube',
-        'ginásio'
+        'ginásio', 'campo'
     ) NOT NULL DEFAULT 'poliesportivo',
     status_local ENUM(
         'pendente',
@@ -60,13 +46,9 @@ CREATE TABLE LocalEsp (
     CONSTRAINT fk_local_criador
         FOREIGN KEY (id_criador)
         REFERENCES Usuario(id_user)
-        ON DELETE SET NULL
-);
-
-
--- =========================================================
--- 2. PERFIL E RELACIONAMENTOS DO USUÁRIO
--- =========================================================
+        ON DELETE SET NULL,
+    foto_local VARCHAR(255) NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Usuario_Esporte (
     id_user INT NOT NULL,
@@ -83,7 +65,7 @@ CREATE TABLE Usuario_Esporte (
         FOREIGN KEY (id_esporte)
         REFERENCES Esporte(id_esporte)
         ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Verificacao_Email (
     id_verificacao INT PRIMARY KEY AUTO_INCREMENT,
@@ -95,7 +77,7 @@ CREATE TABLE Verificacao_Email (
         FOREIGN KEY (id_user)
         REFERENCES Usuario(id_user)
         ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Recuperacao_Senha (
     id_recuperacao INT PRIMARY KEY AUTO_INCREMENT,
@@ -112,12 +94,7 @@ CREATE TABLE Recuperacao_Senha (
         FOREIGN KEY (id_user)
         REFERENCES Usuario(id_user)
         ON DELETE CASCADE
-);
-
-
--- =========================================================
--- 3. AMIZADES
--- =========================================================
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Solicitacao_Amizade (
     id_solicitacao INT AUTO_INCREMENT PRIMARY KEY,
@@ -137,7 +114,7 @@ CREATE TABLE Solicitacao_Amizade (
         ON DELETE CASCADE,
 
     UNIQUE (id_remetente, id_destinatario)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Amizade (
     id_amizade INT AUTO_INCREMENT PRIMARY KEY,
@@ -156,21 +133,13 @@ CREATE TABLE Amizade (
         ON DELETE CASCADE,
 
     UNIQUE (id_user_1, id_user_2)
-);
-
-
--- =========================================================
--- 4. CONVERSAS / CHATS
--- privado = conversa entre duas pessoas
--- grupo = criado por usuário
--- comunidade = relacionada a esporte + localização
--- =========================================================
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Conversa (
     id_conversa INT AUTO_INCREMENT PRIMARY KEY,
     tipo_conversa ENUM('privado', 'grupo', 'comunidade') NOT NULL,
     data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Participantes_Conversa (
     id_user INT NOT NULL,
@@ -188,7 +157,7 @@ CREATE TABLE Participantes_Conversa (
         FOREIGN KEY (id_conversa)
         REFERENCES Conversa(id_conversa)
         ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Grupo (
     id_grupo INT PRIMARY KEY AUTO_INCREMENT,
@@ -207,7 +176,7 @@ CREATE TABLE Grupo (
         FOREIGN KEY (id_criador)
         REFERENCES Usuario(id_user)
         ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Comunidade (
     id_comunidade INT PRIMARY KEY AUTO_INCREMENT,
@@ -225,7 +194,7 @@ CREATE TABLE Comunidade (
     CONSTRAINT fk_comunidade_esporte
         FOREIGN KEY (id_esporte)
         REFERENCES Esporte(id_esporte)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Mensagem (
     id_mensagem INT AUTO_INCREMENT PRIMARY KEY,
@@ -243,43 +212,7 @@ CREATE TABLE Mensagem (
         FOREIGN KEY (id_remetente)
         REFERENCES Usuario(id_user)
         ON DELETE CASCADE
-);
-
-CREATE TABLE Notificacao (
-    id_notificacao INT AUTO_INCREMENT PRIMARY KEY,
-    id_destinatario INT NOT NULL,
-    id_remetente INT NULL,
-    id_conversa INT NULL,
-    id_mensagem INT NULL,
-    tipo VARCHAR(30) NOT NULL DEFAULT 'mensagem',
-    lida BOOLEAN NOT NULL DEFAULT FALSE,
-    data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_notificacao_destinatario
-        FOREIGN KEY (id_destinatario)
-        REFERENCES Usuario(id_user)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_notificacao_remetente
-        FOREIGN KEY (id_remetente)
-        REFERENCES Usuario(id_user)
-        ON DELETE SET NULL,
-
-    CONSTRAINT fk_notificacao_conversa
-        FOREIGN KEY (id_conversa)
-        REFERENCES Conversa(id_conversa)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_notificacao_mensagem
-        FOREIGN KEY (id_mensagem)
-        REFERENCES Mensagem(id_mensagem)
-        ON DELETE CASCADE
-);
-
-
--- =========================================================
--- 5. EQUIPES
--- =========================================================
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Equipe (
     id_equipe INT PRIMARY KEY AUTO_INCREMENT,
@@ -295,7 +228,7 @@ CREATE TABLE Equipe (
         FOREIGN KEY (id_criador)
         REFERENCES Usuario(id_user)
         ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE ParticipantesEquipe (
     id_partEquipe INT PRIMARY KEY AUTO_INCREMENT,
@@ -313,12 +246,7 @@ CREATE TABLE ParticipantesEquipe (
         ON DELETE CASCADE,
 
     UNIQUE (id_user, id_equipe)
-);
-
-
--- =========================================================
--- 6. EVENTOS
--- =========================================================
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Evento (
     id_evento INT PRIMARY KEY AUTO_INCREMENT,
@@ -341,8 +269,12 @@ CREATE TABLE Evento (
     CONSTRAINT fk_evento_usuario
         FOREIGN KEY (id_criador)
         REFERENCES Usuario(id_user)
-        ON DELETE SET NULL
-);
+        ON DELETE SET NULL,
+    nome_time_1 VARCHAR(30) NOT NULL DEFAULT 'Time 1',
+    nome_time_2 VARCHAR(30) NOT NULL DEFAULT 'Time 2',
+    descricao_times VARCHAR(180) NULL,
+    duracao_minutos SMALLINT NOT NULL DEFAULT 60
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE EquipesEvento (
     id_evento INT NOT NULL,
@@ -359,7 +291,7 @@ CREATE TABLE EquipesEvento (
         FOREIGN KEY (id_equipe)
         REFERENCES Equipe(id_equipe)
         ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Lista_Evento (
     id_user INT NOT NULL,
@@ -376,7 +308,7 @@ CREATE TABLE Lista_Evento (
         FOREIGN KEY (id_evento)
         REFERENCES Evento(id_evento)
         ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Solicitacao_Vaga_Evento (
     id_solicitacao INT PRIMARY KEY AUTO_INCREMENT,
@@ -418,12 +350,105 @@ CREATE TABLE Solicitacao_Vaga_Evento (
         FOREIGN KEY (id_user)
         REFERENCES Usuario(id_user)
         ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE Bloqueio_Usuario (
+    id_bloqueador INT NOT NULL,
+    id_bloqueado INT NOT NULL,
+    data_bloqueio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_bloqueador, id_bloqueado),
+    CONSTRAINT fk_bloqueio_de FOREIGN KEY (id_bloqueador) REFERENCES Usuario(id_user) ON DELETE CASCADE,
+    CONSTRAINT fk_bloqueio_para FOREIGN KEY (id_bloqueado) REFERENCES Usuario(id_user) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- =========================================================
--- 7. SUGESTÕES DE ESPORTES E VOTAÇÃO
--- =========================================================
+CREATE TABLE Fila_Espera_Evento (
+    id_evento INT NOT NULL,
+    id_user INT NOT NULL,
+    data_entrada DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_evento,id_user),
+    INDEX idx_fila_evento (id_evento,data_entrada),
+    CONSTRAINT fk_fila_evento FOREIGN KEY (id_evento) REFERENCES Evento(id_evento) ON DELETE CASCADE,
+    CONSTRAINT fk_fila_usuario FOREIGN KEY (id_user) REFERENCES Usuario(id_user) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE PushSubscription (
+    id_push BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    id_user INT NOT NULL,
+    endpoint_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    dados_json JSON NOT NULL,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_push_endpoint (endpoint_hash),
+    INDEX idx_push_usuario (id_user),
+    CONSTRAINT fk_push_user FOREIGN KEY (id_user)
+        REFERENCES Usuario(id_user) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE Local_Esporte_Permitido (
+    id_local INT NOT NULL,
+ id_esporte INT NOT NULL,
+ fonte VARCHAR(500) NOT NULL,
+ atualizado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (id_local,id_esporte),
+ FOREIGN KEY (id_local) REFERENCES LocalEsp(id_local) ON DELETE CASCADE,
+ FOREIGN KEY (id_esporte) REFERENCES Esporte(id_esporte) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE Grupo_Evento (
+    id_grupo INT NOT NULL,
+    id_evento INT NOT NULL,
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_grupo,id_evento),
+    FOREIGN KEY (id_grupo) REFERENCES Grupo(id_grupo) ON DELETE CASCADE,
+    FOREIGN KEY (id_evento) REFERENCES Evento(id_evento) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE Administrador (
+    id_adm INT PRIMARY KEY AUTO_INCREMENT,
+    id_user INT NULL,
+    nome_adm VARCHAR(50) NOT NULL,
+    email_adm VARCHAR(70) NOT NULL UNIQUE,
+    senha_adm VARCHAR(255) NOT NULL,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_admin_usuario (id_user),
+    CONSTRAINT fk_admin_usuario FOREIGN KEY (id_user) REFERENCES Usuario(id_user) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE Notificacao (
+    id_notificacao INT AUTO_INCREMENT PRIMARY KEY,
+    id_destinatario INT NOT NULL,
+    id_remetente INT NULL,
+    id_conversa INT NULL,
+    id_mensagem INT NULL,
+    tipo VARCHAR(30) NOT NULL DEFAULT 'mensagem',
+    lida BOOLEAN NOT NULL DEFAULT FALSE,
+    data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_notificacao_destinatario
+        FOREIGN KEY (id_destinatario)
+        REFERENCES Usuario(id_user)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_notificacao_remetente
+        FOREIGN KEY (id_remetente)
+        REFERENCES Usuario(id_user)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_notificacao_conversa
+        FOREIGN KEY (id_conversa)
+        REFERENCES Conversa(id_conversa)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_notificacao_mensagem
+        FOREIGN KEY (id_mensagem)
+        REFERENCES Mensagem(id_mensagem)
+        ON DELETE CASCADE,
+    data_leitura DATETIME NULL,
+    INDEX idx_notificacao_expirar (id_destinatario, lida, data_leitura),
+    id_evento INT NULL,
+    CONSTRAINT fk_notificacao_evento FOREIGN KEY (id_evento) REFERENCES Evento(id_evento) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Sugestao_Esporte (
     id_sugestao INT PRIMARY KEY AUTO_INCREMENT,
@@ -447,7 +472,7 @@ CREATE TABLE Sugestao_Esporte (
         FOREIGN KEY (id_adm)
         REFERENCES Administrador(id_adm)
         ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Voto_Sugestao (
     id_sugestao INT NOT NULL,
@@ -464,14 +489,7 @@ CREATE TABLE Voto_Sugestao (
         FOREIGN KEY (id_user)
         REFERENCES Usuario(id_user)
         ON DELETE CASCADE
-);
-
-
--- =========================================================
--- 8. DENÚNCIAS E MODERAÇÃO ADMINISTRATIVA
--- Uma denúncia pode apontar para usuário, mensagem,
--- conversa ou evento. Os campos não utilizados ficam NULL.
--- =========================================================
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Denuncia (
     id_denuncia INT PRIMARY KEY AUTO_INCREMENT,
@@ -523,7 +541,7 @@ CREATE TABLE Denuncia (
         FOREIGN KEY (id_adm)
         REFERENCES Administrador(id_adm)
         ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE Acao_Administrativa (
     id_acao INT PRIMARY KEY AUTO_INCREMENT,
@@ -571,4 +589,16 @@ CREATE TABLE Acao_Administrativa (
         FOREIGN KEY (id_comunidade)
         REFERENCES Comunidade(id_comunidade)
         ON DELETE SET NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE Local_Esporte_Confirmacao (
+    id_local INT NOT NULL,
+    id_esporte INT NOT NULL,
+    id_adm INT NOT NULL,
+    referencia_contato VARCHAR(150) NOT NULL,
+    confirmado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_local,id_esporte),
+    CONSTRAINT fk_lec_local FOREIGN KEY (id_local) REFERENCES LocalEsp(id_local) ON DELETE CASCADE,
+    CONSTRAINT fk_lec_esporte FOREIGN KEY (id_esporte) REFERENCES Esporte(id_esporte) ON DELETE CASCADE,
+    CONSTRAINT fk_lec_adm FOREIGN KEY (id_adm) REFERENCES Administrador(id_adm)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

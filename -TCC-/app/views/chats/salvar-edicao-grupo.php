@@ -13,8 +13,17 @@ $id_usuario = (int)$_SESSION['usuario']['id'];
 $id_grupo = (int)($_POST['id_grupo'] ?? 0);
 $nome = trim($_POST['nome_grupo'] ?? '');
 $descricao = trim($_POST['descricao_grupo'] ?? '');
-$remover = array_values(array_unique(array_filter(array_map('intval', $_POST['remover'] ?? []))));
-$adicionar = array_values(array_unique(array_filter(array_map('intval', $_POST['adicionar'] ?? []))));
+$remover = $_POST['remover'] ?? [];
+$adicionar = $_POST['adicionar'] ?? [];
+if (!is_array($remover) || !is_array($adicionar)
+    || array_filter($remover, fn($id) => !is_scalar($id))
+    || array_filter($adicionar, fn($id) => !is_scalar($id))) {
+    $_SESSION['editar_grupo_erro'] = 'Selecione participantes válidos.';
+    header('Location: editar-grupo.php?id_grupo='.$id_grupo);
+    exit;
+}
+$remover = array_values(array_unique(array_filter(array_map('intval', $remover))));
+$adicionar = array_values(array_unique(array_filter(array_map('intval', $adicionar))));
 
 $stmt = $conn->prepare("SELECT * FROM Grupo WHERE id_grupo = ? AND id_criador = ?");
 $stmt->execute([$id_grupo, $id_usuario]);

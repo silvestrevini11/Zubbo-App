@@ -1,4 +1,4 @@
-USE app_zubbo;
+-- Execute somente no banco selecionado, depois de backup e conferência do schema.
 
 CREATE TEMPORARY TABLE tmp_local_duplicado AS
 SELECT

@@ -6,36 +6,112 @@
 
 **Encontre. Pratique. Conecte-se.**
 
-Uma plataforma para encontrar locais esportivos, organizar partidas e conhecer pessoas para praticar esportes em Diadema (SP).
+Plataforma para encontrar locais esportivos, organizar partidas e conhecer pessoas para praticar esportes em Diadema (SP).
 
 </div>
 
-## O que você pode fazer
-
-- Encontrar locais e eventos esportivos pela pesquisa e pelo mapa.
-- Criar encontros, solicitar vagas e organizar equipes.
-- Personalizar seu perfil e escolher suas modalidades favoritas.
-- Adicionar amigos e conversar por mensagens privadas ou grupos.
-- Receber notificações e denunciar conteúdos para moderação.
-
 ## Sobre o projeto
 
-O Zubbo está em fase de demonstração web, com interface adaptada para celulares. A versão Android está planejada.
+Desenvolvido como TCC de Desenvolvimento de Sistemas da ETEC Juscelino Kubitchek, em Diadema, em 2026, por Vitor Santos, Ycaro Jesus, Kaue Mota, Pedro Nathan, Vinicius Silvestre e Mayara Santos. O projeto está em demonstração web, com interface adaptada para celulares e versão Android planejada.
 
-Desenvolvido como TCC de Desenvolvimento de Sistemas da ETEC Juscelino Kubitchek, em Diadema, em 2026, por Vitor Santos, Ycaro Jesus, Kaue Mota, Pedro Nathan, Vinicius Silvestre e Mayara Santos.
+## Funcionalidades
 
-## Tecnologias
+* Pesquisa de locais e eventos esportivos, com visualização no mapa.
+* Criação de encontros, solicitação de vagas e organização de equipes.
+* Perfil, modalidades favoritas, amizades e conversas privadas ou em grupos.
+* Notificações, avisos push opcionais e denúncias para moderação.
 
-PHP, MySQL, HTML, CSS e JavaScript, com Mapbox para mapas, Resend/PHPMailer para e-mails e Composer para dependências.
+## Documentação técnica
 
-## Executar ou fazer um fork
+A aplicação usa PHP, MySQL/MariaDB, HTML, CSS e JavaScript. O Composer gerencia as dependências, o Mapbox fornece os mapas, Resend ou PHPMailer realiza o envio de mensagens por correio eletrônico e Minishlink realiza o envio de Web Push.
 
-Faça um fork no GitHub e siga o [guia de instalação e configuração](./-TCC-/README.md). Ele reúne os requisitos, a preparação do banco e os comandos para executar o projeto localmente.
+O código fica em `-TCC-`: `app/` reúne páginas, serviços e autenticação; `config/` contém as configurações; `database/` guarda scripts e migrations; `public/` contém recursos visuais e uploads; `tests/` reúne verificações automatizadas.
 
-## Documentação
+### Requisitos e instalação local
 
-- [Instalação e configuração](./-TCC-/README.md)
-- [Deploy no Railway](./-TCC-/RAILWAY_TEST.md)
-- [Segurança](./-TCC-/SECURITY.md)
-- [Notificações push](./-TCC-/WEB_PUSH.md)
-- [Logs e testes](./-TCC-/docs/OBSERVABILIDADE_E_TESTES.md)
+Use PHP 8.2 ou superior, Composer, Git, MySQL/MariaDB e as extensões `pdo_mysql`, `curl`, `mbstring`, `openssl` e `fileinfo`, além das exigidas pelo Composer. As verificações automatizadas também usam PHP 8.4.
+
+1. Faça um fork e clone o repositório no XAMPP, substituindo `SEU_USUARIO`:
+
+   ```bat
+   cd C:\xampp\htdocs
+   git clone https://github.com/SEU_USUARIO/Zubbo-App.git
+   cd Zubbo-App\-TCC-
+   composer install
+   ```
+
+2. Inicie o MySQL. No phpMyAdmin, crie e selecione um banco vazio chamado `app_zubbo`, com charset `utf8mb4`.
+3. Importe primeiro [criacaotables.sql](./-TCC-/database/scripts/criacaotables.sql) e depois [insertstables.sql](./-TCC-/database/scripts/insertstables.sql). Eles não criam nem selecionam o banco automaticamente.
+4. Configure o ambiente do Apache, inicie o serviço e abra [Zubbo local](http://localhost/Zubbo-App/-TCC-/).
+
+Para desenvolver com o servidor embutido, execute na pasta `-TCC-`, no Prompt de Comando:
+
+```bat
+set ZUBBO_BASE_PATH=/
+set ZUBBO_BASE_URL=http://127.0.0.1:8080
+php -S 127.0.0.1:8080 router.php
+```
+
+### Configuração do ambiente
+
+As configurações são lidas com `getenv()`. Criar um arquivo `.env` sozinho não carrega suas variáveis. No XAMPP, configure o Apache com `SetEnv` e reinicie o serviço; no servidor embutido, defina as variáveis no terminal que inicia o PHP.
+
+* Banco: `ZUBBO_DB_HOST`, `ZUBBO_DB_PORT`, `ZUBBO_DB_NAME`, `ZUBBO_DB_USER` e `ZUBBO_DB_PASSWORD`. Os padrões locais são `localhost`, `3306`, `app_zubbo`, `root` e senha vazia; ajuste conforme sua instalação.
+* Endereço no XAMPP: `ZUBBO_BASE_URL=http://localhost/Zubbo-App/-TCC-` e `ZUBBO_BASE_PATH=/Zubbo-App/-TCC-`.
+* Mapa: `ZUBBO_MAPBOX_PUBLIC_TOKEN`, com um token público iniciado por `pk.`. Os estilos opcionais são `ZUBBO_MAPBOX_STYLE_LIGHT` e `ZUBBO_MAPBOX_STYLE_DARK`. Sem token aceito, o painel exibe “Mapa temporariamente indisponível”.
+* Correio eletrônico: `ZUBBO_MAIL_PROVIDER=resend`, `ZUBBO_RESEND_API_KEY` e `ZUBBO_MAIL_FROM`. Para SMTP, use `ZUBBO_MAIL_PROVIDER=smtp` com `ZUBBO_SMTP_HOST`, `ZUBBO_SMTP_PORT`, `ZUBBO_SMTP_USER`, `ZUBBO_SMTP_PASSWORD` e `ZUBBO_SMTP_ENCRYPTION`.
+* Demonstração: `ZUBBO_ENV=demo` junto com `ZUBBO_DEMO_MODE=true` permite mostrar o código de confirmação na tela. Em produção, mantenha o modo de demonstração desativado.
+
+### Banco e administrador
+
+Instalações novas usam somente os dois scripts indicados acima. Para atualizar uma base existente, faça backup e siga as cinco migrations consolidadas do [guia do banco](./-TCC-/database/README.md). Os scripts em `database/archive/` são históricos.
+
+Para promover uma conta ativa a administrador, execute na pasta `-TCC-` e informe o endereço da conta:
+
+```sh
+php database/tools/create-admin.php
+```
+
+### Métodos de segurança utilizados
+
+* Hash de senhas com `password_hash()` e validação com `password_verify()`.
+* Sessões com renovação do identificador após login, cookies `HttpOnly`, `SameSite=Lax` e `Secure` quando HTTPS está ativo.
+* Invalidação de sessões para contas indisponíveis ou com credenciais alteradas, com autorização própria para funções administrativas.
+* Tokens CSRF e validação de origem em requisições sensíveis.
+* Limitação de tentativas persistida no servidor para reduzir abusos.
+* Consultas parametrizadas com PDO e preparação nativa.
+* Escape de conteúdo HTML e cabeçalhos como Content Security Policy, proteção contra enquadramento e detecção indevida de tipos de arquivo.
+* Validação de tipo e tamanho de uploads, com bloqueio de execução de PHP nessa pasta.
+* Recuperação de senha com token de uso único e validade limitada.
+* Configuração de credenciais pelo ambiente, bloqueio de arquivos internos pelo roteador e pelo Apache e logs estruturados com seleção de campos permitidos.
+* Inscrições push autenticadas, proteção CSRF e validação dos destinos de envio para reduzir o risco de SSRF.
+
+### Notificações push
+
+Os avisos são opcionais e abrangem mensagens, amizades e aprovação em eventos. Após instalar as dependências, execute `php jobs/gerar-vapid.php` uma vez por ambiente e configure `ZUBBO_VAPID_PUBLIC_KEY`, `ZUBBO_VAPID_PRIVATE_KEY` e `ZUBBO_VAPID_SUBJECT`. Mantenha as chaves estáveis: sua troca exige nova inscrição dos dispositivos.
+
+O recurso usa `sw.js`, a tabela `PushSubscription` e HTTPS ou localhost. O usuário ativa os avisos em Perfil → Configurações → Alertas de mensagens. A estrutura de uma instalação nova já inclui a tabela; para bases antigas, siga o guia do banco. O envio ocorre após a gravação do evento, sem fila persistente de reenvio.
+
+### Verificação e logs
+
+Execute os comandos na pasta `-TCC-`:
+
+```sh
+php tests/security-smoke.php
+php tests/map-config-smoke.php
+php tests/audit-migrations.php
+```
+
+A auditoria de migrations consulta o esquema sem modificar dados e usa a configuração do terminal. `tests/db-smoke.php` exige banco descartável vazio, nome `zubbo_ci` ou `zubbo_test_*` e `ZUBBO_TEST_ALLOW_SCHEMA=1`.
+
+Os eventos estruturados são enviados por `config/logger.php` ao registro de erros do PHP. No XAMPP, consulte `C:/xampp/apache/logs/error.log`; na hospedagem, consulte os logs do serviço. `/health.php` confirma apenas a inicialização do PHP, sem testar o banco. Valide também autenticação, mapa, cadastro e notificações com contas de teste.
+
+### Hospedagem
+
+No Railway, use `/-TCC-` como diretório raiz, `php -S 0.0.0.0:$PORT router.php` como comando de demonstração e `/health.php` como verificação de saúde. Configure `ZUBBO_BASE_PATH=/`, `ZUBBO_BASE_URL` com o endereço do serviço e `RAILPACK_PHP_EXTENSIONS=pdo_mysql`.
+
+Vincule as variáveis `ZUBBO_DB_HOST`, `ZUBBO_DB_PORT`, `ZUBBO_DB_NAME`, `ZUBBO_DB_USER` e `ZUBBO_DB_PASSWORD` às variáveis correspondentes do serviço MySQL. Configure também mapa, correio eletrônico e VAPID. Para disponibilização definitiva, use servidor web apropriado e armazenamento persistente para uploads e sessões.
+
+## Dúvidas e soluções
+
+Consulte [Dúvidas e soluções](./README_DUVIDAS_E_SOLUCOES.md) para Forbidden, falha de conexão com o banco e diagnóstico da instalação.

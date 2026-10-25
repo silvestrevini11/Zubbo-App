@@ -18,7 +18,12 @@ $email = strtolower(trim((string) ($_POST['email-txt'] ?? '')));
 $telefone = preg_replace('/\D/', '', (string) ($_POST['telefone-tel'] ?? ''));
 $senha = (string) ($_POST['Senha-pass'] ?? '');
 $confirmarSenha = (string) ($_POST['confirmar-senha'] ?? '');
-$dataNascimento = (string) ($_POST['data-nasc'] ?? '');
+$dataNascimento = is_string($_POST['data-nasc'] ?? null) ? $_POST['data-nasc'] : '';
+$nascimento = preg_match('/^[1-9][0-9]{3}-[0-9]{2}-[0-9]{2}$/D', $dataNascimento)
+    ? DateTimeImmutable::createFromFormat('!Y-m-d', $dataNascimento) : false;
+$dataNascimentoValida = $nascimento !== false
+    && $nascimento->format('Y-m-d') === $dataNascimento
+    && $nascimento <= new DateTimeImmutable('today');
 
 if (zubbo_rate_limit_exceeded('cadastro', 5, 3600, $email)) {
     header('Location: cadastro.php?erro=limite');
@@ -34,7 +39,7 @@ if (
     || strlen($senha) < 8
     || strlen($senha) > 255
     || $senha !== $confirmarSenha
-    || $dataNascimento === ''
+    || !$dataNascimentoValida
 ) {
     zubbo_rate_limit_hit('cadastro', 3600, $email);
     header('Location: cadastro.php?erro=dados');

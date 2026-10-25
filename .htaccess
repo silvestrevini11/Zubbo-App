@@ -1,0 +1,4 @@
+# Impede acesso a metadados do Git e diretórios locais pelo Apache/XAMPP.
+Options -Indexes
+RewriteEngine On
+RewriteRule (^|/)\. - [R=404,L]

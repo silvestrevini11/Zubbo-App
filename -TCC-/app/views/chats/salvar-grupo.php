@@ -12,7 +12,13 @@ zubbo_require_csrf();
 $id_usuario = (int) $_SESSION['usuario']['id'];
 $nome = trim($_POST['nome_grupo'] ?? '');
 $descricao = trim($_POST['descricao_grupo'] ?? '');
-$participantes = array_values(array_unique(array_filter(array_map('intval', $_POST['participantes'] ?? []))));
+$participantes = $_POST['participantes'] ?? [];
+if (!is_array($participantes) || array_filter($participantes, fn($id) => !is_scalar($id))) {
+    $_SESSION['grupo_erro'] = 'Selecione participantes válidos.';
+    header('Location: criar-grupos.php');
+    exit;
+}
+$participantes = array_values(array_unique(array_filter(array_map('intval', $participantes))));
 
 if ($nome === '' || mb_strlen($nome) > 80) {
     $_SESSION['grupo_erro'] = 'Informe um nome válido para o grupo.';

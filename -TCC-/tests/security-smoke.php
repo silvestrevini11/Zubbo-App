@@ -44,4 +44,9 @@ $admin = (string) file_get_contents(__DIR__ . '/../app/services/AdminService.php
 checkSecurity(str_contains($admin, 'WHERE id_user = ? AND ativo = 1'), 'admin vinculado por ID de usuario');
 checkSecurity(!str_contains($admin, 'id_user IS NULL AND email_adm'), 'fallback antigo por e-mail removido');
 
+foreach (glob(__DIR__ . '/../database/migrations/*.sql') as $migration) {
+    checkSecurity(!preg_match('/^\s*(?:USE\s|CREATE\s+DATABASE\b)/mi', (string)file_get_contents($migration)),
+        'migration respeita banco selecionado: ' . basename($migration));
+}
+
 echo "Testes de seguranca basicos concluidos.\n";

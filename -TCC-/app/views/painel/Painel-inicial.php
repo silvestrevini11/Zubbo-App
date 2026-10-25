@@ -124,13 +124,9 @@ include __DIR__ . '/../includes/head.php';
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.29.0/mapbox-gl.js"></script>
 <style>
-.zubbo-marcador-local {
-  display:block;width:13px;height:13px;box-sizing:border-box;
-  border:2px solid #fff;border-radius:50%;
-  box-shadow:0 1px 6px #0008;cursor:pointer;
-  transition:transform .15s ease;
-}
-.zubbo-marcador-local:hover {transform:scale(1.3)}
+/* O pin nativo Mapbox posiciona a ponta na coordenada geográfica.
+   Não aplicar transform aos elementos .mapboxgl-marker, pois o próprio Mapbox
+   controla esse transform ao movimentar/rotacionar/zoom do mapa. */
 .zubbo-legenda-marcadores {
  position:absolute;z-index:2;bottom:12px;left:12px;max-width:calc(100% - 24px);
  border-radius:10px;padding:6px 10px;font-size:11px;line-height:1.5;
@@ -305,12 +301,16 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
           clube: ['#0f8b91', 'Clube']
         };
         const [corMarcador, descricao] = classePorTipo[local.tipo_local] || classePorTipo.quadra;
-        const bolinha = document.createElement('span');
-        bolinha.className = 'zubbo-marcador-local';
-        bolinha.style.backgroundColor = corMarcador;
-        bolinha.title = local.nome_local + ' · ' + descricao;
-        bolinha.setAttribute('aria-label', bolinha.title);
-        const marcador = new mapboxgl.Marker({ element: bolinha, anchor: 'center' })
+        // Mesmo pin padrão do Centro, apenas menor e colorido conforme o local.
+        // O Marker do Mapbox mantém o ponto geográfico fixo durante pan/zoom.
+        const marcador = new mapboxgl.Marker({
+          color: corMarcador,
+          scale: 0.65,
+          anchor: 'bottom'
+        });
+        marcador.getElement().title = local.nome_local + ' · ' + descricao;
+        marcador.getElement().setAttribute('aria-label', marcador.getElement().title);
+        marcador
           .setLngLat(coordenadas)
           .setPopup(criarPopupLocal(local.nome_local, local.endereco_local, local.foto_url, local.id_local))
           .addTo(map);

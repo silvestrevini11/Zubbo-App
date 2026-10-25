@@ -21,6 +21,15 @@ try {
         VALUES (?, ?, ?, 'aprovado', ?, ?)");
     $st->execute([$nome,$endereco,$tipo,(int)$_SESSION['usuario']['id'],$foto]);
     $id = (int)$conn->lastInsertId();
+    // Novos ginásios herdam a modalidade Futsal. A gestão deve confirmar
+    // a disponibilidade física antes de permitir uma reserva oficial.
+    if ($tipo === 'ginásio') {
+        $liberar = $conn->prepare("INSERT IGNORE INTO Local_Esporte_Permitido
+          (id_local,id_esporte,fonte)
+          SELECT ?,e.id_esporte,?
+          FROM Esporte e WHERE e.nome_esporte='Futsal'");
+        $liberar->execute([$id, 'Regra Zubbo para ginásios - confirmar uso com responsável']);
+    }
     admin_registrar_acao($conn,'local_criado','Local cadastrado pelo administrador',['id_local'=>$id]);
     $conn->commit();
     admin_flash('sucesso','Local cadastrado e aprovado.');

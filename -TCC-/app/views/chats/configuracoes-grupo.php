@@ -14,16 +14,13 @@ $st->execute([$idGrupo,$idUsuario]);
 $grupo=$st->fetch(PDO::FETCH_ASSOC);
 if(!$grupo){http_response_code(403);exit('Você não faz parte deste grupo.');}
 $moderador=zubbo_grupo_moderador($conn,$grupo,$idUsuario);
-$participantes=[];
-if($moderador){
-  $st=$conn->prepare("SELECT u.id_user,u.nome_user,
+$st=$conn->prepare("SELECT u.id_user,u.nome_user,u.foto_user,
       (u.id_user=? OR gm.id_user IS NOT NULL) AS moderador
     FROM Participantes_Conversa pc JOIN Usuario u ON u.id_user=pc.id_user
     LEFT JOIN Grupo_Moderador gm ON gm.id_grupo=? AND gm.id_user=pc.id_user
     WHERE pc.id_conversa=? AND u.status_user='ativo' ORDER BY u.nome_user,u.id_user");
-  $st->execute([$grupo['id_criador'],$idGrupo,$grupo['id_conversa']]);
-  $participantes=$st->fetchAll(PDO::FETCH_ASSOC);
-}
+$st->execute([$grupo['id_criador'],$idGrupo,$grupo['id_conversa']]);
+$participantes=$st->fetchAll(PDO::FETCH_ASSOC);
 $erro=$_SESSION['grupo_moderacao_erro']??'';
 $sucesso=$_SESSION['grupo_moderacao_sucesso']??'';
 unset($_SESSION['grupo_moderacao_erro'],$_SESSION['grupo_moderacao_sucesso']);
@@ -46,29 +43,34 @@ include __DIR__.'/../includes/head.php';
       </div>
     </div>
   </header>
+  <?php if($moderador): ?>
   <section class="configuracoes-grupo grupo-config-card">
     <h3>Organizar encontro esportivo</h3>
     <p>Crie um evento e convide todos os participantes do grupo. Cada pessoa poderá confirmar a própria participação no evento.</p>
     <a class="grupo-config-acao grupo-config-acao-principal"
        href="../eventos/criar-evento.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>"><span>Criar evento e convidar o grupo</span><span aria-hidden="true">→</span></a>
   </section>
-  <?php if($moderador): ?>
   <section class="configuracoes-grupo grupo-config-card">
     <h3>Administração do grupo</h3>
     <p>Edite os dados do grupo e escolha integrantes para ajudar na moderação.</p>
     <a class="grupo-config-acao"
        href="editar-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>"><span>Editar nome, foto e participantes</span><span aria-hidden="true">→</span></a>
   </section>
+  <?php endif; ?>
   <section class="configuracoes-grupo grupo-config-card">
-    <h3>Moderadores do grupo</h3>
-    <p>Moderadores podem editar o grupo, gerenciar participantes e promover integrantes.</p>
+    <h3>Integrantes do grupo</h3>
+    <p>Veja quem participa do grupo. Toque em um integrante para abrir o perfil.</p>
     <ul class="grupo-moderadores-lista">
       <?php foreach($participantes as $p): ?>
       <li>
-        <span class="grupo-moderador-nome"><?= htmlspecialchars($p['nome_user'],ENT_QUOTES,'UTF-8') ?></span>
+        <?php $fotoIntegrante = !empty($p['foto_user']) ? zubbo_url('/'.ltrim((string)$p['foto_user'],'/')) : zubbo_url('/public/imagem/blank.png'); ?>
+        <a class="grupo-integrante-perfil" href="../perfil/<?= (int)$p['id_user'] === $idUsuario ? 'perfil.php' : 'perfil-ver.php?id='.(int)$p['id_user'] ?>">
+          <img src="<?= htmlspecialchars($fotoIntegrante,ENT_QUOTES,'UTF-8') ?>" alt="" loading="lazy">
+          <span class="grupo-moderador-nome"><?= htmlspecialchars($p['nome_user'],ENT_QUOTES,'UTF-8') ?></span>
+        </a>
         <?php if($p['moderador']): ?>
           <span class="grupo-moderador-badge">Moderador</span>
-        <?php else: ?>
+        <?php elseif($moderador): ?>
           <form action="promover-moderador.php" method="post">
             <?= zubbo_csrf_input() ?>
             <input type="hidden" name="id_grupo" value="<?= (int)$idGrupo ?>">
@@ -80,7 +82,6 @@ include __DIR__.'/../includes/head.php';
       <?php endforeach; ?>
     </ul>
   </section>
-  <?php endif; ?>
   <section class="configuracoes-grupo grupo-config-card grupo-config-participacao">
     <h3>Participação</h3>
     <p>Gerencie sua participação neste grupo.</p>

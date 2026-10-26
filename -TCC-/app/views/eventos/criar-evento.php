@@ -1,12 +1,13 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
+require_once __DIR__ . '/../../services/GrupoService.php';
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $erro = '';
 $idGrupoEvento=filter_var($_POST['id_grupo']??$_GET['id_grupo']??null,FILTER_VALIDATE_INT)?:0;
 $grupoConvite=null;
 if($idGrupoEvento){
-    $buscarGrupo=$conn->prepare("SELECT g.id_grupo,g.id_conversa,g.nome_grupo,
+    $buscarGrupo=$conn->prepare("SELECT g.id_grupo,g.id_conversa,g.id_criador,g.nome_grupo,
       (SELECT COUNT(*) FROM Participantes_Conversa pc2
        JOIN Usuario u ON u.id_user=pc2.id_user AND u.status_user='ativo'
        WHERE pc2.id_conversa=g.id_conversa) AS participantes
@@ -14,7 +15,9 @@ if($idGrupoEvento){
       WHERE g.id_grupo=? AND pc.id_user=? LIMIT 1");
     $buscarGrupo->execute([$idGrupoEvento,$idUsuario]);
     $grupoConvite=$buscarGrupo->fetch(PDO::FETCH_ASSOC);
-    if(!$grupoConvite){http_response_code(403);exit('Você não participa desse grupo.');}
+    if(!$grupoConvite || !zubbo_grupo_moderador($conn,$grupoConvite,$idUsuario)){
+        http_response_code(403);exit('Somente moderadores podem criar eventos para este grupo.');
+    }
 }
 
 
@@ -82,6 +85,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($erro === '') {
         try {
             $conn->beginTransaction();
+            if ($grupoConvite) {
+                // Serializa com saídas e alterações de moderação antes de criar convites.
+                $grupoAtual = zubbo_grupo_bloquear($conn, 'id_grupo', $idGrupoEvento);
+                if (!zubbo_grupo_moderador($conn, $grupoAtual, $idUsuario)) {
+                    throw new DomainException('Somente moderadores podem criar eventos para este grupo.');
+                }
+            }
             // Bloqueio por local serializa criações simultâneas nesse poliesportivo.
             $bloquearLocal = $conn->prepare("SELECT id_local FROM LocalEsp WHERE id_local = ? AND status_local = 'aprovado' FOR UPDATE");
             $bloquearLocal->execute([$idLocal]);
@@ -191,6 +201,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             header('Location: detalhes-evento.php?id_evento=' . $novoEvento, true, 303);
             exit;
+        } catch (DomainException $e) {
+            if ($conn->inTransaction()) $conn->rollBack();
+            http_response_code(403);
+            $erro = $e->getMessage();
         } catch (PDOException $e) {
             if ($conn->inTransaction()) $conn->rollBack();
             error_log('Erro ao criar evento: ' . $e->getMessage());

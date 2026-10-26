@@ -8011,6 +8011,9 @@ html.tema-escuro body .modal-excluir .modal-confirmar:hover {
 }
 
 /* Gestão de moderadores do grupo. */
+.grupo-integrante-perfil { display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 44px; color: inherit; border-radius: 8px; }
+.grupo-integrante-perfil img { flex: 0 0 36px; width: 36px; height: 36px; object-fit: cover; border-radius: 50%; }
+.grupo-integrante-perfil:hover .grupo-moderador-nome { color: #ef4b25; text-decoration: underline; }
 .grupo-moderadores-lista { list-style: none; padding: 0; margin: 0; }
 .grupo-moderadores-lista li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; border-top: 1px solid var(--grupo-borda); }
 .grupo-moderador-nome { min-width: 0; overflow-wrap: anywhere; font-size: 13px; }

@@ -110,11 +110,22 @@ try {
     verify($page['status'] !== 200, 'terceiro não acessa chat do grupo');
     $eventPage = '/app/views/eventos/criar-evento.php?id_grupo=' . $group;
     verify(request('c', $eventPage)['status'] === 403, 'terceiro não cria evento do grupo');
+    verify(request('b', $eventPage)['status'] === 403, 'integrante comum não abre criação de evento do grupo');
+    $settings = request('b', '/app/views/chats/configuracoes-grupo.php?id_grupo='.$group);
+    verify($settings['status'] === 200 && str_contains($settings['body'], 'Integrantes do grupo')
+        && str_contains($settings['body'], '../perfil/perfil-ver.php?id='.$ids['a'])
+        && str_contains($settings['body'], '../perfil/perfil.php'), 'integrante comum vê participantes e links de perfil');
+    verify(!str_contains($settings['body'], 'Criar evento e convidar o grupo')
+        && !str_contains($settings['body'], 'action="promover-moderador.php"'), 'integrante comum não recebe ações de moderação');
     $pair = $conn->query("SELECT p.id_local,p.id_esporte FROM Local_Esporte_Permitido p JOIN LocalEsp l ON l.id_local=p.id_local JOIN Esporte e ON e.id_esporte=p.id_esporte WHERE l.status_local='aprovado' AND e.nome_esporte='Futsal' LIMIT 1")->fetch();
     $page = request('a', $eventPage);
     $day = (new DateTimeImmutable('2031-01-02'))->modify('+' . (int)scalar('SELECT COUNT(*) FROM Evento') . ' days')->format('Y-m-d');
     $event = ['nome_evento'=>"Evento $run", 'data_evento'=>$day, 'horario_evento'=>'15:00', 'duracao_minutos'=>60,
         'id_grupo'=>$group, 'id_local'=>$pair['id_local'], 'id_esporte'=>$pair['id_esporte'], 'csrf'=>token($page, 'csrf')];
+    $forgedEvent = $event;
+    $forgedEvent['csrf'] = token(request('b', '/app/views/eventos/criar-evento.php'), 'csrf');
+    verify(request('b', '/app/views/eventos/criar-evento.php', $forgedEvent)['status'] === 403
+        && (int)scalar('SELECT COUNT(*) FROM Evento WHERE nome_evento=?',[$event['nome_evento']]) === 0, 'POST direto de integrante comum não cria evento do grupo');
     $created = request('a', '/app/views/eventos/criar-evento.php', $event);
     $eventId = (int)scalar('SELECT id_evento FROM Evento WHERE nome_evento=?', [$event['nome_evento']]);
     verify($created['status'] === 303 && $eventId > 0, 'evento de grupo criado por HTTP');
@@ -170,6 +181,7 @@ try {
     verify((int)scalar('SELECT COUNT(*) FROM Grupo_Moderador WHERE id_grupo=?',[$group]) === 0, 'integrante comum e terceiro não promovem');
     $promoted = request('a', $promotion, ['id_grupo'=>$group,'id_user'=>$ids['b'],'csrf_token'=>$csrf]);
     verify($promoted['status'] === 303 && (int)scalar('SELECT COUNT(*) FROM Grupo_Moderador WHERE id_grupo=? AND id_user=?',[$group,$ids['b']]) === 1, 'criador promove integrante pelo endpoint real');
+    verify(request('b', $eventPage)['status'] === 200, 'integrante promovido pode abrir criação de evento do grupo');
     verify(request('b', '/app/views/chats/editar-grupo.php?id_grupo='.$group)['status'] === 200, 'moderador acessa edição');
     request('b', '/app/views/chats/salvar-edicao-grupo.php', ['id_grupo'=>$group,'nome_grupo'=>"Moderado $run",'remover'=>[$ids['a']],'csrf_token'=>$csrfB]);
     verify(scalar('SELECT nome_grupo FROM Grupo WHERE id_grupo=?',[$group]) === "Moderado $run", 'moderador salva edição no MySQL');

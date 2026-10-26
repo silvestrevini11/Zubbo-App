@@ -13,6 +13,7 @@ $scopes = [
     '004_notificacoes_push' => ['Notificacao' => ['data_leitura', 'id_evento'], 'PushSubscription' => null],
     '005_modalidades_confirmacoes' => ['Esporte' => ['imagem_esporte', 'regras_esporte', 'jogadores_por_time', 'quantidade_times', 'exige_confirmacao_local'], 'Local_Esporte_Confirmacao' => null, 'Local_Esporte_Permitido' => null],
 ];
+$scopes['006_moderadores_grupo'] = ['Grupo_Moderador' => null];
 $conditional = static function (string $condition, string $statement): string {
     return 'SET @zubbo_sql = IF(' . $condition . ', ' . zubbo_sql_quote($statement) . ", 'SELECT 1');\nPREPARE zubbo_stmt FROM @zubbo_sql;\nEXECUTE zubbo_stmt;\nDEALLOCATE PREPARE zubbo_stmt;\n";
 };

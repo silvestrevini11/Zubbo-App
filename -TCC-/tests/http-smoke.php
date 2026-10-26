@@ -160,6 +160,29 @@ try {
     foreach (['/config/database.php','/database/scripts/criacaotables.sql','/vendor/autoload.php','/.local/app_zubbo-before-tests.sql','/tests/http-smoke.php','/app/views/admin/_auth.php'] as $path) {
         verify(request('anon', $path)['status'] === 404, 'arquivo interno protegido: ' . $path);
     }
+    $promotion = '/app/views/chats/promover-moderador.php';
+    $csrfB = token(request('b', '/app/views/chats/criar-grupos.php'));
+    $csrfC = token(request('c', '/app/views/chats/criar-grupos.php'));
+    verify(request('a', $promotion)['status'] === 405, 'promoção exige POST');
+    verify(request('a', $promotion, ['id_grupo'=>$group,'id_user'=>$ids['b']])['status'] === 403, 'promoção exige CSRF');
+    request('b', $promotion, ['id_grupo'=>$group,'id_user'=>$ids['b'],'csrf_token'=>$csrfB]);
+    request('c', $promotion, ['id_grupo'=>$group,'id_user'=>$ids['b'],'csrf_token'=>$csrfC]);
+    verify((int)scalar('SELECT COUNT(*) FROM Grupo_Moderador WHERE id_grupo=?',[$group]) === 0, 'integrante comum e terceiro não promovem');
+    $promoted = request('a', $promotion, ['id_grupo'=>$group,'id_user'=>$ids['b'],'csrf_token'=>$csrf]);
+    verify($promoted['status'] === 303 && (int)scalar('SELECT COUNT(*) FROM Grupo_Moderador WHERE id_grupo=? AND id_user=?',[$group,$ids['b']]) === 1, 'criador promove integrante pelo endpoint real');
+    verify(request('b', '/app/views/chats/editar-grupo.php?id_grupo='.$group)['status'] === 200, 'moderador acessa edição');
+    request('b', '/app/views/chats/salvar-edicao-grupo.php', ['id_grupo'=>$group,'nome_grupo'=>"Moderado $run",'remover'=>[$ids['a']],'csrf_token'=>$csrfB]);
+    verify(scalar('SELECT nome_grupo FROM Grupo WHERE id_grupo=?',[$group]) === "Moderado $run", 'moderador salva edição no MySQL');
+    verify((int)scalar('SELECT COUNT(*) FROM Participantes_Conversa WHERE id_conversa=?',[$conversation]) === 2, 'POST adulterado não remove responsável');
+    request('b', $promotion, ['id_grupo'=>$group,'id_user'=>$ids['c'],'csrf_token'=>$csrfB]);
+    verify((int)scalar('SELECT COUNT(*) FROM Grupo_Moderador WHERE id_grupo=?',[$group]) === 1, 'moderador não promove pessoa fora do grupo');
+    $messageCount = (int)scalar('SELECT COUNT(*) FROM Mensagem WHERE id_conversa=?',[$conversation]);
+    $left = request('a', '/app/views/chats/sair-grupo.php', ['id_conversa'=>$conversation,'csrf_token'=>$csrf]);
+    verify($left['status'] === 303 && (int)scalar('SELECT id_criador FROM Grupo WHERE id_grupo=?',[$group]) === $ids['b'], 'responsável sai e outro moderador assume');
+    verify(request('a', '/app/views/chats/configuracoes-grupo.php?id_grupo='.$group)['status'] === 403, 'ex-integrante perde acesso às configurações');
+    verify((int)scalar('SELECT COUNT(*) FROM Mensagem WHERE id_conversa=?',[$conversation]) === $messageCount, 'sucessão não publica mensagem no chat');
+    $last = request('b', '/app/views/chats/sair-grupo.php', ['id_conversa'=>$conversation,'csrf_token'=>$csrfB]);
+    verify($last['status'] === 303 && (int)scalar('SELECT COUNT(*) FROM Participantes_Conversa WHERE id_conversa=?',[$conversation]) === 0, 'último moderador pode sair pelo endpoint');
     request('a', '/app/views/auth/logout.php', ['csrf_token'=>$csrf]);
     verify(request('a', '/app/views/painel/Painel-inicial.php')['status'] === 302, 'logout encerra sessão');
     $conn->prepare("UPDATE Usuario SET status_user='suspenso' WHERE id_user=?")->execute([$ids['b']]);

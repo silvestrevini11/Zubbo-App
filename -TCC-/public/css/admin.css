@@ -170,3 +170,15 @@ a.admin-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(2
     .admin-form-card { grid-template-columns: 1fr; }
     .admin-local-info, .admin-denuncia-card header { flex-direction: column; }
 }
+
+/* Controles compactos somente na tabela de usuários. */
+.admin-usuarios .admin-acoes-inline { grid-template-columns: 98px minmax(125px, 1fr) max-content; min-width: 310px; gap: 8px; align-items: center; }
+.admin-usuarios .admin-acoes-inline + .admin-acoes-inline { margin-top: 8px; }
+.admin-usuarios .admin-acoes-inline input:not([type="hidden"]),
+.admin-usuarios .admin-acoes-inline select { width: 100%; min-width: 0; min-height: 34px; height: 34px; padding: 0 9px; border-radius: 8px; }
+.admin-usuarios .admin-acoes-inline button { width: auto; min-height: 34px; height: 34px; padding: 0 12px; border-radius: 8px; white-space: nowrap; }
+.admin-usuarios .admin-promocao { grid-template-columns: minmax(150px, 1fr) max-content; }
+.admin-usuarios .admin-table td:last-child { width: 360px; }
+.admin-usuarios .admin-acoes-inline button:focus-visible { outline: 3px solid #ffb199; outline-offset: 2px; }
+
+.admin-usuarios-filtros input, .admin-usuarios-filtros select, .admin-usuarios-filtros button, .admin-usuarios-filtros a { min-height: 34px; height: 34px; border-radius: 8px; }

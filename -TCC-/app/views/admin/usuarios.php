@@ -36,7 +36,7 @@ $paginaAdmin = 'usuarios';
 $tituloAdmin = 'Gerenciar usuários';
 require __DIR__ . '/includes/header.php';
 ?>
-<form class="admin-filtros" method="get">
+<form class="admin-filtros admin-usuarios-filtros" method="get">
     <input type="search" name="q" value="<?= htmlspecialchars($busca) ?>" placeholder="Buscar por nome, e-mail ou telefone">
     <select name="status">
         <option value="">Todos os status</option>
@@ -46,7 +46,7 @@ require __DIR__ . '/includes/header.php';
     <a href="usuarios.php">Limpar</a>
 </form>
 
-<section class="admin-panel admin-table-wrap">
+<section class="admin-panel admin-table-wrap admin-usuarios">
     <div class="admin-panel-head"><div><p>CONTAS</p><h2><?= count($usuarios) ?> usuário(s)</h2></div></div>
     <table class="admin-table">
         <thead><tr><th>Usuário</th><th>Telefone</th><th>Nascimento</th><th>Esportes</th><th>Status</th><th>Ações</th></tr></thead>
@@ -72,7 +72,7 @@ require __DIR__ . '/includes/header.php';
                         <button type="submit">Aplicar</button>
                     </form>
                     <?php if (!$u['eh_admin'] && $u['status_user'] === 'ativo' && (int)$u['id_user'] !== (int)$_SESSION['usuario']['id']): ?>
-                    <form class="admin-acoes-inline" action="usuario-acao.php" method="post"
+                    <form class="admin-acoes-inline admin-promocao" action="usuario-acao.php" method="post"
                           onsubmit="return confirm('Conceder acesso administrativo completo a este usuário?');">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="id_user" value="<?= (int)$u['id_user'] ?>">

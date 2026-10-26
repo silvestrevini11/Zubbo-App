@@ -23,7 +23,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: pdo_mysql, curl, mbstring, openssl, fileinfo
+          extensions: pdo_mysql, pdo_sqlite, curl, mbstring, openssl, fileinfo
           tools: composer:v2
 
       - name: Validate Composer
@@ -39,6 +39,10 @@ jobs:
       - name: Privacy and security regression smoke
         working-directory: ./-TCC-
         run: php tests/security-smoke.php
+
+      - name: Group moderation permissions and succession
+        working-directory: ./-TCC-
+        run: php tests/group-moderation-smoke.php
 
       - name: Check Railway entry files
         run: |

@@ -87,6 +87,7 @@ function zubbo_domain_tables(): array
         '003_eventos_grupos' => ['Evento', 'Solicitacao_Vaga_Evento', 'Fila_Espera_Evento', 'Grupo_Evento', 'Grupo', 'Conversa', 'Participantes_Conversa', 'Comunidade', 'Mensagem', 'Equipe', 'ParticipantesEquipe', 'EquipesEvento', 'Lista_Evento'],
         '004_notificacoes_push' => ['Notificacao', 'PushSubscription'],
         '005_modalidades_confirmacoes' => ['Esporte', 'Local_Esporte_Confirmacao', 'Local_Esporte_Permitido', 'Sugestao_Esporte', 'Voto_Sugestao'],
+        '006_moderadores_grupo' => ['Grupo_Moderador'],
     ];
 }
 

@@ -78,7 +78,7 @@ jobs:
           ZUBBO_DB_NAME: zubbo_ci
         run: php tests/audit-migrations.php --strict
 
-      - name: Conferir contrato gerado das cinco migrations
+      - name: Conferir contrato gerado das seis migrations
         working-directory: ./-TCC-
         run: php database/tools/migration-contract.php
 

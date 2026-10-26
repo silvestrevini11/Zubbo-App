@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/../../middleware/auth.php';
+require_once __DIR__.'/../../services/GrupoService.php';
 $idUsuario=(int)$_SESSION['usuario']['id'];
 $idGrupo=filter_var($_GET['id_grupo']??null,FILTER_VALIDATE_INT);
 if(!$idGrupo){http_response_code(404);exit('Grupo não encontrado.');}
@@ -12,11 +13,26 @@ $st=$conn->prepare("SELECT g.id_grupo,g.id_conversa,g.id_criador,g.nome_grupo,g.
 $st->execute([$idGrupo,$idUsuario]);
 $grupo=$st->fetch(PDO::FETCH_ASSOC);
 if(!$grupo){http_response_code(403);exit('Você não faz parte deste grupo.');}
-$criador=(int)$grupo['id_criador']===$idUsuario;
+$moderador=zubbo_grupo_moderador($conn,$grupo,$idUsuario);
+$participantes=[];
+if($moderador){
+  $st=$conn->prepare("SELECT u.id_user,u.nome_user,
+      (u.id_user=? OR gm.id_user IS NOT NULL) AS moderador
+    FROM Participantes_Conversa pc JOIN Usuario u ON u.id_user=pc.id_user
+    LEFT JOIN Grupo_Moderador gm ON gm.id_grupo=? AND gm.id_user=pc.id_user
+    WHERE pc.id_conversa=? AND u.status_user='ativo' ORDER BY u.nome_user,u.id_user");
+  $st->execute([$grupo['id_criador'],$idGrupo,$grupo['id_conversa']]);
+  $participantes=$st->fetchAll(PDO::FETCH_ASSOC);
+}
+$erro=$_SESSION['grupo_moderacao_erro']??'';
+$sucesso=$_SESSION['grupo_moderacao_sucesso']??'';
+unset($_SESSION['grupo_moderacao_erro'],$_SESSION['grupo_moderacao_sucesso']);
 include __DIR__.'/../includes/head.php';
 ?>
 <main class="configuracoes grupo-configuracoes">
   <a class="grupo-config-voltar" href="chat-grupo.php?id_conversa=<?= (int)$grupo['id_conversa'] ?>"><span aria-hidden="true">←</span> Voltar ao grupo</a>
+  <?php if($erro): ?><p class="grupo-criar-alerta" role="alert"><?= htmlspecialchars($erro,ENT_QUOTES,'UTF-8') ?></p><?php endif; ?>
+  <?php if($sucesso): ?><p class="grupo-lista-sucesso" role="status"><?= htmlspecialchars($sucesso,ENT_QUOTES,'UTF-8') ?></p><?php endif; ?>
   <header class="grupo-config-cabecalho">
     <p class="grupo-config-legenda">SEU GRUPO</p>
     <h1>Configurações do grupo</h1>
@@ -36,14 +52,35 @@ include __DIR__.'/../includes/head.php';
     <a class="grupo-config-acao grupo-config-acao-principal"
        href="../eventos/criar-evento.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>"><span>Criar evento e convidar o grupo</span><span aria-hidden="true">→</span></a>
   </section>
-  <?php if($criador): ?>
+  <?php if($moderador): ?>
   <section class="configuracoes-grupo grupo-config-card">
     <h3>Administração do grupo</h3>
-    <p>O criador não pode sair diretamente pelo botão padrão. Use a edição do grupo para gerenciar participantes.</p>
+    <p>Edite os dados do grupo e escolha integrantes para ajudar na moderação.</p>
     <a class="grupo-config-acao"
        href="editar-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>"><span>Editar nome, foto e participantes</span><span aria-hidden="true">→</span></a>
   </section>
-  <?php else: ?>
+  <section class="configuracoes-grupo grupo-config-card">
+    <h3>Moderadores do grupo</h3>
+    <p>Moderadores podem editar o grupo, gerenciar participantes e promover integrantes.</p>
+    <ul class="grupo-moderadores-lista">
+      <?php foreach($participantes as $p): ?>
+      <li>
+        <span class="grupo-moderador-nome"><?= htmlspecialchars($p['nome_user'],ENT_QUOTES,'UTF-8') ?></span>
+        <?php if($p['moderador']): ?>
+          <span class="grupo-moderador-badge">Moderador</span>
+        <?php else: ?>
+          <form action="promover-moderador.php" method="post">
+            <?= zubbo_csrf_input() ?>
+            <input type="hidden" name="id_grupo" value="<?= (int)$idGrupo ?>">
+            <input type="hidden" name="id_user" value="<?= (int)$p['id_user'] ?>">
+            <button type="submit" class="grupo-promover-btn" aria-label="Tornar <?= htmlspecialchars($p['nome_user'],ENT_QUOTES,'UTF-8') ?> moderador">Tornar moderador</button>
+          </form>
+        <?php endif; ?>
+      </li>
+      <?php endforeach; ?>
+    </ul>
+  </section>
+  <?php endif; ?>
   <section class="configuracoes-grupo grupo-config-card grupo-config-participacao">
     <h3>Participação</h3>
     <p>Gerencie sua participação neste grupo.</p>
@@ -54,6 +91,5 @@ include __DIR__.'/../includes/head.php';
       <button type="submit" class="grupo-btn-sair">Sair do grupo</button>
     </form>
   </section>
-  <?php endif; ?>
 </main>
 <?php include __DIR__.'/../includes/under-bar.php';include __DIR__.'/../includes/footer.php'; ?>

@@ -178,6 +178,16 @@ CREATE TABLE Grupo (
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE Grupo_Moderador (
+    id_grupo INT NOT NULL,
+    id_user INT NOT NULL,
+    PRIMARY KEY (id_grupo, id_user),
+    CONSTRAINT fk_grupo_moderador_grupo
+        FOREIGN KEY (id_grupo) REFERENCES Grupo(id_grupo) ON DELETE CASCADE,
+    CONSTRAINT fk_grupo_moderador_usuario
+        FOREIGN KEY (id_user) REFERENCES Usuario(id_user) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE Comunidade (
     id_comunidade INT PRIMARY KEY AUTO_INCREMENT,
     id_conversa INT NOT NULL UNIQUE,

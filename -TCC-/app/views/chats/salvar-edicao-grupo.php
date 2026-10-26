@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
 require_once __DIR__ . '/../../services/NotificacaoService.php';
+require_once __DIR__ . '/../../services/GrupoService.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: chats-grupos.php');
@@ -25,11 +26,11 @@ if (!is_array($remover) || !is_array($adicionar)
 $remover = array_values(array_unique(array_filter(array_map('intval', $remover))));
 $adicionar = array_values(array_unique(array_filter(array_map('intval', $adicionar))));
 
-$stmt = $conn->prepare("SELECT * FROM Grupo WHERE id_grupo = ? AND id_criador = ?");
-$stmt->execute([$id_grupo, $id_usuario]);
+$stmt = $conn->prepare("SELECT * FROM Grupo WHERE id_grupo = ?");
+$stmt->execute([$id_grupo]);
 $grupo = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$grupo) {
+if (!$grupo || !zubbo_grupo_moderador($conn, $grupo, $id_usuario)) {
     header('Location: chats-grupos.php');
     exit;
 }
@@ -93,21 +94,25 @@ if (isset($_FILES['foto_grupo']) && $_FILES['foto_grupo']['error'] !== UPLOAD_ER
 
 try {
     $conn->beginTransaction();
+    $grupo = zubbo_grupo_bloquear($conn, 'id_grupo', $id_grupo);
+    if (!zubbo_grupo_moderador($conn, $grupo, $id_usuario)) {
+        throw new DomainException('Você não pode editar este grupo.');
+    }
 
     if ($novaFoto) {
         $stmt = $conn->prepare("
             UPDATE Grupo
             SET nome_grupo = ?, descricao_grupo = ?, foto_grupo = ?
-            WHERE id_grupo = ? AND id_criador = ?
+            WHERE id_grupo = ?
         ");
-        $stmt->execute([$nome, $descricao ?: null, $novaFoto, $id_grupo, $id_usuario]);
+        $stmt->execute([$nome, $descricao ?: null, $novaFoto, $id_grupo]);
     } else {
         $stmt = $conn->prepare("
             UPDATE Grupo
             SET nome_grupo = ?, descricao_grupo = ?
-            WHERE id_grupo = ? AND id_criador = ?
+            WHERE id_grupo = ?
         ");
-        $stmt->execute([$nome, $descricao ?: null, $id_grupo, $id_usuario]);
+        $stmt->execute([$nome, $descricao ?: null, $id_grupo]);
     }
 
     if ($remover) {
@@ -115,10 +120,11 @@ try {
         $stmt = $conn->prepare("
             DELETE FROM Participantes_Conversa
             WHERE id_conversa = ?
-              AND id_user <> ?
+              AND id_user <> COALESCE(?,0)
+              AND NOT EXISTS (SELECT 1 FROM Grupo_Moderador gm WHERE gm.id_grupo = ? AND gm.id_user = Participantes_Conversa.id_user)
               AND id_user IN ($ph)
         ");
-        $stmt->execute([$grupo['id_conversa'], $id_usuario, ...$remover]);
+        $stmt->execute([$grupo['id_conversa'], $grupo['id_criador'], $id_grupo, ...$remover]);
     }
 
     $stmtAdd = $conn->prepare("

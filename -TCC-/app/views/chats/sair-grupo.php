@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
+require_once __DIR__ . '/../../services/GrupoService.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -13,31 +14,10 @@ if (!$idConversa || $idConversa < 1) {
     exit('Conversa inválida.');
 }
 try {
-    $conn->beginTransaction();
-    $stmt = $conn->prepare("
-        SELECT g.id_criador
-        FROM Grupo g
-        INNER JOIN Conversa c ON c.id_conversa = g.id_conversa AND c.tipo_conversa = 'grupo'
-        INNER JOIN Participantes_Conversa pc ON pc.id_conversa = g.id_conversa
-        WHERE g.id_conversa = ? AND pc.id_user = ?
-        LIMIT 1 FOR UPDATE
-    ");
-    $stmt->execute([$idConversa, $idUsuario]);
-    $grupo = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$grupo) {
-        throw new RuntimeException('Você não participa deste grupo.');
-    }
-    if ((int) $grupo['id_criador'] === $idUsuario) {
-        throw new RuntimeException('O criador não pode sair do próprio grupo.');
-    }
-    $conn->prepare("DELETE FROM Participantes_Conversa WHERE id_conversa = ? AND id_user = ?")
-         ->execute([$idConversa, $idUsuario]);
-    $conn->prepare("DELETE FROM Notificacao WHERE id_conversa = ? AND id_destinatario = ?")
-         ->execute([$idConversa, $idUsuario]);
-    $conn->commit();
+    zubbo_grupo_sair($conn, $idConversa, $idUsuario);
     header('Location: chats-grupos.php?saiu=1', true, 303);
     exit;
-} catch (RuntimeException $e) {
+} catch (DomainException $e) {
     if ($conn->inTransaction()) $conn->rollBack();
     $_SESSION['grupo_saida_erro'] = $e->getMessage();
 } catch (Throwable $e) {

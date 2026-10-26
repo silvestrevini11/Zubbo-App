@@ -8009,3 +8009,14 @@ html.tema-escuro body .modal-excluir .modal-confirmar:hover {
 .modal-excluir-acoes > button {
     flex: 1 1 110px;
 }
+
+/* Gestão de moderadores do grupo. */
+.grupo-moderadores-lista { list-style: none; padding: 0; margin: 0; }
+.grupo-moderadores-lista li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; border-top: 1px solid var(--grupo-borda); }
+.grupo-moderador-nome { min-width: 0; overflow-wrap: anywhere; font-size: 13px; }
+.grupo-moderadores-lista form { flex-shrink: 0; margin: 0; }
+.grupo-promover-btn { min-height: 36px; padding: 7px 10px; border: 1px solid #ef4b25; border-radius: 9px; background: var(--grupo-destaque-suave); color: #d63e19; font: inherit; font-size: 11px; cursor: pointer; }
+.grupo-promover-btn:hover { background: #ef4b25; color: #fff; }
+.grupo-moderador-badge { flex-shrink: 0; padding: 5px 9px; border-radius: 20px; background: var(--grupo-destaque-suave); color: #d63e19; font-size: 10px; }
+html.tema-escuro .grupo-promover-btn, html.tema-escuro .grupo-moderador-badge { color: #ff9b7e; }
+@media (max-width: 360px) { .grupo-moderadores-lista li { align-items: flex-start; flex-direction: column; } }

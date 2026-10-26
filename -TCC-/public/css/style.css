@@ -5642,6 +5642,14 @@ html.tema-escuro .editar-esportes-topo p {
 }
 
 /* INPUTS E SELECTS */
+.evento-criar-container .evento-ajuda {
+    margin: 0;
+    padding-left: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
 .evento-criar-container input,
 .evento-criar-container select {
     width: 100%;

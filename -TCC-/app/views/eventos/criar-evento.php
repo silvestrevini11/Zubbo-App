@@ -263,7 +263,7 @@ function escaparCriarEvento($valor): string
                 value="<?= escaparCriarEvento($_POST['data_evento'] ?? '') ?>"
                 required
             >
-            <p id="ajuda-data-evento">Escolha uma data de hoje até <?= $dataLimite->format('d/m/Y') ?> (30 dias).</p>
+            <p id="ajuda-data-evento" class="evento-ajuda">Até <?= $dataLimite->format('d/m/Y') ?>.</p>
         </div>
 
         <div>
@@ -274,7 +274,7 @@ function escaparCriarEvento($valor): string
                     <option value="<?= $horario ?>" <?= ($_POST['horario_evento'] ?? '') === $horario ? 'selected' : '' ?>><?= $horario ?></option>
                 <?php endforeach; ?>
             </select>
-            <p id="ajuda-horario-evento">Início das 05:30 às 22:30, em intervalos de 30 minutos.</p>
+            <p id="ajuda-horario-evento" class="evento-ajuda">Das 05:30 às 22:30, a cada 30 min.</p>
         </div>
 
         <div>
@@ -290,7 +290,7 @@ function escaparCriarEvento($valor): string
                     </option>
                 <?php endforeach; ?>
             </select>
-            <p id="aviso-modalidade" aria-live="polite">Selecione o local para ver os esportes disponíveis.</p>
+            <p id="aviso-modalidade" class="evento-ajuda" aria-live="polite">Escolha o local para ver os esportes.</p>
         </div>
 
         <div>
@@ -306,7 +306,7 @@ function escaparCriarEvento($valor): string
                     </option>
                 <?php endforeach; ?>
             </select>
-            <p style="font-size:12px;line-height:1.4">A agenda do Zubbo não garante a reserva física deste espaço. Confirme com o responsável antes do encontro.</p>
+            <p class="evento-ajuda">Confirme a reserva do espaço com o responsável.</p>
         </div>
 
         <div>
@@ -337,9 +337,9 @@ function escaparCriarEvento($valor): string
    }
    if(esporte.selectedOptions[0]?.disabled) esporte.value='';
    aviso.textContent=local.value
-     ? (permitidos.length ? 'Escolha uma das modalidades disponíveis neste local.'
-       : 'Nenhuma modalidade confirmada para este local. Peça ao administrador para validar.')
-     : 'Selecione o local para ver os esportes disponíveis.';
+     ? (permitidos.length ? 'Esportes disponíveis no local selecionado.'
+       : 'Sem esportes confirmados. Consulte o administrador.')
+     : 'Escolha o local para ver os esportes.';
  }
  local.addEventListener('change',atualizar);
  atualizar();

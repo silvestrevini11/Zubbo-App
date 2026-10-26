@@ -1,4 +1,4 @@
-# Zubbo — Documentação técnica e funcionamento
+# Zubbo Documentação técnica e funcionamento
 
 Este README documenta **como o aplicativo funciona, como executar o projeto e como manter os ambientes**. Ele fica dentro de **-TCC-/**, junto ao código da aplicação.
 

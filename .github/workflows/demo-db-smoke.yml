@@ -78,6 +78,21 @@ jobs:
           ZUBBO_DB_NAME: zubbo_ci
         run: php tests/audit-migrations.php --strict
 
+      - name: Banimento com vínculos e rollback em MySQL
+        working-directory: ./-TCC-
+        env:
+          ZUBBO_DB_HOST: 127.0.0.1
+          ZUBBO_DB_PORT: 3306
+          ZUBBO_DB_USER: root
+          ZUBBO_DB_PASSWORD: ci_only_password
+          ZUBBO_DB_NAME: zubbo_test_ban_ci
+          ZUBBO_TEST_ALLOW_SCHEMA: '1'
+          ZUBBO_BAN_TEST_MYSQL: '1'
+          MYSQL_PWD: ci_only_password
+        run: |
+          mysql --host=127.0.0.1 --port=3306 --user=root -e 'CREATE DATABASE zubbo_test_ban_ci CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
+          php tests/banishment-smoke.php
+
       - name: Conferir contrato gerado das seis migrations
         working-directory: ./-TCC-
         run: php database/tools/migration-contract.php

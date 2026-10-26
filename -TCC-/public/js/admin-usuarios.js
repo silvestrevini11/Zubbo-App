@@ -14,6 +14,11 @@
         form.addEventListener('reset', () => queueMicrotask(atualizarMotivo));
         window.addEventListener('pageshow', atualizarMotivo);
         form.addEventListener('submit', event => {
+            if (acao.value === 'banido'
+                && !window.confirm('Banir este usuário e remover suas participações, mensagens e registros associados? Reativar a conta não restaura esses dados.')) {
+                event.preventDefault();
+                return;
+            }
             if (acao.value === 'tornar_admin'
                 && !window.confirm('Conceder acesso administrativo completo a este usuário?')) {
                 event.preventDefault();

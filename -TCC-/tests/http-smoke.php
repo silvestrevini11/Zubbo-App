@@ -199,6 +199,29 @@ try {
     verify(request('a', '/app/views/painel/Painel-inicial.php')['status'] === 302, 'logout encerra sessão');
     $conn->prepare("UPDATE Usuario SET status_user='suspenso' WHERE id_user=?")->execute([$ids['b']]);
     verify(request('b', '/app/views/painel/Painel-inicial.php')['status'] === 302, 'conta suspensa perde sessão');
+    // Banimento pelo painel real: sessão administrativa, CSRF e limpeza em MySQL.
+    require_once __DIR__.'/../app/services/AdminService.php';
+    $adminRow=$conn->prepare('SELECT id_user,nome_user,email_user FROM Usuario WHERE id_user=?');
+    $adminRow->execute([$ids['c']]);
+    $adminId=AdminService::conceder($conn,$adminRow->fetch(PDO::FETCH_ASSOC));
+    $adminCsrf=token(request('c','/app/views/admin/usuarios.php'));
+    $conn->exec("INSERT INTO Conversa(tipo_conversa) VALUES('grupo')");
+    $banConversation=(int)$conn->lastInsertId();
+    $conn->prepare('INSERT INTO Grupo(id_conversa,id_criador,nome_grupo) VALUES(?,?,?)')->execute([$banConversation,$ids['b'],"Banimento $run"]);
+    $banGroup=(int)$conn->lastInsertId();
+    $conn->prepare('INSERT INTO Participantes_Conversa(id_conversa,id_user) VALUES(?,?),(?,?)')->execute([$banConversation,$ids['b'],$banConversation,$ids['a']]);
+    $conn->prepare('INSERT INTO Acao_Administrativa(id_adm,id_user,tipo_acao,motivo) VALUES(?,?,?,?)')->execute([$adminId,$ids['b'],'teste_banimento','Registro sintético']);
+    $banEndpoint='/app/views/admin/usuario-acao.php';
+    verify(request('c',$banEndpoint,['id_user'=>$ids['b'],'acao'=>'banido','motivo'=>'Teste de banimento'])['status']===403, 'banimento sem CSRF recusado');
+    verify((int)scalar('SELECT COUNT(*) FROM Participantes_Conversa WHERE id_conversa=?',[$banConversation])===2, 'CSRF inválido não remove participações');
+    $ban=request('c',$banEndpoint,['id_user'=>$ids['b'],'acao'=>'banido','motivo'=>'Teste de banimento','csrf_token'=>$adminCsrf]);
+    verify($ban['status']===302 && scalar('SELECT status_user FROM Usuario WHERE id_user=?',[$ids['b']])==='banido', 'painel aplica banimento');
+    verify((int)scalar('SELECT COUNT(*) FROM Participantes_Conversa WHERE id_user=?',[$ids['b']])===0
+        && (int)scalar('SELECT COUNT(*) FROM Solicitacao_Vaga_Evento WHERE id_user=?',[$ids['b']])===0
+        && (int)scalar('SELECT COUNT(*) FROM Lista_Evento WHERE id_user=?',[$ids['b']])===0, 'banimento limpa grupos e participações em eventos');
+    verify((int)scalar('SELECT id_criador FROM Grupo WHERE id_grupo=?',[$banGroup])===$ids['a'], 'banimento transfere grupo a integrante ativo');
+    verify((int)scalar('SELECT COUNT(*) FROM Acao_Administrativa WHERE id_user=?',[$ids['b']])===0, 'histórico administrativo não conserva registros do banido');
+
 } catch (Throwable $error) {
     verify(false, 'execução interrompida: ' . $error->getMessage());
 } finally {

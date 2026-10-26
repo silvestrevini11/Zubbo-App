@@ -44,6 +44,10 @@ jobs:
         working-directory: ./-TCC-
         run: php tests/group-moderation-smoke.php
 
+      - name: Banishment cleanup and rollback
+        working-directory: ./-TCC-
+        run: php tests/banishment-smoke.php
+
       - name: Check Railway entry files
         run: |
           test -f ./-TCC-/index.php

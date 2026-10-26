@@ -40,10 +40,15 @@ try {
     $stmt = $conn->prepare('SELECT 1 FROM Administrador WHERE id_user=? AND ativo=1 LIMIT 1');
     $stmt->execute([$id]);
     if ($stmt->fetchColumn() && $acao !== 'ativo') throw new RuntimeException('active_admin');
-    $conn->prepare('UPDATE Usuario SET status_user = ? WHERE id_user = ?')->execute([$acao, $id]);
-    admin_registrar_acao($conn, 'usuario_' . $acao, $motivo, ['id_user' => (int) $id]);
+    if ($acao === 'banido') {
+        require_once __DIR__ . '/../../services/BanimentoService.php';
+        zubbo_banir_usuario($conn, (int)$id);
+    } else {
+        $conn->prepare('UPDATE Usuario SET status_user = ? WHERE id_user = ?')->execute([$acao, $id]);
+        admin_registrar_acao($conn, 'usuario_' . $acao, $motivo, ['id_user' => (int)$id]);
+    }
     $conn->commit();
-    admin_flash('sucesso', 'Status do usuário atualizado.');
+    admin_flash('sucesso', $acao === 'banido' ? 'Usuário banido. Participações e registros associados removidos.' : 'Status do usuário atualizado.');
 } catch (Throwable $e) {
     if ($conn->inTransaction()) $conn->rollBack();
     admin_flash('erro', 'Não foi possível atualizar o usuário. Contas administrativas ativas não podem ser suspensas por este painel.');

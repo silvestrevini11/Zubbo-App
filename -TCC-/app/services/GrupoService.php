@@ -50,38 +50,48 @@ function zubbo_grupo_sair(PDO $db, int $conversa, int $usuario): void
         $st = $db->prepare('SELECT id_user FROM Participantes_Conversa WHERE id_conversa=? AND id_user=?');
         $st->execute([$conversa, $usuario]);
         if ($st->fetchColumn() === false) throw new DomainException('Você não participa deste grupo.');
-        $moderador = zubbo_grupo_moderador($db, $grupo, $usuario);
-        $db->prepare('DELETE FROM Grupo_Moderador WHERE id_grupo=? AND id_user=?')->execute([$grupo['id_grupo'], $usuario]);
-        $db->prepare('DELETE FROM Participantes_Conversa WHERE id_conversa=? AND id_user=?')->execute([$conversa, $usuario]);
-        $db->prepare('DELETE FROM Notificacao WHERE id_conversa=? AND id_destinatario=?')->execute([$conversa, $usuario]);
-        $substituto = null;
-        if ($moderador) {
-            $st = $db->prepare("SELECT pc.id_user FROM Participantes_Conversa pc
-                JOIN Usuario u ON u.id_user=pc.id_user AND u.status_user='ativo'
-                WHERE pc.id_conversa=? AND pc.id_user<>COALESCE(?,0)
-                AND NOT EXISTS (SELECT 1 FROM Grupo_Moderador gm WHERE gm.id_grupo=? AND gm.id_user=pc.id_user)");
-            $st->execute([$conversa, $grupo['id_criador'], $grupo['id_grupo']]);
-            $candidatos = $st->fetchAll(PDO::FETCH_COLUMN);
-            if ($candidatos) {
-                $substituto = (int)$candidatos[random_int(0, count($candidatos)-1)];
-                $db->prepare('INSERT INTO Grupo_Moderador (id_grupo,id_user) VALUES (?,?)')->execute([$grupo['id_grupo'], $substituto]);
-            }
-        }
-        if ((int)$grupo['id_criador'] === $usuario) {
-            if ($substituto === null) {
-                $st = $db->prepare("SELECT gm.id_user FROM Grupo_Moderador gm
-                    JOIN Participantes_Conversa pc ON pc.id_user=gm.id_user AND pc.id_conversa=?
-                    JOIN Usuario u ON u.id_user=gm.id_user AND u.status_user='ativo'
-                    WHERE gm.id_grupo=? ORDER BY gm.id_user");
-                $st->execute([$conversa, $grupo['id_grupo']]);
-                $restantes = $st->fetchAll(PDO::FETCH_COLUMN);
-                if ($restantes) $substituto = (int)$restantes[random_int(0, count($restantes)-1)];
-            }
-            $db->prepare('UPDATE Grupo SET id_criador=? WHERE id_grupo=?')->execute([$substituto, $grupo['id_grupo']]);
-        }
+        zubbo_grupo_remover_integrante($db, $grupo, $usuario);
         $db->commit();
     } catch (Throwable $e) {
         if ($db->inTransaction()) $db->rollBack();
         throw $e;
+    }
+}
+
+/** Uso interno: o chamador deve bloquear o grupo e manter a transação aberta. */
+function zubbo_grupo_remover_integrante(PDO $db, array $grupo, int $usuario): void
+{
+    if (!$db->inTransaction()) throw new LogicException('A remoção exige uma transação.');
+    $conversa = (int)$grupo['id_conversa'];
+    $st = $db->prepare('SELECT 1 FROM Grupo_Moderador WHERE id_grupo=? AND id_user=?');
+    $st->execute([$grupo['id_grupo'], $usuario]);
+    $moderador = (int)$grupo['id_criador'] === $usuario || $st->fetchColumn() !== false;
+    $db->prepare('DELETE FROM Grupo_Moderador WHERE id_grupo=? AND id_user=?')->execute([$grupo['id_grupo'], $usuario]);
+    $db->prepare('DELETE FROM Participantes_Conversa WHERE id_conversa=? AND id_user=?')->execute([$conversa, $usuario]);
+    $db->prepare('DELETE FROM Notificacao WHERE id_conversa=? AND id_destinatario=?')->execute([$conversa, $usuario]);
+    $substituto = null;
+    if ($moderador) {
+        $st = $db->prepare("SELECT pc.id_user FROM Participantes_Conversa pc
+            JOIN Usuario u ON u.id_user=pc.id_user AND u.status_user='ativo'
+            WHERE pc.id_conversa=? AND pc.id_user<>COALESCE(?,0)
+            AND NOT EXISTS (SELECT 1 FROM Grupo_Moderador gm WHERE gm.id_grupo=? AND gm.id_user=pc.id_user)");
+        $st->execute([$conversa, $grupo['id_criador'], $grupo['id_grupo']]);
+        $candidatos = $st->fetchAll(PDO::FETCH_COLUMN);
+        if ($candidatos) {
+            $substituto = (int)$candidatos[random_int(0, count($candidatos)-1)];
+            $db->prepare('INSERT INTO Grupo_Moderador (id_grupo,id_user) VALUES (?,?)')->execute([$grupo['id_grupo'], $substituto]);
+        }
+    }
+    if ((int)$grupo['id_criador'] === $usuario) {
+        if ($substituto === null) {
+            $st = $db->prepare("SELECT gm.id_user FROM Grupo_Moderador gm
+                JOIN Participantes_Conversa pc ON pc.id_user=gm.id_user AND pc.id_conversa=?
+                JOIN Usuario u ON u.id_user=gm.id_user AND u.status_user='ativo'
+                WHERE gm.id_grupo=? ORDER BY gm.id_user");
+            $st->execute([$conversa, $grupo['id_grupo']]);
+            $restantes = $st->fetchAll(PDO::FETCH_COLUMN);
+            if ($restantes) $substituto = (int)$restantes[random_int(0, count($restantes)-1)];
+        }
+        $db->prepare('UPDATE Grupo SET id_criador=? WHERE id_grupo=?')->execute([$substituto, $grupo['id_grupo']]);
     }
 }

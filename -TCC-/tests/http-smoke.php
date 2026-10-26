@@ -119,9 +119,19 @@ try {
         && !str_contains($settings['body'], 'action="promover-moderador.php"'), 'integrante comum não recebe ações de moderação');
     $pair = $conn->query("SELECT p.id_local,p.id_esporte FROM Local_Esporte_Permitido p JOIN LocalEsp l ON l.id_local=p.id_local JOIN Esporte e ON e.id_esporte=p.id_esporte WHERE l.status_local='aprovado' AND e.nome_esporte='Futsal' LIMIT 1")->fetch();
     $page = request('a', $eventPage);
-    $day = (new DateTimeImmutable('2031-01-02'))->modify('+' . (int)scalar('SELECT COUNT(*) FROM Evento') . ' days')->format('Y-m-d');
+    $day = (new DateTimeImmutable('today'))->modify('+1 day')->format('Y-m-d');
     $event = ['nome_evento'=>"Evento $run", 'data_evento'=>$day, 'horario_evento'=>'15:00', 'duracao_minutos'=>60,
         'id_grupo'=>$group, 'id_local'=>$pair['id_local'], 'id_esporte'=>$pair['id_esporte'], 'csrf'=>token($page, 'csrf')];
+    foreach ([['data_evento', (new DateTimeImmutable('today'))->modify('+31 days')->format('Y-m-d')],
+        ['data_evento', '2028-02-12'], ['horario_evento', '05:00'], ['horario_evento', '23:00'],
+        ['horario_evento', '12:15']] as [$campo, $valor]) {
+        $invalido = $event;
+        $invalido[$campo] = $valor;
+        $resposta = request('a', '/app/views/eventos/criar-evento.php', $invalido);
+        verify($resposta['status'] === 200 && str_contains($resposta['body'], 'role="alert"')
+            && (int)scalar('SELECT COUNT(*) FROM Evento WHERE nome_evento=?', [$event['nome_evento']]) === 0,
+            'POST direto recusa agenda inválida: ' . $campo . '=' . $valor);
+    }
     $forgedEvent = $event;
     $forgedEvent['csrf'] = token(request('b', '/app/views/eventos/criar-evento.php'), 'csrf');
     verify(request('b', '/app/views/eventos/criar-evento.php', $forgedEvent)['status'] === 403

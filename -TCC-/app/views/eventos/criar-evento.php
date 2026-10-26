@@ -1,6 +1,12 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
 require_once __DIR__ . '/../../services/GrupoService.php';
+require_once __DIR__ . '/../../services/EventoAgendaService.php';
+
+$agora = new DateTimeImmutable('now');
+$hoje = $agora->setTime(0, 0);
+$dataLimite = $hoje->modify('+30 days');
+$horariosPermitidos = zubbo_evento_horarios();
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $erro = '';
@@ -69,17 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!$idEsporte || !$idLocal || !in_array($duracao, [60, 90, 120], true)) {
         $erro = 'Selecione um esporte e um local válidos.';
     } else {
-        $dataHora = DateTime::createFromFormat('Y-m-d H:i', $dataEvento . ' ' . $horarioEvento);
-        $errosData = DateTime::getLastErrors();
-
-        if (
-            !$dataHora
-            || ($errosData !== false && ($errosData['warning_count'] > 0 || $errosData['error_count'] > 0))
-            || $dataHora <= new DateTime('now')
-            || ((int)substr($horarioEvento,0,2)*60+(int)substr($horarioEvento,3,2)+$duracao > 1440)
-        ) {
-            $erro = 'Escolha uma data e um horário futuros.';
-        }
+        $erro = zubbo_evento_validar_agenda($dataEvento, $horarioEvento, $duracao, $agora);
     }
 
     if ($erro === '') {
@@ -261,21 +257,24 @@ function escaparCriarEvento($valor): string
                 type="date"
                 name="data_evento"
                 id="data_evento"
-                min="<?= date('Y-m-d') ?>"
+                min="<?= $hoje->format('Y-m-d') ?>"
+                max="<?= $dataLimite->format('Y-m-d') ?>"
+                aria-describedby="ajuda-data-evento"
                 value="<?= escaparCriarEvento($_POST['data_evento'] ?? '') ?>"
                 required
             >
+            <p id="ajuda-data-evento">Escolha uma data de hoje até <?= $dataLimite->format('d/m/Y') ?> (30 dias).</p>
         </div>
 
         <div>
             <label for="horario_evento">Horário</label>
-            <input
-                type="time"
-                name="horario_evento"
-                id="horario_evento"
-                value="<?= escaparCriarEvento($_POST['horario_evento'] ?? '') ?>"
-                required
-            >
+            <select name="horario_evento" id="horario_evento" aria-describedby="ajuda-horario-evento" required>
+                <option value="">Selecione um horário</option>
+                <?php foreach ($horariosPermitidos as $horario): ?>
+                    <option value="<?= $horario ?>" <?= ($_POST['horario_evento'] ?? '') === $horario ? 'selected' : '' ?>><?= $horario ?></option>
+                <?php endforeach; ?>
+            </select>
+            <p id="ajuda-horario-evento">Início das 05:30 às 22:30, em intervalos de 30 minutos.</p>
         </div>
 
         <div>

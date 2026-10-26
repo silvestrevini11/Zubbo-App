@@ -225,7 +225,7 @@ try {
     verify(request('c',$banEndpoint,['id_user'=>$ids['b'],'acao'=>'banido','motivo'=>'Teste de banimento'])['status']===403, 'banimento sem CSRF recusado');
     verify((int)scalar('SELECT COUNT(*) FROM Participantes_Conversa WHERE id_conversa=?',[$banConversation])===2, 'CSRF inválido não remove participações');
     $ban=request('c',$banEndpoint,['id_user'=>$ids['b'],'acao'=>'banido','motivo'=>'Teste de banimento','csrf_token'=>$adminCsrf]);
-    verify($ban['status']===302 && scalar('SELECT status_user FROM Usuario WHERE id_user=?',[$ids['b']])==='banido', 'painel aplica banimento');
+    verify($ban['status']===303 && scalar('SELECT status_user FROM Usuario WHERE id_user=?',[$ids['b']])==='banido', 'painel aplica banimento');
     verify((int)scalar('SELECT COUNT(*) FROM Participantes_Conversa WHERE id_user=?',[$ids['b']])===0
         && (int)scalar('SELECT COUNT(*) FROM Solicitacao_Vaga_Evento WHERE id_user=?',[$ids['b']])===0
         && (int)scalar('SELECT COUNT(*) FROM Lista_Evento WHERE id_user=?',[$ids['b']])===0, 'banimento limpa grupos e participações em eventos');

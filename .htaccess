@@ -1,4 +1,5 @@
 # Impede acesso a metadados do Git e diretórios locais pelo Apache/XAMPP.
 Options -Indexes
 RewriteEngine On
+RewriteRule ^-TCC-/\.well-known/assetlinks\.json$ -TCC-/public/assetlinks.php [END]
 RewriteRule (^|/)\. - [R=404,L]

@@ -35,6 +35,8 @@ foreach (['pesquisa/pesquisar-perfis.php', 'pesquisa/pesquisar-poles.php', 'pesq
 probe('public/css/style.css', 200);
 probe('sw.js', 200, 'GET', 'addEventListener');
 probe('public/manifest.php', 200, 'GET', '"start_url"');
+probe('public/offline.html', 200, 'GET', 'Tentar novamente');
+probe('.well-known/assetlinks.json', 200, 'GET', 'br.com.zubbo.app');
 // Comprovar que um 404 protege arquivos existentes, não apenas nomes fictícios.
 foreach (['config/database.php', 'database/scripts/criacaotables.sql', 'database/README.md',
     'vendor/autoload.php', 'README.md', 'docs/PLANO_DEMO_02.md', 'docs/AMBIENTE_DEMO_02.md',

@@ -21,7 +21,12 @@ if ($path === '/favicon.ico') {
     exit;
 }
 
-$publicas = ['/', '/index.php', '/health.php', '/public/index.php', '/public/reset-password.php', '/public/privacidade.php', '/public/manifest.php', '/sw.js'];
+if ($path === '/.well-known/assetlinks.json') {
+    require __DIR__ . '/public/assetlinks.php';
+    return true;
+}
+
+$publicas = ['/', '/index.php', '/health.php', '/public/index.php', '/public/reset-password.php', '/public/privacidade.php', '/public/manifest.php', '/public/offline.html', '/sw.js'];
 $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 $estaticas = ['css', 'js', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'ico', 'ttf', 'woff', 'woff2'];
 $appPhp = str_starts_with($path, '/app/views/')

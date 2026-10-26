@@ -15,27 +15,38 @@ if(!$grupo){http_response_code(403);exit('Você não faz parte deste grupo.');}
 $criador=(int)$grupo['id_criador']===$idUsuario;
 include __DIR__.'/../includes/head.php';
 ?>
-<main class="configuracoes" style="padding:24px 16px 110px;max-width:680px;margin:0 auto">
-  <p><a href="chat-grupo.php?id_conversa=<?= (int)$grupo['id_conversa'] ?>">← Voltar ao grupo</a></p>
-  <h1>Configurações do grupo</h1>
-  <h2><?= htmlspecialchars($grupo['nome_grupo'],ENT_QUOTES,'UTF-8') ?></h2>
-  <p><?= (int)$grupo['quantidade'] ?> participantes ativos</p>
-  <section class="configuracoes-grupo">
+<main class="configuracoes grupo-configuracoes">
+  <a class="grupo-config-voltar" href="chat-grupo.php?id_conversa=<?= (int)$grupo['id_conversa'] ?>"><span aria-hidden="true">←</span> Voltar ao grupo</a>
+  <header class="grupo-config-cabecalho">
+    <p class="grupo-config-legenda">SEU GRUPO</p>
+    <h1>Configurações do grupo</h1>
+    <div class="grupo-config-resumo">
+      <span class="grupo-config-avatar" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M21 20v-2a6 6 0 0 0-4-5.65"/></svg>
+      </span>
+      <div>
+        <h2><?= htmlspecialchars($grupo['nome_grupo'],ENT_QUOTES,'UTF-8') ?></h2>
+        <p><?= (int)$grupo['quantidade'] ?> <?= (int)$grupo['quantidade'] === 1 ? 'participante ativo' : 'participantes ativos' ?></p>
+      </div>
+    </div>
+  </header>
+  <section class="configuracoes-grupo grupo-config-card">
     <h3>Organizar encontro esportivo</h3>
     <p>Crie um evento e convide todos os participantes do grupo. Cada pessoa poderá confirmar a própria participação no evento.</p>
-    <a class="configuracoes-item configuracoes-link"
-       href="../eventos/criar-evento.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>">Criar evento e convidar o grupo →</a>
+    <a class="grupo-config-acao grupo-config-acao-principal"
+       href="../eventos/criar-evento.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>"><span>Criar evento e convidar o grupo</span><span aria-hidden="true">→</span></a>
   </section>
   <?php if($criador): ?>
-  <section class="configuracoes-grupo">
+  <section class="configuracoes-grupo grupo-config-card">
     <h3>Administração do grupo</h3>
-    <a class="configuracoes-item configuracoes-link"
-       href="editar-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>">Editar nome, foto e participantes →</a>
     <p>O criador não pode sair diretamente pelo botão padrão. Use a edição do grupo para gerenciar participantes.</p>
+    <a class="grupo-config-acao"
+       href="editar-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>"><span>Editar nome, foto e participantes</span><span aria-hidden="true">→</span></a>
   </section>
   <?php else: ?>
-  <section class="configuracoes-grupo">
+  <section class="configuracoes-grupo grupo-config-card grupo-config-participacao">
     <h3>Participação</h3>
+    <p>Gerencie sua participação neste grupo.</p>
     <form action="sair-grupo.php" method="post"
           onsubmit="return confirm('Tem certeza que deseja sair deste grupo?');">
       <?= zubbo_csrf_input() ?>

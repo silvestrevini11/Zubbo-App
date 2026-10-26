@@ -50,7 +50,12 @@ $foto = $grupo['foto_grupo']
         </div>
 
         <a class="grupo-btn-editar" href="configuracoes-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>"
-           aria-label="Configurações do grupo" title="Configurações do grupo" style="text-decoration:none">⚙</a>
+           aria-label="Configurações do grupo" title="Configurações do grupo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="m9.5 3-.5 2-2 .9-1.8-.6-2.5 4.4 1.4 1.4v1.8l-1.4 1.4 2.5 4.4 1.8-.6 2 .9.5 2h5l.5-2 2-.9 1.8.6 2.5-4.4-1.4-1.4v-1.8l1.4-1.4-2.5-4.4-1.8.6-2-.9-.5-2z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        </a>
     </header>
 
     <div class="chat-mensagens" id="chat-mensagens"  data-conversa="<?= $id_conversa ?>">

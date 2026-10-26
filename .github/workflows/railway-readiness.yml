@@ -6,6 +6,10 @@ on:
       - teste-railway
       - teste-alteracoes
   workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   readiness:
@@ -19,11 +23,15 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: pdo_mysql
+          extensions: pdo_mysql, curl, mbstring, openssl, fileinfo
+          tools: composer:v2
 
       - name: Validate Composer
         working-directory: ./-TCC-
-        run: composer validate --no-check-publish
+        run: |
+          composer validate --no-check-publish
+          composer install --no-interaction --no-progress --prefer-dist
+          composer check-platform-reqs
 
       - name: Check PHP syntax
         run: find ./-TCC- -path './-TCC-/vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
@@ -40,6 +48,9 @@ jobs:
           test -f ./-TCC-/config/database.php
           test -f ./-TCC-/database/scripts/criacaotables.sql
           test -f ./-TCC-/database/scripts/insertstables.sql
+
+      - name: Validar imagem opt-in de demo.02
+        run: docker build --file ./-TCC-/Dockerfile.demo02 --tag zubbo-demo02:${{ github.sha }} ./-TCC-
 
       - name: Check base path helper
         run: |
@@ -61,28 +72,34 @@ jobs:
             exit 1
           fi
 
+      - name: Mapa e biblioteca Web Push
+        working-directory: ./-TCC-
+        run: |
+          php tests/map-config-smoke.php
+          php tests/push-library-smoke.php
+          php tests/environment-readiness-smoke.php
+
+      - name: Sintaxe do verificador PowerShell
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD '-TCC-/tests/railway-readonly.ps1'), [ref]$tokens, [ref]$parseErrors) | Out-Null
+          if ($parseErrors.Count) { $parseErrors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+
       - name: HTTP smoke for Railway router
         shell: bash
         working-directory: ./-TCC-
+        env:
+          ZUBBO_BASE_PATH: /
+          ZUBBO_TEST_BASE_URL: http://127.0.0.1:8999
         run: |
-          ZUBBO_BASE_PATH=/ php -S 127.0.0.1:8999 router.php > /tmp/zubbo-smoke.log 2>&1 &
+          mkdir -p .local/logs
+          php -S 127.0.0.1:8999 router.php > .local/logs/router-smoke.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
-          sleep 2
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/health.php)" = "200"
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/)" = "302"
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/app/views/auth/login.php)" = "200"
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/app/views/painel/sugestoes-busca.php)" = "401"
-          for path in app/views/pesquisa/pesquisar-perfis.php app/views/pesquisa/pesquisar-poles.php app/views/pesquisa/pesquisar-eventos.php app/views/perfil/confirmar-email.php; do
-            test "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8999/$path")" = "302"
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:8999/health.php > /dev/null; then break; fi
+            sleep 1
           done
-          test "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8999/public/css/style.css)" = "200"
-          for path in config/database.php database/scripts/criacaotables.sql vendor/autoload.php RAILWAY_TEST.md router.php app/views/admin/_auth.php; do
-            test "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8999/$path")" = "404"
-          done
-          grep -q '"status":"ok"' <(curl -sS http://127.0.0.1:8999/health.php)
-          # Todas as ações sensíveis recusam POST sem CSRF e GET não permitido.
-          for path in app/views/notificacoes/aceitar-amizade.php app/views/perfil/adicionar-amigo.php app/views/chats/enviar-mensagem.php; do
-            test "$(curl -sS -o /dev/null -w '%{http_code}' -X POST "http://127.0.0.1:8999/$path")" = "403"
-            test "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:8999/$path")" = "405"
-          done
+          php tests/router-smoke.php

@@ -23,4 +23,17 @@ O arquivo `archive/pre-consolidacao/` é histórico, não uma segunda sequência
 
 ## Verificação
 
-`php tests/audit-migrations.php` executa apenas leitura e relata compatibilidade do estado atual com os cinco domínios. Não comprova histórico de execução. `php tests/db-smoke.php` usa apenas banco descartável vazio, autorizado por `ZUBBO_TEST_ALLOW_SCHEMA=1` e nome `zubbo_ci` ou `zubbo_test_*`. Os testes nunca devem apontar para a base publicada.
+`php tests/audit-migrations.php` executa apenas leitura e relata compatibilidade do estado atual com os cinco domínios. Não comprova histórico de execução: não há ledger retroativo. Confere tipos, nulabilidade, defaults, geração de colunas, índices, restrições, ações de chaves estrangeiras, engine e collation. Nomes equivalentes de índices são aceitos. Com `--strict`, retorna `0` para compatibilidade, `1` para divergências e `2` para erro de execução; sem a opção, divergências continuam sendo diagnóstico com retorno `0`, e erros de execução retornam `2`.
+
+As suítes abaixo exigem **bancos descartáveis inicialmente vazios**, autorização explícita `ZUBBO_TEST_ALLOW_SCHEMA=1` e nome `zubbo_ci` ou `zubbo_test_*`. A conexão deve ser configurada com `ZUBBO_DB_HOST`, `ZUBBO_DB_PORT`, `ZUBBO_DB_USER`, `ZUBBO_DB_PASSWORD` e `ZUBBO_DB_NAME`. Crie os bancos vazios separadamente; os verificadores não criam nem removem bancos. Nunca use a base publicada ou uma cópia com dados reais.
+
+* `php tests/db-smoke.php`: instalação nova, somente criação e inserts, seguida de fixtures e regras de negócio.
+* `php tests/db-upgrade.php`: suíte separada, em outro banco vazio, por exemplo `zubbo_test_upgrade`. Compara a instalação nova com uma base legada sintética, uma base parcial e uma base atual. Confere estrutura semântica, os oito esportes, os 18 locais, associações/fontes, preservação de registros e vínculos, transformações legadas, reexecução das cinco migrations e dos inserts após edição de campos e fontes. Exercita conflitos de administradores, locais normalizados e vagas confirmadas; exige interrupção identificável e preservação dos registros. Também rejeita coluna/chave estrangeira existente com definição incorreta e valida os códigos de saída da auditoria CLI.
+
+A suíte de upgrades remove **somente as tabelas conhecidas de suas próprias fixtures**, entre cenários, dentro do banco explicitamente autorizado. Recusa uma base não vazia no início e qualquer tabela desconhecida antes da limpeza. Ao final, mantém o schema atual e dados sintéticos para `php tests/audit-migrations.php --strict`. Após falha, mantém as evidências; revise o diagnóstico e provisione outro banco descartável vazio para uma nova execução.
+
+As cinco migrations completam colunas com default/NULL e índices/vínculos ausentes quando isso é seguro. Definições incompatíveis interrompem com marcadores `ERRO_def_*` ou `ERRO_fk_*`, sem adivinhar conversões. A existência de uma tabela ou coluna não basta para aprovação. Como DDL tem commits implícitos, uma interrupção pode deixar alterações aditivas anteriores aplicadas; rollback de código não reverte essas alterações.
+
+`php database/tools/migration-contract.php` verifica se as pós-condições SQL geradas correspondem ao contrato do script de criação. Para regenerá-las após uma alteração deliberada na estrutura, use `php database/tools/migration-contract.php --write` e revise o diff. A auditoria e a comparação da suíte usam o mesmo contrato, sem consultar dados sensíveis em seus relatórios.
+
+O alvo de aprovação continua PHP 8.4 com MySQL 8.4 no CI. Resultados em MySQL 8.0 são evidência complementar e não autorizam a publicação.

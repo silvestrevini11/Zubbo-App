@@ -1,0 +1,17 @@
+# Select this Dockerfile explicitly only on the new demo.02 application service.
+# Existing Railway environments must keep their current build configuration.
+FROM php:8.4-cli-bookworm
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libcurl4-openssl-dev libonig-dev unzip \
+    && docker-php-ext-install -j"$(nproc)" pdo_mysql curl mbstring \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+WORKDIR /app
+COPY . .
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader \
+    && composer check-platform-reqs --no-dev \
+    && php -r 'foreach (["pdo_mysql", "curl", "json", "mbstring", "openssl", "ctype", "fileinfo", "filter", "hash"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing extension: $extension\n"); exit(1); } }'
+
+CMD ["sh", "-c", "exec php -S 0.0.0.0:${PORT:?PORT is required} router.php"]

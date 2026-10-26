@@ -60,31 +60,25 @@ require __DIR__ . '/includes/header.php';
                 <td><?= (int)$u['qtd_esportes'] ?></td>
                 <td><span class="admin-status status-<?= htmlspecialchars($u['status_user']) ?>"><?= htmlspecialchars($u['status_user']) ?></span><?php if ($u['eh_admin']): ?> <strong>· ADM</strong><?php endif; ?></td>
                 <td>
-                    <form class="admin-acoes-inline" action="usuario-acao.php" method="post">
+                    <form class="admin-acoes-inline" action="usuario-acao.php" method="post" data-admin-usuario data-usuario-nome="<?= htmlspecialchars($u['nome_user'], ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                         <input type="hidden" name="id_user" value="<?= (int)$u['id_user'] ?>">
                         <select name="acao" aria-label="Ação para <?= htmlspecialchars($u['nome_user']) ?>">
                             <option value="ativo">Ativar</option>
                             <option value="suspenso">Suspender</option>
                             <option value="banido">Banir</option>
+                            <?php if (!$u['eh_admin'] && $u['status_user'] === 'ativo' && (int)$u['id_user'] !== (int)$_SESSION['usuario']['id']): ?>
+                            <option value="tornar_admin">Tornar ADM</option>
+                            <?php endif; ?>
                         </select>
-                        <input type="text" name="motivo" maxlength="255" placeholder="Motivo" required>
+                        <input type="text" name="motivo" maxlength="255" placeholder="Motivo" aria-label="Motivo para <?= htmlspecialchars($u['nome_user'], ENT_QUOTES, 'UTF-8') ?>" required>
                         <button type="submit">Aplicar</button>
                     </form>
-                    <?php if (!$u['eh_admin'] && $u['status_user'] === 'ativo' && (int)$u['id_user'] !== (int)$_SESSION['usuario']['id']): ?>
-                    <form class="admin-acoes-inline admin-promocao" action="usuario-acao.php" method="post"
-                          onsubmit="return confirm('Conceder acesso administrativo completo a este usuário?');">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
-                        <input type="hidden" name="id_user" value="<?= (int)$u['id_user'] ?>">
-                        <input type="hidden" name="acao" value="tornar_admin">
-                        <input type="text" name="motivo" minlength="8" maxlength="255" placeholder="Motivo da promoção" required>
-                        <button type="submit">Tornar ADM</button>
-                    </form>
-                    <?php endif; ?>
                 </td>
             </tr>
         <?php endforeach; ?>
         </tbody>
     </table>
 </section>
+<script src="../../../public/js/admin-usuarios.js?v=<?= (int)filemtime(__DIR__ . '/../../../public/js/admin-usuarios.js') ?>" defer></script>
 <?php require __DIR__ . '/includes/footer.php'; ?>

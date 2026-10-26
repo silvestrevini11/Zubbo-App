@@ -172,13 +172,49 @@ a.admin-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(2
 }
 
 /* Controles compactos somente na tabela de usuários. */
-.admin-usuarios .admin-acoes-inline { grid-template-columns: 98px minmax(125px, 1fr) max-content; min-width: 310px; gap: 8px; align-items: center; }
-.admin-usuarios .admin-acoes-inline + .admin-acoes-inline { margin-top: 8px; }
+.admin-usuarios .admin-acoes-inline { grid-template-columns: 120px minmax(125px, 1fr) max-content; min-width: 310px; gap: 8px; align-items: center; }
 .admin-usuarios .admin-acoes-inline input:not([type="hidden"]),
 .admin-usuarios .admin-acoes-inline select { width: 100%; min-width: 0; min-height: 34px; height: 34px; padding: 0 9px; border-radius: 8px; }
 .admin-usuarios .admin-acoes-inline button { width: auto; min-height: 34px; height: 34px; padding: 0 12px; border-radius: 8px; white-space: nowrap; }
-.admin-usuarios .admin-promocao { grid-template-columns: minmax(150px, 1fr) max-content; }
 .admin-usuarios .admin-table td:last-child { width: 360px; }
 .admin-usuarios .admin-acoes-inline button:focus-visible { outline: 3px solid #ffb199; outline-offset: 2px; }
 
 .admin-usuarios-filtros input, .admin-usuarios-filtros select, .admin-usuarios-filtros button, .admin-usuarios-filtros a { min-height: 34px; height: 34px; border-radius: 8px; }
+/* Formulários de sugestões e locais: rótulos acima dos campos. */
+.admin-local-cadastro { margin-bottom: 22px; padding: 22px; border: 1px solid var(--admin-borda); border-radius: 16px; background: var(--admin-card); }
+.admin-local-cadastro h2 { margin: 0; font-size: 20px; line-height: 1.4; }
+.admin-sugestoes-grid { align-items: start; }
+.admin-form-card.admin-form-organizado { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.admin-form-organizado > *, .admin-form-organizado label { min-width: 0; }
+.admin-form-organizado label { display: flex; flex-direction: column; gap: 7px; color: var(--admin-texto); font-size: 12px; font-weight: 600; line-height: 1.5; }
+.admin-form-organizado input:not([type="hidden"]):not([type="checkbox"]),
+.admin-form-organizado select, .admin-form-organizado textarea { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; font: inherit; font-size: 12px; font-weight: 400; }
+.admin-form-organizado input:not([type="hidden"]):not([type="checkbox"]),
+.admin-form-organizado select:not([multiple]) { min-height: 40px; }
+.admin-form-organizado textarea { min-height: 100px; padding: 11px; border: 1px solid #dfe1e5; border-radius: 10px; background: #fff; color: var(--admin-texto); resize: vertical; }
+.admin-form-organizado textarea:focus-visible { outline: 2px solid #ff8f73; outline-offset: 2px; }
+.admin-form-organizado select[multiple] { min-height: 140px; padding: 8px; }
+.admin-form-organizado select[multiple] option { padding: 5px 7px; border-radius: 4px; }
+.admin-form-organizado input[type="file"] { padding: 6px; overflow: hidden; }
+.admin-form-organizado input[type="file"]::file-selector-button { margin-right: 9px; padding: 6px 10px; border: 0; border-radius: 6px; background: #f0f1f4; color: var(--admin-texto); font: inherit; font-size: 11px; cursor: pointer; }
+.admin-form-organizado .admin-opcao { display: flex; flex-direction: row; align-items: flex-start; gap: 9px; font-size: 12px; font-weight: 400; cursor: pointer; }
+.admin-form-organizado input[type="checkbox"] { flex: 0 0 16px; width: 16px; height: 16px; min-height: 0; margin: 2px 0 0; padding: 0; accent-color: var(--admin-laranja); }
+.admin-form-organizado .admin-campo-inteiro { grid-column: 1 / -1; }
+.admin-form-organizado .admin-form-ajuda { margin: 0; color: var(--admin-suave); font-size: 11px; line-height: 1.6; }
+.admin-form-organizado button { justify-self: start; align-self: start; width: auto; min-height: 38px; padding: 9px 16px; line-height: 1.4; cursor: pointer; }
+.admin-form-organizado > strong { font-size: 14px; }
+.admin-modalidades-lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 10px; }
+.admin-modalidades-lista .admin-opcao { min-height: 40px; padding: 10px; border: 1px solid var(--admin-borda); border-radius: 9px; background: #fafafb; overflow-wrap: anywhere; }
+.admin-modalidades-lista .admin-opcao:has(input:checked) { border-color: #ffb39e; background: #fff3ee; }
+.admin-form-card.admin-form-foto { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; }
+.admin-form-foto label { flex: 1 1 260px; }
+.admin-form-foto button { flex: 0 0 auto; align-self: end; }
+.admin-local-foto { display: block; width: 100px; height: 76px; border-radius: 10px; object-fit: cover; }
+@media (max-width: 1100px) {
+    .admin-form-card.admin-form-organizado { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+    .admin-local-cadastro { padding: 18px; }
+    .admin-local-cadastro h2 { font-size: 18px; }
+    .admin-form-foto label { flex-basis: 100%; }
+}

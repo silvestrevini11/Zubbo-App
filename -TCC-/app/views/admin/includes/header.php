@@ -13,7 +13,7 @@ unset($_SESSION['admin_flash']);
     <link rel="icon" type="image/png" sizes="any" href="<?= htmlspecialchars(zubbo_url('/public/imagem/ZubboSemFundo.png'), ENT_QUOTES, 'UTF-8') ?>">
     <link rel="apple-touch-icon" href="<?= htmlspecialchars(zubbo_url('/public/imagem/ZubboSemFundo.png'), ENT_QUOTES, 'UTF-8') ?>">
     <meta name="theme-color" content="#ef4b25">
-    <link rel="stylesheet" href="../../../public/css/admin.css">
+    <link rel="stylesheet" href="../../../public/css/admin.css?v=<?= (int)filemtime(__DIR__ . '/../../../../public/css/admin.css') ?>">
 </head>
 <body class="admin-body">
 <div class="admin-shell">

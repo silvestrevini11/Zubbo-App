@@ -9,17 +9,18 @@ necessário refazer essa consolidação nem recriar os quatro guias removidos.
 
 A integração e a validação local foram concluídas na continuação de **26/10/2026**.
 
-Este é o relatório único da entrega. Resultados de arquivos modificados no checkout
-são identificados como validação local sobre a base indicada; não certificam o SHA
-base nem um futuro commit. A publicação exige workflows aprovados para o mesmo SHA
-que será implantado.
+Este é o relatório único da entrega. A implementação local validada foi registrada no
+commit **`3cbbf62b2f3a2b318741cdc4e943523465c3c898`**. Os resultados abaixo correspondem
+ao código desse commit; este fechamento acrescenta somente documentação. O SHA final
+da branch ainda precisa de aprovação no CI antes de ser implantado. A publicação
+exige workflows aprovados para exatamente o SHA escolhido.
 
 | Marco | Estado verificável |
 |---|---|
 | Base commitada da retomada | `3fd7a49`, branch `teste-alteracoes` |
 | Arquivos locais no início | Três documentos de `docs/`, `tests/environment-readiness.php` e `tests/railway-readonly.ps1` ainda não versionados |
 | Dependências locais | `vendor/` retirado do índice e ignorado; arquivos físicos locais preservados; instalação pelo lock conferida |
-| Alterações desta retomada | Implementação local concluída; SHA da implementação registrado no fechamento do relatório |
+| Implementação local commitada e validada | `3cbbf62b2f3a2b318741cdc4e943523465c3c898`; fechamento posterior restrito a este relatório |
 | SHA final aprovado em CI | Pendente: publicação depende de comprovar o isolamento dos autodeploys antes do push |
 | SHA implantado / URL de `demo.02` | Não confirmados |
 | Banco, volume e backup inicial de `demo.02` | Não confirmados; referências privadas devem ser registradas após provisionamento |
@@ -40,11 +41,11 @@ entre implementação, evidência histórica, validação local e publicação.
 | Verificação atual | Ambiente / revisão | Resultado |
 |---|---|---|
 | Branch e base da retomada | Git local, `3fd7a49` | Conferidos antes das alterações |
-| Links Markdown locais da documentação | Checkout sobre `3fd7a49`, README e três documentos | 22 links locais, zero destinos ausentes |
-| Sintaxe PHP e PowerShell | Checkout sobre `3fd7a49`, PHP 8.4.27 | 128 fontes PHP fora de vendor/.local e o verificador PowerShell aprovados |
+| Links Markdown locais da documentação | `3cbbf62`, README e três documentos | 22 links locais, zero destinos ausentes |
+| Sintaxe PHP e PowerShell | `3cbbf62`, PHP 8.4.27 | 128 fontes PHP fora de vendor/.local e o verificador PowerShell aprovados |
 | Composer install pelo lock | PHP 8.4.27 | Aprovado; consulta ao filtro Packagist teve aviso de falha de DNS |
 | Composer validate --no-check-publish / check-platform-reqs | PHP 8.4.27 | Aprovados; aviso de licença ausente permanece |
-| Segurança e mapa | Checkout sobre `3fd7a49`, PHP 8.4.27 | Aprovados |
+| Segurança e mapa | `3cbbf62`, PHP 8.4.27 | Aprovados |
 | Biblioteca push | PHP 8.4.27, OpenSSL configurado no Windows | Aprovada após configurar OPENSSL_CONF e RANDFILE locais |
 | Instalação nova | MySQL 8.0.46 isolado em loopback:13386, `zubbo_test_fresh`, PHP 8.4.27 | 44 verificações aprovadas; evidência complementar, não MySQL 8.4 |
 | Upgrades e reexecução | PHP 8.4.27 / MySQL 8.0.46, `zubbo_test_upgrade` isolado | 105 verificações aprovadas: legado, parcial, atual, catálogo 8/18, fontes, vínculos, conflitos e preservação |
@@ -54,7 +55,7 @@ entre implementação, evidência histórica, validação local e publicação.
 | Backup e restauração sintéticos | MySQL 8.0.46; fresh → `zubbo_test_restore` | Dados restaurados com hashes idênticos e auditoria estrita aprovada; não comprova backup remoto |
 | Todas as suítes SQL no alvo de hospedagem | MySQL 8.4 / PHP 8.4 | MySQL 8.4 indisponível localmente; execução no CI pendente |
 | tests/http-smoke.php | PHP 8.4.27 e banco sintético na instância MySQL 8.0.46 isolada | 46 verificações, zero falhas |
-| tests/router-smoke.php | PHP 8.4.27, checkout sobre `3fd7a49` | 35 verificações, zero falhas; documentos reais bloqueados, Service Worker e manifesto 200 |
+| tests/router-smoke.php | PHP 8.4.27, `3cbbf62` | 35 verificações, zero falhas; documentos reais bloqueados, Service Worker e manifesto 200 |
 | `tests/environment-readiness-smoke.php`, cinco cenários sintéticos --skip-db | PHP 8.4.27, sem conexão de rede | Configuração válida retorna 0; DB público, autorização destrutiva, VAPID inconsistente e origem divergente retornam 1; saída sem segredos |
 | Build Dockerfile.demo02 | Docker indisponível localmente | Arquivo preparado como opção explícita do serviço novo; construção pendente |
 | Ambiente sem `--skip-db` | Runtime real de `demo.02` | Pendente |
@@ -65,6 +66,11 @@ Não converter a inclusão de um teste no workflow em resultado aprovado. Atuali
 tabela com comando, resultado, runtime e revisão efetivamente usados. Novos logs
 locais ficam em `.local/logs/` e não são versionados.
 
+Evidências locais privadas, relativas a `-TCC-` e ignoradas pelo Git:
+
+- `.local/logs/db-fresh-php84-mysql80.log`, `db-upgrade-php84-mysql80.log`, `http-flows-php84-mysql80.log` e `http-router-php84.log`.
+- `.local/logs/audit-fresh-php84-mysql80.json`, `audit-upgrade-php84-mysql80.json`, `audit-restore-php84-mysql80.json` e `environment-smoke.log`.
+- Backup exclusivamente sintético: `.local/backups/fresh-synthetic-restore.sql`; restauração comprovada em `.local/logs/restore-synthetic.log`. Nenhum backup de `demo.02` foi criado ou confirmado.
 O coordenador identificou PHP **8.4.27** em `.local/php84/php.exe` e MySQL **8.0.46**
 instalado. MySQL 8.4 e Docker não estão disponíveis no ambiente local identificado.
 Uma execução em MySQL 8.0 ou MariaDB é evidência complementar e não satisfaz o alvo

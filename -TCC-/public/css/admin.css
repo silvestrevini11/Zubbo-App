@@ -93,7 +93,7 @@ a.admin-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(2
 
 .admin-status { display: inline-flex; width: max-content; align-items: center; min-height: 25px; padding: 0 8px; border-radius: 999px; font-size: 9px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
 .status-ativo, .status-aprovado, .status-aprovada, .status-resolvida { background: #e8f7ef; color: #11724b; }
-.status-suspenso, .status-pendente, .status-em_analise, .status-cancelado { background: #fff4dd; color: #9c6200; }
+.status-suspenso, .status-pendente, .status-em_analise, .status-cancelado, .status-encerrado { background: #fff4dd; color: #9c6200; }
 .status-banido, .status-rejeitado, .status-rejeitada, .status-removido { background: #ffeded; color: #af3030; }
 
 .admin-filtros { margin-bottom: 16px; display: flex; gap: 9px; flex-wrap: wrap; }

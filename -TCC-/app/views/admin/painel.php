@@ -6,7 +6,7 @@ $contagens = [];
 $consultas = [
     'usuarios' => "SELECT COUNT(*) FROM Usuario",
     'usuarios_ativos' => "SELECT COUNT(*) FROM Usuario WHERE status_user = 'ativo'",
-    'eventos' => "SELECT COUNT(*) FROM Evento WHERE status_evento = 'ativo'",
+    'eventos' => "SELECT COUNT(*) FROM Evento WHERE status_evento = 'ativo' AND TIMESTAMP(data_evento, horario_evento) >= NOW()",
     'denuncias' => "SELECT COUNT(*) FROM Denuncia WHERE status_denuncia IN ('pendente','em_analise')",
     'sugestoes' => "SELECT COUNT(*) FROM Sugestao_Esporte WHERE status_sugestao = 'pendente'",
     'locais' => "SELECT COUNT(*) FROM LocalEsp WHERE status_local = 'pendente'",

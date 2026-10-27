@@ -7876,6 +7876,15 @@ body:has(.amigos-container) { background: #f2f3f5; }
     border-radius: 14px; background: #e73e1d; color: #fff;
     font-size: 11px; font-weight: 800;
 }
+.seletor-tipo .seletor-nao-lidas {
+    position: absolute; top: -9px; right: 12px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: #e73e1d; box-shadow: 0 0 0 2px #fff;
+    pointer-events: none;
+}
+html.tema-escuro .seletor-tipo .seletor-nao-lidas {
+    box-shadow: 0 0 0 2px #18191b;
+}
 .suporte-alvo-campo[hidden] { display: none !important; }
 html.tema-escuro body:has(.amigos-container),
 html.tema-escuro .amigos-container { background: #18191b; }

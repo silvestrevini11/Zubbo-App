@@ -11,28 +11,22 @@ $stmt = $conn->prepare("
         g.nome_grupo,
         g.descricao_grupo,
         g.foto_grupo,
-        COUNT(DISTINCT pc2.id_user) AS total_participantes,
         m.mensagem AS ultima_mensagem,
         m.data_envio,
         c.data_criacao
     FROM Grupo g
     INNER JOIN Conversa c ON c.id_conversa = g.id_conversa AND c.tipo_conversa = 'grupo'
     INNER JOIN Participantes_Conversa pc ON pc.id_conversa = g.id_conversa AND pc.id_user = :id_usuario
-    LEFT JOIN Participantes_Conversa pc2 ON pc2.id_conversa = g.id_conversa
     LEFT JOIN Mensagem m ON m.id_mensagem = (
         SELECT MAX(m2.id_mensagem)
         FROM Mensagem m2
         WHERE m2.id_conversa = g.id_conversa
     )
-    GROUP BY g.id_grupo, g.id_conversa, g.nome_grupo, g.descricao_grupo,
-             g.foto_grupo, m.id_mensagem, m.mensagem, m.data_envio, c.data_criacao
     ORDER BY COALESCE(m.data_envio, c.data_criacao) DESC
 ");
 $stmt->execute([':id_usuario'=>$id_usuario]);
 $grupos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$stmtNaoLidas = $conn->prepare("SELECT id_conversa, COUNT(*) AS total FROM Notificacao WHERE id_destinatario = ? AND tipo = 'mensagem' AND lida = FALSE AND id_conversa IS NOT NULL GROUP BY id_conversa");
-$stmtNaoLidas->execute([$id_usuario]);
-$naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
+require __DIR__ . '/contadores-nao-lidas.php';
 
 ?>
 <section class="chats-container">
@@ -60,17 +54,25 @@ $naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
     <button
         class="opcao"
         data-tipo="privados"
+        aria-label="Privados<?= $tiposComNaoLidas['privado'] ? ', com mensagens não lidas' : '' ?>"
         onclick="window.location.href='chats.php'"
     >
         Privados
+        <?php if ($tiposComNaoLidas['privado']): ?>
+            <span class="seletor-nao-lidas" aria-hidden="true"></span>
+        <?php endif; ?>
     </button>
 
     <button
         class="opcao ativa"
         data-tipo="grupos"
+        aria-label="Grupos<?= $tiposComNaoLidas['grupo'] ? ', com mensagens não lidas' : '' ?>"
         onclick="window.location.href='chats-grupos.php'"
     >
         Grupos
+        <?php if ($tiposComNaoLidas['grupo']): ?>
+            <span class="seletor-nao-lidas" aria-hidden="true"></span>
+        <?php endif; ?>
     </button>
 
 </div>
@@ -89,7 +91,7 @@ $naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
                     : zubbo_url('/public/imagem/blank.png');
 
                 $resumo = $grupo['ultima_mensagem']
-                    ?: ($grupo['descricao_grupo'] ?: $grupo['total_participantes'].' participantes');
+                    ?: ($grupo['descricao_grupo'] ?: 'Grupo sem mensagens');
             ?>
             <a href="chat-grupo.php?id_conversa=<?= (int)$grupo['id_conversa'] ?>" class="chat-item grupo-chat-item">
                 <img src="<?= htmlspecialchars($foto) ?>" alt="Foto do grupo" class="chat-item-foto">
@@ -97,10 +99,10 @@ $naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
                     <strong><?= htmlspecialchars($grupo['nome_grupo']) ?></strong>
                     <span><?= htmlspecialchars($resumo) ?></span>
                 </div>
-                <?php if ((int)($naoLidas[$grupo['id_conversa']] ?? 0) > 0): ?>
-                    <span class="chat-item-unread" aria-label="<?= (int)($naoLidas[$grupo['id_conversa']] ?? 0) ?> mensagens não lidas"><?= (int)($naoLidas[$grupo['id_conversa']] ?? 0) > 99 ? '99+' : (int)($naoLidas[$grupo['id_conversa']] ?? 0) ?></span>
+                <?php $totalNaoLidas = (int) ($naoLidas[$grupo['id_conversa']] ?? 0); ?>
+                <?php if ($totalNaoLidas > 0): ?>
+                    <span class="chat-item-unread" aria-label="<?= $totalNaoLidas ?> mensagens não lidas"><?= $totalNaoLidas > 99 ? '99+' : $totalNaoLidas ?></span>
                 <?php endif; ?>
-                <span class="grupo-chat-total"><?= (int)$grupo['total_participantes'] ?></span>
             </a>
             <hr class="perfil-hr">
         <?php endforeach; ?>

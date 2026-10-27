@@ -64,9 +64,7 @@ $stmt->execute([
 ]);
 
 $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$stmtNaoLidas = $conn->prepare("SELECT id_conversa, COUNT(*) AS total FROM Notificacao WHERE id_destinatario = ? AND tipo = 'mensagem' AND lida = FALSE AND id_conversa IS NOT NULL GROUP BY id_conversa");
-$stmtNaoLidas->execute([$id_usuario]);
-$naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
+require __DIR__ . '/contadores-nao-lidas.php';
 
 
 ?>
@@ -87,17 +85,25 @@ $naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
     <button
         class="opcao ativa"
         data-tipo="privados"
+        aria-label="Privados<?= $tiposComNaoLidas['privado'] ? ', com mensagens não lidas' : '' ?>"
         onclick="window.location.href='chats.php'"
     >
         Privados
+        <?php if ($tiposComNaoLidas['privado']): ?>
+            <span class="seletor-nao-lidas" aria-hidden="true"></span>
+        <?php endif; ?>
     </button>
 
     <button
         class="opcao"
         data-tipo="grupos"
+        aria-label="Grupos<?= $tiposComNaoLidas['grupo'] ? ', com mensagens não lidas' : '' ?>"
         onclick="window.location.href='chats-grupos.php'"
     >
         Grupos
+        <?php if ($tiposComNaoLidas['grupo']): ?>
+            <span class="seletor-nao-lidas" aria-hidden="true"></span>
+        <?php endif; ?>
     </button>
 
 </div>

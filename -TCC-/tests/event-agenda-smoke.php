@@ -10,8 +10,8 @@ $casos = [
     ['2026-10-27', '22:30', 60, true],
     ['2026-10-27', '12:00', 60, true],
     ['2026-10-27', '12:30', 90, true],
-    ['2026-11-25', '22:30', 60, true],
-    ['2026-11-26', '12:00', 60, false],
+    ['2026-11-26', '22:30', 60, true],
+    ['2026-11-27', '12:00', 60, false],
     ['2028-02-12', '12:00', 60, false],
     ['2026-10-25', '12:00', 60, false],
     ['2026-10-26', '12:30', 60, false],
@@ -38,14 +38,41 @@ foreach ($casos as [$data, $horario, $duracao, $valido]) {
         exit(1);
     }
 }
-// Limite usa dias de calendário e o fuso do sistema, inclusive ao mudar de ano.
+// O limite é o mesmo dia do mês seguinte, inclusive ao mudar de ano.
 $virada = new DateTimeImmutable('2026-12-20 23:59:59', $agora->getTimezone());
-if (zubbo_evento_validar_agenda('2027-01-19', '22:30', 60, $virada) !== ''
-    || zubbo_evento_validar_agenda('2027-01-20', '05:30', 60, $virada) === '') {
-    throw new RuntimeException('Limite de 30 dias incorreto na virada do ano.');
+if (zubbo_evento_validar_agenda('2027-01-20', '22:30', 60, $virada) !== ''
+    || zubbo_evento_validar_agenda('2027-01-21', '05:30', 60, $virada) === '') {
+    throw new RuntimeException('Limite mensal incorreto na virada do ano.');
+}
+$dia27 = new DateTimeImmutable('2026-10-27 12:00:00', $agora->getTimezone());
+if (zubbo_evento_data_limite($dia27)->format('Y-m-d') !== '2026-11-27'
+    || zubbo_evento_validar_agenda('2026-11-27', '12:00', 60, $dia27) !== '') {
+    throw new RuntimeException('Limite de 27/10 deveria ser 27/11.');
+}
+$fimMes = new DateTimeImmutable('2027-01-31 12:00:00', $agora->getTimezone());
+$fimMesBissexto = new DateTimeImmutable('2028-01-31 12:00:00', $agora->getTimezone());
+if (zubbo_evento_data_limite($fimMes)->format('Y-m-d') !== '2027-02-28'
+    || zubbo_evento_data_limite($fimMesBissexto)->format('Y-m-d') !== '2028-02-29') {
+    throw new RuntimeException('Limite mensal incorreto no fim de fevereiro.');
 }
 $horarios = zubbo_evento_horarios();
 if (count($horarios) !== 35 || $horarios[0] !== '05:30' || end($horarios) !== '22:30') {
     throw new RuntimeException('Lista de horários incorreta.');
 }
-echo 'OK: 27 verificações de agenda, limites de data e horários.' . PHP_EOL;
+$ocupados = [['horario_evento' => '18:00:00', 'duracao_minutos' => 90]];
+$livres = zubbo_evento_horarios_disponiveis('2026-10-27', 60, $ocupados, $agora);
+foreach (['17:30', '18:00', '18:30', '19:00'] as $ocupado) {
+    if (in_array($ocupado, $livres, true)) throw new RuntimeException('Sobreposição exibida: ' . $ocupado);
+}
+if (!in_array('17:00', $livres, true) || !in_array('19:30', $livres, true)) {
+    throw new RuntimeException('Horário adjacente deveria estar livre.');
+}
+$livresLongos = zubbo_evento_horarios_disponiveis('2026-10-27', 120, $ocupados, $agora);
+if (in_array('16:30', $livresLongos, true) || !in_array('16:00', $livresLongos, true)) {
+    throw new RuntimeException('Duração escolhida não aplicada.');
+}
+$livresAposExclusao = zubbo_evento_horarios_disponiveis('2026-10-27', 60, [], $agora);
+if (!in_array('18:00', $livresAposExclusao, true)) {
+    throw new RuntimeException('Evento excluído não liberou o horário.');
+}
+echo 'OK: agenda, conflitos por duração e liberação após exclusão.' . PHP_EOL;

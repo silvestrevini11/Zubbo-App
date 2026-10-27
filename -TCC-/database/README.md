@@ -12,6 +12,8 @@ No banco vazio, execute somente `scripts/criacaotables.sql` e depois `scripts/in
 
 Execute as cinco migrations em ordem, interrompendo no primeiro erro (sem `--force`). Cada alteração consulta `information_schema`; pode ser repetida em banco atualizado ou parcialmente migrado. Depois execute os inserts se desejar completar os dados iniciais e associações. Migrations modificam estrutura e transformam solicitações e notificações legadas; não inserem locais ou modalidades de catálogo.
 
+Os inserts associam Futsal, Vôlei, Basquete e Handebol a todos os ginásios, e Handebol, Futsal e Vôlei a todas as quadras. As associações e fontes já cadastradas são preservadas.
+
 * Migration ativa: 001_usuarios_administracao; SQL anterior arquivado: 002_admin_user_relation, 007_bloqueio_usuario, add_recuperacao_senha
 * Migration ativa: 002_locais_denuncias; SQL anterior arquivado: 003_deduplicate_locations, 004_denuncia_local, 006_foto_local, tipo campo de 014
 * Migration ativa: 003_eventos_grupos; SQL anterior arquivado: add/upgrade_solicitacao_vaga_evento, 008_fila_espera, 009_editar_times, 011_duracao_eventos, Grupo_Evento de 015

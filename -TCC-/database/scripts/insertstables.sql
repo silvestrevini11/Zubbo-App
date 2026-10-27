@@ -9,6 +9,11 @@ INSERT IGNORE INTO Esporte (nome_esporte) VALUES
 ('Corrida'),
 ('Handebol');
 
+UPDATE LocalEsp
+SET nome_local = 'Ginásio Poliesportivo Ivanderlei Pereira (Vandão)'
+WHERE nome_local = 'Ginásio Poliesportivo Ivanderlei Pereira - Vandão'
+  AND endereco_local = 'Rua Prudente de Moraes, 302 - Promissão, Diadema - SP';
+
 INSERT INTO LocalEsp (
     nome_local,
     endereco_local,
@@ -20,7 +25,7 @@ INSERT INTO LocalEsp (
 ('Ginásio Poliesportivo Mané Garrincha', 'Rua dos Cariris, 195 - Piraporinha, Diadema - SP', 'ginásio', 'aprovado', NULL),
 ('Ginásio Poliesportivo João do Pulo', 'Rua El Salvador, 41 - Canhema, Diadema - SP', 'ginásio', 'aprovado', NULL),
 ('Ginásio Poliesportivo Rômulo Arantes', 'Avenida Casa Grande, 483 - Portinari, Diadema - SP', 'ginásio', 'aprovado', NULL),
-('Ginásio Poliesportivo Ivanderlei Pereira - Vandão', 'Rua Prudente de Moraes, 302 - Promissão, Diadema - SP', 'ginásio', 'aprovado', NULL),
+('Ginásio Poliesportivo Ivanderlei Pereira (Vandão)', 'Rua Prudente de Moraes, 302 - Promissão, Diadema - SP', 'ginásio', 'aprovado', NULL),
 ('Ginásio Poliesportivo Vila Conceição', 'Rua Caramuru, 1230 - Vila Conceição, Diadema - SP', 'ginásio', 'aprovado', NULL),
 ('Ginásio Poliesportivo Eduardo de Jesus Souza', 'Avenida Curió, 94 - Jardim Campanário, Diadema - SP', 'ginásio', 'aprovado', NULL)
 ON DUPLICATE KEY UPDATE id_local=id_local;
@@ -173,15 +178,16 @@ INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
 INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
  SELECT l.id_local,e.id_esporte,'https://americatv.com.br/ver_noticia?id=50'
  FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Futsal'
- WHERE l.nome_local='Ginásio Poliesportivo Ivanderlei Pereira - Vandão'
+ WHERE l.nome_local='Ginásio Poliesportivo Ivanderlei Pereira (Vandão)'
  ON DUPLICATE KEY UPDATE id_local=Local_Esporte_Permitido.id_local;
 
--- 016 - Regra interna do Zubbo: habilitar Futsal em todos os locais do tipo ginásio.
--- A inclusão é idempotente e preserva a fonte de associações já existentes.
--- É preciso confirmar a disponibilidade e autorização do responsável pelo local.
-INSERT IGNORE INTO Local_Esporte_Permitido (id_local, id_esporte, fonte)
+-- Modalidades por tipo de local informadas pela administração do Zubbo.
+-- Inclusão reexecutável: preserva modalidades e fontes já cadastradas.
+INSERT INTO Local_Esporte_Permitido (id_local, id_esporte, fonte)
 SELECT l.id_local, e.id_esporte,
-       'Habilitado por regra de ginásio do Zubbo - confirmar uso com o responsável'
+       'Modalidades por tipo de local informadas pela administração do Zubbo'
 FROM LocalEsp l
-INNER JOIN Esporte e ON e.nome_esporte = 'Futsal'
-WHERE l.tipo_local = 'ginásio';
+CROSS JOIN Esporte e
+WHERE (l.tipo_local = 'ginásio' AND e.nome_esporte IN ('Futsal', 'Vôlei', 'Basquete', 'Handebol'))
+   OR (l.tipo_local = 'quadra' AND e.nome_esporte IN ('Handebol', 'Futsal', 'Vôlei'))
+ON DUPLICATE KEY UPDATE id_local = Local_Esporte_Permitido.id_local;

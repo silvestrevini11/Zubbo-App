@@ -10,6 +10,41 @@ function zubbo_evento_horarios(): array
     return $horarios;
 }
 
+function zubbo_evento_data_limite(DateTimeImmutable $agora): DateTimeImmutable
+{
+    $primeiroDiaMesSeguinte = $agora->setTime(0, 0)->modify('first day of next month');
+    $dia = min((int)$agora->format('j'), (int)$primeiroDiaMesSeguinte->format('t'));
+    return $primeiroDiaMesSeguinte->setDate(
+        (int)$primeiroDiaMesSeguinte->format('Y'),
+        (int)$primeiroDiaMesSeguinte->format('n'),
+        $dia
+    );
+}
+
+function zubbo_evento_horarios_disponiveis(string $data, int $duracao, array $eventos, DateTimeImmutable $agora): array
+{
+    $disponiveis = [];
+    foreach (zubbo_evento_horarios() as $horario) {
+        if (zubbo_evento_validar_agenda($data, $horario, $duracao, $agora) !== '') {
+            continue;
+        }
+        $inicio = (int)substr($horario, 0, 2) * 60 + (int)substr($horario, 3, 2);
+        $fim = $inicio + $duracao;
+        foreach ($eventos as $evento) {
+            $horarioOcupado = substr((string)$evento['horario_evento'], 0, 5);
+            $inicioOcupado = (int)substr($horarioOcupado, 0, 2) * 60 + (int)substr($horarioOcupado, 3, 2);
+            $fimOcupado = $inicioOcupado + (int)$evento['duracao_minutos'];
+            $fimEvento = DateTimeImmutable::createFromFormat('!Y-m-d H:i', $data . ' ' . $horarioOcupado, $agora->getTimezone());
+            if ($fimEvento && $fimEvento->modify('+' . (int)$evento['duracao_minutos'] . ' minutes') > $agora
+                && $inicio < $fimOcupado && $fim > $inicioOcupado) {
+                continue 2;
+            }
+        }
+        $disponiveis[] = $horario;
+    }
+    return $disponiveis;
+}
+
 function zubbo_evento_validar_agenda(string $data, string $horario, int $duracao, DateTimeImmutable $agora): string
 {
     $dataHora = DateTimeImmutable::createFromFormat('!Y-m-d H:i', $data . ' ' . $horario, $agora->getTimezone());
@@ -19,8 +54,8 @@ function zubbo_evento_validar_agenda(string $data, string $horario, int $duracao
         return 'Escolha uma data e um horário válidos.';
     }
     $hoje = $agora->setTime(0, 0);
-    if ($dataHora->setTime(0, 0) > $hoje->modify('+30 days')) {
-        return 'Escolha uma data até 30 dias a partir de hoje.';
+    if ($dataHora->setTime(0, 0) > zubbo_evento_data_limite($agora)) {
+        return 'Escolha uma data até o mesmo dia do próximo mês.';
     }
     if ($dataHora <= $agora) {
         return 'Escolha uma data e um horário futuros.';

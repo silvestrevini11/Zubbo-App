@@ -5,8 +5,7 @@ require_once __DIR__ . '/../../services/EventoAgendaService.php';
 
 $agora = new DateTimeImmutable('now');
 $hoje = $agora->setTime(0, 0);
-$dataLimite = $hoje->modify('+30 days');
-$horariosPermitidos = zubbo_evento_horarios();
+$dataLimite = zubbo_evento_data_limite($agora);
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $erro = '';
@@ -252,6 +251,22 @@ function escaparCriarEvento($valor): string
         </div>
 
         <div>
+            <label for="id_local">Local</label>
+            <select name="id_local" id="id_local" required>
+                <option value="">Selecione um local</option>
+                <?php foreach ($locais as $local): ?>
+                    <option
+                        value="<?= (int) $local['id_local'] ?>"
+                        <?= (string) ($_POST['id_local'] ?? '') === (string) $local['id_local'] ? 'selected' : '' ?>
+                    >
+                        <?= escaparCriarEvento($local['nome_local']) ?> — <?= escaparCriarEvento($local['endereco_local']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <p class="evento-ajuda">Confirme a reserva do espaço com o responsável.</p>
+        </div>
+
+        <div>
             <label for="data_evento">Data</label>
             <input
                 type="date"
@@ -269,12 +284,12 @@ function escaparCriarEvento($valor): string
         <div>
             <label for="horario_evento">Horário</label>
             <select name="horario_evento" id="horario_evento" aria-describedby="ajuda-horario-evento" required>
-                <option value="">Selecione um horário</option>
-                <?php foreach ($horariosPermitidos as $horario): ?>
+                <option value="">Escolha a data e o local</option>
+                <?php foreach (zubbo_evento_horarios() as $horario): ?>
                     <option value="<?= $horario ?>" <?= ($_POST['horario_evento'] ?? '') === $horario ? 'selected' : '' ?>><?= $horario ?></option>
                 <?php endforeach; ?>
             </select>
-            <p id="ajuda-horario-evento" class="evento-ajuda">Das 05:30 às 22:30, a cada 30 min.</p>
+            <p id="ajuda-horario-evento" class="evento-ajuda" aria-live="polite">Escolha a data e o local para ver os horários livres.</p>
         </div>
 
         <div>
@@ -291,22 +306,6 @@ function escaparCriarEvento($valor): string
                 <?php endforeach; ?>
             </select>
             <p id="aviso-modalidade" class="evento-ajuda" aria-live="polite">Escolha o local para ver os esportes.</p>
-        </div>
-
-        <div>
-            <label for="id_local">Local</label>
-            <select name="id_local" id="id_local" required>
-                <option value="">Selecione um local</option>
-                <?php foreach ($locais as $local): ?>
-                    <option
-                        value="<?= (int) $local['id_local'] ?>"
-                        <?= (string) ($_POST['id_local'] ?? '') === (string) $local['id_local'] ? 'selected' : '' ?>
-                    >
-                        <?= escaparCriarEvento($local['nome_local']) ?> — <?= escaparCriarEvento($local['endereco_local']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <p class="evento-ajuda">Confirme a reserva do espaço com o responsável.</p>
         </div>
 
         <div>
@@ -327,7 +326,68 @@ function escaparCriarEvento($valor): string
  const local=document.getElementById('id_local');
  const esporte=document.getElementById('id_esporte');
  const aviso=document.getElementById('aviso-modalidade');
+ const data=document.getElementById('data_evento');
+ const ajudaData=document.getElementById('ajuda-data-evento');
+ const duracao=document.getElementById('duracao_minutos');
+ const horario=document.getElementById('horario_evento');
+ const ajudaHorario=document.getElementById('ajuda-horario-evento');
+ const horarioInicial=<?= json_encode((string)($_POST['horario_evento'] ?? ''), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;
+ const urlHorarios=<?= json_encode(zubbo_url('/app/views/eventos/horarios-disponiveis.php'), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;
+ let requisicao;
  if(!local||!esporte) return;
+ function atualizarLimiteData() {
+   // Usa o mesmo fuso do servidor, mesmo se o visitante estiver em outra região.
+   const partes=new Intl.DateTimeFormat('en-US', {
+     timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'
+   }).formatToParts(new Date());
+   const valores=Object.fromEntries(partes.map(parte=>[parte.type,parte.value]));
+   const hoje=`${valores.year}-${valores.month}-${valores.day}`;
+   if(data.min===hoje) return false;
+   const ano=Number(valores.year);
+   const mes=Number(valores.month);
+   const ultimoDiaMesSeguinte=new Date(Date.UTC(ano,mes+1,0)).getUTCDate();
+   const limite=new Date(Date.UTC(ano,mes,Math.min(Number(valores.day),ultimoDiaMesSeguinte)));
+   const maximo=limite.toISOString().slice(0,10);
+   data.min=hoje;
+   data.max=maximo;
+   ajudaData.textContent=`Até ${maximo.slice(8,10)}/${maximo.slice(5,7)}/${maximo.slice(0,4)}.`;
+   if(data.value && (data.value<hoje||data.value>maximo)) {
+     data.value='';
+   }
+   atualizarHorarios();
+   return true;
+ }
+ function limparHorarios(mensagem) {
+   horario.replaceChildren(new Option(mensagem, ''));
+   ajudaHorario.textContent=mensagem;
+ }
+ async function atualizarHorarios() {
+   requisicao?.abort();
+   if(!local.value||!data.value) {
+     limparHorarios('Escolha a data e o local para ver os horários livres.');
+     return;
+   }
+   const controller=new AbortController();
+   requisicao=controller;
+   const escolhido=horario.value||horarioInicial;
+   limparHorarios('Consultando horários livres...');
+   const parametros=new URLSearchParams({id_local:local.value,data_evento:data.value,duracao_minutos:duracao.value});
+   try {
+     const resposta=await fetch(urlHorarios+'?'+parametros,{signal:controller.signal,cache:'no-store'});
+     if(!resposta.ok) throw new Error('Falha na consulta');
+     const resultado=await resposta.json();
+     if(controller!==requisicao) return;
+     horario.replaceChildren(new Option('Selecione um horário', ''));
+     for(const valor of resultado.horarios) horario.add(new Option(valor,valor));
+     if(resultado.horarios.includes(escolhido)) horario.value=escolhido;
+     ajudaHorario.textContent=resultado.horarios.length
+       ? 'Horários livres das 05:30 às 22:30, conforme a duração escolhida.'
+       : 'Não há horários livres para esta data, local e duração.';
+   } catch(erro) {
+     if(erro.name==='AbortError') return;
+     limparHorarios('Não foi possível consultar os horários. Tente novamente.');
+   }
+ }
  function atualizar() {
    const permitidos=(esportesPorLocal[local.value]||[]).map(Number);
    for(const opt of esporte.options) {
@@ -341,8 +401,14 @@ function escaparCriarEvento($valor): string
        : 'Sem esportes confirmados. Consulte o administrador.')
      : 'Escolha o local para ver os esportes.';
  }
- local.addEventListener('change',atualizar);
+ local.addEventListener('change',()=>{atualizar();atualizarHorarios();});
+ data.addEventListener('change',atualizarHorarios);
+ duracao.addEventListener('change',atualizarHorarios);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden) atualizarLimiteData();});
+ window.addEventListener('focus',atualizarLimiteData);
+ setInterval(atualizarLimiteData,60*1000);
  atualizar();
+ if(!atualizarLimiteData()) atualizarHorarios();
 })();
 </script>
 <?php

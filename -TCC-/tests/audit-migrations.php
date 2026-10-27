@@ -35,8 +35,14 @@ try {
         && $results['002_locais_denuncias']['estado'] === 'compativel') {
         $sports = (int)$conn->query("SELECT COUNT(*) FROM Esporte WHERE nome_esporte IN ('Futebol','Basquete','Vôlei','Futsal','Corrida','Handebol','Futebol Society','Tênis')")->fetchColumn();
         $missing = (int)$conn->query("SELECT COUNT(*) FROM LocalEsp l WHERE l.tipo_local='ginásio' AND NOT EXISTS (SELECT 1 FROM Local_Esporte_Permitido p JOIN Esporte e ON e.id_esporte=p.id_esporte WHERE p.id_local=l.id_local AND e.nome_esporte='Futsal')")->fetchColumn();
-        $catalog = ['estado' => $sports === 8 && $missing === 0 ? 'compativel' : 'pendente_ou_divergente',
+        $missingRequired = (int)$conn->query("SELECT COUNT(*) FROM LocalEsp l CROSS JOIN Esporte e
+            LEFT JOIN Local_Esporte_Permitido p ON p.id_local=l.id_local AND p.id_esporte=e.id_esporte
+            WHERE ((l.tipo_local='ginásio' AND e.nome_esporte IN ('Futsal','Vôlei','Basquete','Handebol'))
+                OR (l.tipo_local='quadra' AND e.nome_esporte IN ('Handebol','Futsal','Vôlei')))
+              AND p.id_local IS NULL")->fetchColumn();
+        $catalog = ['estado' => $sports === 8 && $missing === 0 && $missingRequired === 0 ? 'compativel' : 'pendente_ou_divergente',
             'esportes_esperados_presentes' => $sports, 'ginasios_sem_futsal' => $missing,
+            'associacoes_obrigatorias_ausentes' => $missingRequired,
             'evidencia' => 'Catálogo é aplicado pelos inserts, separadamente das migrations. Fontes editadas não são sobrescritas.'];
     }
     $compatible = $compatible && $catalog['estado'] === 'compativel';

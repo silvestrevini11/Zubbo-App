@@ -52,12 +52,14 @@ confirmar((int)$conn->query("SELECT COUNT(*) FROM LocalEsp WHERE tipo_local='cam
     'campos de Diadema importados');
 confirmar((int)$conn->query("SELECT COUNT(*) FROM Local_Esporte_Permitido")->fetchColumn() >= 12,
     'modalidades por local importadas');
-$futsalNaoAssociado = (int)$conn->query("SELECT COUNT(*) FROM LocalEsp l
- LEFT JOIN Local_Esporte_Permitido p ON p.id_local=l.id_local
-    AND p.id_esporte=(SELECT id_esporte FROM Esporte WHERE nome_esporte='Futsal' LIMIT 1)
- WHERE l.tipo_local='ginásio' AND p.id_local IS NULL")->fetchColumn();
-confirmar($futsalNaoAssociado===0,
-    'todos os ginasios do banco possuem futsal');
+$modalidadesNaoAssociadas = (int)$conn->query("SELECT COUNT(*) FROM LocalEsp l
+ CROSS JOIN Esporte e
+ LEFT JOIN Local_Esporte_Permitido p ON p.id_local=l.id_local AND p.id_esporte=e.id_esporte
+ WHERE ((l.tipo_local='ginásio' AND e.nome_esporte IN ('Futsal','Vôlei','Basquete','Handebol'))
+     OR (l.tipo_local='quadra' AND e.nome_esporte IN ('Handebol','Futsal','Vôlei')))
+   AND p.id_local IS NULL")->fetchColumn();
+confirmar($modalidadesNaoAssociadas===0,
+    'ginasios e quadras possuem todas as modalidades definidas para seu tipo');
 
 $verifSociety=$conn->query("SELECT COUNT(*) FROM Local_Esporte_Permitido p
    JOIN LocalEsp l ON l.id_local=p.id_local JOIN Esporte e ON e.id_esporte=p.id_esporte

@@ -5,7 +5,7 @@
 SET @zubbo_tipo_parque_sql = (
     SELECT IF(COUNT(*) = 0,
         'ALTER TABLE LocalEsp MODIFY COLUMN tipo_local ENUM(''quadra'',''poliesportivo'',''clube'',''ginásio'',''campo'',''parque'') NOT NULL DEFAULT ''poliesportivo''',
-        'SELECT 1')
+        'SET @zubbo_tipo_parque_noop = 1')
     FROM information_schema.columns
     WHERE table_schema = DATABASE()
       AND table_name = 'LocalEsp'

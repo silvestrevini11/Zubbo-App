@@ -12,7 +12,7 @@ Plataforma para encontrar locais esportivos, organizar partidas e conhecer pesso
 
 ## Sobre o projeto
 
-Desenvolvido como TCC de Desenvolvimento de Sistemas da ETEC Juscelino Kubitchek, em Diadema, em 2026, por Vitor Santos, Ycaro Jesus, Kaue Mota, Pedro Nathan, Vinicius Silvestre e Mayara Santos. O projeto está em demonstração web, com interface adaptada para celulares e versão Android planejada.
+Desenvolvido como TCC de Desenvolvimento de Sistemas da ETEC Juscelino Kubitchek, em Diadema, em 2026, por Vitor Santos, Ycaro Jesus, Kaue Mota, Pedro Nathan, Vinicius Silvestre e Mayara Santos. O projeto está em demonstração web, com interface adaptada para celulares e um APK Android gerado a partir da versão web.
 
 ## Funcionalidades
 
@@ -23,7 +23,21 @@ Desenvolvido como TCC de Desenvolvimento de Sistemas da ETEC Juscelino Kubitchek
 
 ## Documentação técnica
 
-A aplicação usa PHP, MySQL/MariaDB, HTML, CSS e JavaScript. O Composer gerencia as dependências, o Mapbox fornece os mapas, Resend ou PHPMailer realiza o envio de mensagens por correio eletrônico e Minishlink realiza o envio de Web Push.
+### Tecnologias utilizadas
+
+| Camada | Tecnologias | Função no Zubbo |
+| --- | --- | --- |
+| Interface web | HTML, CSS e JavaScript | Telas adaptadas para celular, formulários, buscas e interações. |
+| Servidor | PHP 8.4 | Autenticação, regras de negócio, páginas e respostas às requisições. |
+| Banco de dados | MySQL 8.4, com PDO no PHP | Armazenamento de usuários, locais, eventos, mensagens e notificações. MariaDB também pode ser usado no desenvolvimento local. |
+| Dependências PHP | Composer, PHPMailer, Minishlink Web Push e Guzzle | Instalação das bibliotecas, envio de e-mails, Web Push e requisições HTTP. |
+| Mapas | Mapbox GL JS e API de geocodificação do Mapbox | Mapa dos locais, localização e busca de endereços. |
+| E-mail | Resend por API HTTPS ou SMTP com PHPMailer | Confirmação de conta e demais mensagens por e-mail. |
+| PWA e notificações | Web App Manifest, Service Worker e Web Push com chaves VAPID | Instalação a partir do navegador, avisos opcionais e página pública de aviso offline. |
+| APK Android | Trusted Web Activity (TWA), Bubblewrap 1.27.0, Android Browser Helper e Gradle 8.11.1 | Geração do projeto Android que abre a aplicação web hospedada. |
+| Desenvolvimento e hospedagem | XAMPP/Apache no ambiente local; Railway na configuração da demonstração | Execução do servidor PHP e acesso ao site por HTTPS para o APK atual. |
+
+O APK não contém o servidor PHP nem o banco de dados: ao abrir, ele carrega a aplicação web hospedada. O Bubblewrap gerou o projeto Android a partir da configuração da PWA; o Gradle compila o projeto e um script local assina o APK. O site e o aplicativo são associados por `/.well-known/assetlinks.json`. Consulte o [guia do APK Android](./-TCC-/mobile/twa/README.md) para a configuração, compilação e requisitos de distribuição. O modo offline exibe apenas uma página de aviso; as funcionalidades dependem do servidor.
 
 O código fica em `-TCC-`: `app/` reúne páginas, serviços e autenticação; `config/` contém as configurações; `database/` guarda scripts e migrations; `public/` contém recursos visuais e uploads; `tests/` reúne verificações automatizadas.
 

@@ -95,7 +95,6 @@ function escaparEvento($valor): string
         </section>
     <?php elseif (!$eventos): ?>
         <section class="eventos-vazio">
-            <span class="eventos-vazio-icone" aria-hidden="true">🏆</span>
             <h2>O próximo encontro começa com você</h2>
             <p>Ainda não há eventos cadastrados. Crie o primeiro para reunir a galera!</p>
             <a class="eventos-criar" href="criar-evento.php">Criar meu primeiro evento</a>

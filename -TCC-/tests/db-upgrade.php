@@ -35,10 +35,10 @@ function upgrade_file(PDO $db, string $relative): void
     if ($sql === false) throw new RuntimeException('Arquivo SQL ausente: ' . $relative);
     upgrade_sql($db, $sql);
 }
-function upgrade_migrations(PDO $db, int $limit = 6): void
+function upgrade_migrations(PDO $db, int $limit = 7): void
 {
     $files = glob(__DIR__ . '/../database/migrations/*.sql'); sort($files);
-    upgrade_assert(count($files) === 6, 'exatamente seis migrations ativas');
+    upgrade_assert(count($files) === 7, 'exatamente sete migrations ativas');
     foreach (array_slice($files, 0, $limit) as $path) upgrade_sql($db, file_get_contents($path));
 }
 function upgrade_tables(PDO $db): array
@@ -239,7 +239,7 @@ try {
     $before = upgrade_rows($conn);
     upgrade_migrations($conn); upgrade_migrations($conn);
     upgrade_file($conn, 'database/scripts/insertstables.sql');
-    upgrade_assert(upgrade_rows($conn) === $before, 'base atual: seis migrations repetidas preservam todos os registros');
+    upgrade_assert(upgrade_rows($conn) === $before, 'base atual: sete migrations repetidas preservam todos os registros');
     upgrade_assert(upgrade_structure($conn) === $referenceStructure, 'base atual: estrutura preservada');
     upgrade_assert(zubbo_contract_failures($conn, $checks) === [], 'base final apta à auditoria estrita');
     upgrade_audit(0, 'base atual compatível');

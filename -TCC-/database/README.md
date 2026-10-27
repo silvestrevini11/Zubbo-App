@@ -4,7 +4,7 @@ Execute os comandos a partir da raiz de `-TCC-`, com a conexão apontando explic
 
 ## Instalação nova
 
-No banco vazio, execute somente `scripts/criacaotables.sql` e depois `scripts/insertstables.sql`. O primeiro contém a estrutura final, o segundo 8 esportes, 18 locais e fontes de modalidades. Não aplique migrations após criar a estrutura final. Os inserts podem ser repetidos: preservam dados e fontes existentes. Contadores AUTO_INCREMENT podem avançar em conflitos sem criar registros duplicados.
+No banco vazio, execute somente `scripts/criacaotables.sql` e depois `scripts/insertstables.sql`. O primeiro contém a estrutura final, o segundo 8 esportes, 40 locais e fontes de modalidades. Não aplique migrations após criar a estrutura final. Os inserts podem ser repetidos: preservam dados e fontes existentes. Contadores AUTO_INCREMENT podem avançar em conflitos sem criar registros duplicados.
 
 `scripts/querytables.sql` contém consultas de leitura com campos explícitos e limites, sem selecionar hashes, códigos ou tokens. Não há `USE` fixo: o destino pertence à configuração da conexão.
 
@@ -30,7 +30,7 @@ O arquivo `archive/pre-consolidacao/` é histórico, não uma segunda sequência
 As suítes abaixo exigem **bancos descartáveis inicialmente vazios**, autorização explícita `ZUBBO_TEST_ALLOW_SCHEMA=1` e nome `zubbo_ci` ou `zubbo_test_*`. A conexão deve ser configurada com `ZUBBO_DB_HOST`, `ZUBBO_DB_PORT`, `ZUBBO_DB_USER`, `ZUBBO_DB_PASSWORD` e `ZUBBO_DB_NAME`. Crie os bancos vazios separadamente; os verificadores não criam nem removem bancos. Nunca use a base publicada ou uma cópia com dados reais.
 
 * `php tests/db-smoke.php`: instalação nova, somente criação e inserts, seguida de fixtures e regras de negócio.
-* `php tests/db-upgrade.php`: suíte separada, em outro banco vazio, por exemplo `zubbo_test_upgrade`. Compara a instalação nova com uma base legada sintética, uma base parcial e uma base atual. Confere estrutura semântica, os oito esportes, os 18 locais, associações/fontes, preservação de registros e vínculos, transformações legadas, reexecução das cinco migrations e dos inserts após edição de campos e fontes. Exercita conflitos de administradores, locais normalizados e vagas confirmadas; exige interrupção identificável e preservação dos registros. Também rejeita coluna/chave estrangeira existente com definição incorreta e valida os códigos de saída da auditoria CLI.
+* `php tests/db-upgrade.php`: suíte separada, em outro banco vazio, por exemplo `zubbo_test_upgrade`. Compara a instalação nova com uma base legada sintética, uma base parcial e uma base atual. Confere estrutura semântica, os oito esportes, os 40 locais, associações/fontes, preservação de registros e vínculos, transformações legadas, reexecução das cinco migrations e dos inserts após edição de campos e fontes. Exercita conflitos de administradores, locais normalizados e vagas confirmadas; exige interrupção identificável e preservação dos registros. Também rejeita coluna/chave estrangeira existente com definição incorreta e valida os códigos de saída da auditoria CLI.
 
 A suíte de upgrades remove **somente as tabelas conhecidas de suas próprias fixtures**, entre cenários, dentro do banco explicitamente autorizado. Recusa uma base não vazia no início e qualquer tabela desconhecida antes da limpeza. Ao final, mantém o schema atual e dados sintéticos para `php tests/audit-migrations.php --strict`. Após falha, mantém as evidências; revise o diagnóstico e provisione outro banco descartável vazio para uma nova execução.
 

@@ -8,7 +8,7 @@ $endereco = trim((string)($_POST['endereco_local'] ?? ''));
 $tipo = (string)($_POST['tipo_local'] ?? 'quadra');
 if (mb_strlen($nome) < 3 || mb_strlen($nome) > 60 ||
     mb_strlen($endereco) < 8 || mb_strlen($endereco) > 120 ||
-    !in_array($tipo, ['quadra','poliesportivo','clube','ginásio','campo'], true)) {
+    !in_array($tipo, ['quadra','poliesportivo','clube','ginásio','campo','parque'], true)) {
     admin_flash('erro','Informe nome, endereço e tipo válidos.');
     header('Location: locais.php', true, 303); exit;
 }

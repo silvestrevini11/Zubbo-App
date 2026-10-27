@@ -185,7 +185,7 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
   }
 
 
-  function criarPopupLocal(nome, endereco, fotoUrl = null, idLocal = null) {
+  function criarPopupLocal(nome, endereco, fotoUrl = null, idLocal = null, posicaoAproximada = false) {
     const conteudo = document.createElement('div');
     conteudo.style.color = '#222';
     const titulo = document.createElement('strong');
@@ -193,6 +193,11 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
     const descricao = document.createElement('p');
     descricao.textContent = endereco;
     conteudo.append(titulo, descricao);
+    if (posicaoAproximada) {
+      const aviso = document.createElement('small');
+      aviso.textContent = 'Posição aproximada na rua; confirme a entrada antes de ir.';
+      conteudo.appendChild(aviso);
+    }
     if (fotoUrl) {
       const foto = document.createElement('img');
       foto.src = fotoUrl;
@@ -225,7 +230,7 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
 
   const legendaMarcadores = document.createElement('div');
   legendaMarcadores.className = 'zubbo-legenda-marcadores';
-  legendaMarcadores.textContent = '🟢 Campos · 🔵 Quadras · 🟣 Ginásios · 🟠 Poliesportivos · 🟦 Clubes';
+  legendaMarcadores.textContent = '🟢 Campos · 🔵 Quadras · 🟣 Ginásios · 🟦 Clubes · 🟡 Parques';
   const mapaContainer = map.getContainer();
   mapaContainer.appendChild(legendaMarcadores);
 
@@ -267,13 +272,14 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
       statusMapa.textContent = 'Não foi possível carregar os locais cadastrados.';
       return;
     }
-    if (!locaisMapa.length) {
-      statusMapa.textContent = 'Nenhum local aprovado de Diadema cadastrado.';
+    const locaisVisiveis = locaisMapa.filter(local => local.tipo_local !== 'poliesportivo');
+    if (!locaisVisiveis.length) {
+      statusMapa.textContent = 'Nenhum local disponível para exibir no mapa.';
       return;
     }
     let adicionados = 0;
     let falhas = 0;
-    for (const local of locaisMapa) {
+    for (const local of locaisVisiveis) {
       const controlador = new AbortController();
       const tempoLimite = setTimeout(() => controlador.abort(), 10000);
       try {
@@ -281,33 +287,61 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
           q: local.endereco_local,
           country: 'br',
           language: 'pt',
-          types: 'address',
           autocomplete: 'false',
           limit: '1',
           bbox: limitesDiadema.flat().join(','),
           proximity: centroDiadema.join(','),
           access_token: mapboxgl.accessToken
         });
+        // Parques com endereço s/n podem ser localizados pela rua quando não há número.
+        if (local.tipo_local !== 'parque') parametros.set('types', 'address');
         const resposta = await fetch(
           'https://api.mapbox.com/search/geocode/v6/forward?' + parametros,
           { signal: controlador.signal }
         );
         if (!resposta.ok) throw new Error('Falha ao localizar endereço');
         const dados = await resposta.json();
-        const resultado = dados.features && dados.features[0];
-        const coordenadas = resultado && resultado.geometry && resultado.geometry.coordinates;
-        if (!coordenadas || resultado.geometry.type !== 'Point' ||
-            !coordenadas.every(Number.isFinite) ||
-            coordenadas[0] < limitesDiadema[0][0] || coordenadas[0] > limitesDiadema[1][0] ||
-            coordenadas[1] < limitesDiadema[0][1] || coordenadas[1] > limitesDiadema[1][1]) {
+        const pontoValido = (feature) => {
+          const ponto = feature && feature.geometry && feature.geometry.coordinates;
+          return feature && feature.geometry.type === 'Point' && Array.isArray(ponto) &&
+            ponto.length === 2 && ponto.every(Number.isFinite) &&
+            ponto[0] >= limitesDiadema[0][0] && ponto[0] <= limitesDiadema[1][0] &&
+            ponto[1] >= limitesDiadema[0][1] && ponto[1] <= limitesDiadema[1][1];
+        };
+        let resultado = dados.features && dados.features[0];
+        let posicaoAproximada = false;
+        if (!pontoValido(resultado) && /(?:s\/n|blocos?)/i.test(local.endereco_local)) {
+          // Quando o equipamento não tem número, usa apenas a rua confirmada em Diadema.
+          const nomeRua = local.endereco_local.split(',')[0].trim();
+          const parametrosRua = new URLSearchParams(parametros);
+          parametrosRua.set('q', nomeRua + ', Diadema, SP');
+          parametrosRua.delete('types');
+          parametrosRua.set('limit', '3');
+          const respostaRua = await fetch(
+            'https://api.mapbox.com/search/geocode/v6/forward?' + parametrosRua,
+            { signal: controlador.signal }
+          );
+          if (!respostaRua.ok) throw new Error('Falha ao localizar rua');
+          const dadosRua = await respostaRua.json();
+          const normalizarRua = (valor) => String(valor || '').normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+          resultado = (dadosRua.features || []).find(feature =>
+            feature.properties?.feature_type === 'street' &&
+            normalizarRua(feature.properties.name) === normalizarRua(nomeRua) &&
+            pontoValido(feature)
+          );
+          posicaoAproximada = Boolean(resultado);
+        }
+        if (!pontoValido(resultado)) {
           throw new Error('Endereço não localizado em Diadema');
         }
+        const coordenadas = resultado.geometry.coordinates;
         const classePorTipo = {
           campo: ['#16895c', 'Campo de futebol'],
           quadra: ['#2563eb', 'Quadra esportiva'],
           'ginásio': ['#8b5cf6', 'Ginásio'],
-          poliesportivo: ['#f97316', 'Poliesportivo'],
-          clube: ['#0f8b91', 'Clube']
+          clube: ['#0f8b91', 'Clube'],
+          parque: ['#eab308', 'Parque']
         };
         const [corMarcador, descricao] = classePorTipo[local.tipo_local] || classePorTipo.quadra;
         // Mesmo pin padrão do Centro, apenas menor e colorido conforme o local.
@@ -321,7 +355,7 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
         marcador.getElement().setAttribute('aria-label', marcador.getElement().title);
         marcador
           .setLngLat(coordenadas)
-          .setPopup(criarPopupLocal(local.nome_local, local.endereco_local, local.foto_url, local.id_local))
+          .setPopup(criarPopupLocal(local.nome_local, local.endereco_local, local.foto_url, local.id_local, posicaoAproximada))
           .addTo(map);
 
         if (localSelecionadoId && String(local.id_local) === String(localSelecionadoId)) {
@@ -336,7 +370,7 @@ html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
         clearTimeout(tempoLimite);
       }
       if (!focoLocalAplicado) {
-        statusMapa.textContent = adicionados + ' de ' + locaisMapa.length + ' locais no mapa.';
+        statusMapa.textContent = adicionados + ' de ' + locaisVisiveis.length + ' locais no mapa.';
       }
     }
     if (falhas && !focoLocalAplicado) {

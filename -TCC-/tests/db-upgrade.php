@@ -166,7 +166,7 @@ try {
     upgrade_file($conn, 'database/scripts/insertstables.sql');
     upgrade_assert(zubbo_contract_failures($conn, $checks) === [], 'instalação nova satisfaz contrato semântico');
     $referenceStructure = upgrade_structure($conn); $referenceCatalog = upgrade_catalog($conn);
-    upgrade_assert(count($referenceCatalog['sports']) === 8 && count($referenceCatalog['locations']) === 18, 'catálogo novo contém oito esportes e 18 locais');
+    upgrade_assert(count($referenceCatalog['sports']) === 8 && count($referenceCatalog['locations']) === 40, 'catálogo novo contém oito esportes e 40 locais');
     upgrade_audit(0, 'instalação compatível');
     upgrade_audit(2, 'banco inexistente', true, 'zubbo_test_audit_missing_' . bin2hex(random_bytes(6)));
     upgrade_reset($conn, $testDatabase, $knownTables);

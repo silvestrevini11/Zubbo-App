@@ -32,7 +32,7 @@ CREATE TABLE LocalEsp (
         'quadra',
         'poliesportivo',
         'clube',
-        'ginásio', 'campo'
+        'ginásio', 'campo', 'parque'
     ) NOT NULL DEFAULT 'poliesportivo',
     status_local ENUM(
         'pendente',

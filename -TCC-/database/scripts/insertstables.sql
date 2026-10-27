@@ -1,6 +1,21 @@
 -- Dados iniciais reexecutáveis: registros existentes e fontes editadas são preservados.
 -- Fontes indicam instalações, sem garantia de reserva ou acesso público.
 
+-- Amplia o tipo em bancos existentes antes de inserir parques, sem migration separada.
+SET @zubbo_tipo_parque_sql = (
+    SELECT IF(COUNT(*) = 0,
+        'ALTER TABLE LocalEsp MODIFY COLUMN tipo_local ENUM(''quadra'',''poliesportivo'',''clube'',''ginásio'',''campo'',''parque'') NOT NULL DEFAULT ''poliesportivo''',
+        'SELECT 1')
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'LocalEsp'
+      AND column_name = 'tipo_local'
+      AND column_type LIKE '%''parque''%'
+);
+PREPARE zubbo_tipo_parque_stmt FROM @zubbo_tipo_parque_sql;
+EXECUTE zubbo_tipo_parque_stmt;
+DEALLOCATE PREPARE zubbo_tipo_parque_stmt;
+
 INSERT IGNORE INTO Esporte (nome_esporte) VALUES
 ('Futebol'),
 ('Basquete'),
@@ -153,6 +168,71 @@ INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
  WHERE l.nome_local='Campo Piraporinha'
    AND l.endereco_local='Avenida Dona Ida Cerati Magrini, 721 - Piraporinha, Diadema - SP'
  ON DUPLICATE KEY UPDATE id_local=Local_Esporte_Permitido.id_local;
+
+-- Novos locais de Diadema. Fontes:
+-- Campos: https://www.abcdoabc.com.br/inscricoes-para-escolinhas-gratuitas-de-futebol-em-diadema-comecam-dia-14-1/
+-- Quadras comunitárias: https://www.acer.diadema.com.br/esportes.html
+-- Parques: https://abcdjornal.com.br/diadema/noticia/2026/10/11/saiba-como-sera-o-funcionamento-de-servicos-em-diadema-no-feriado/amp/
+-- Os endereços sem número devem ser confirmados antes de orientar deslocamento ou reserva.
+-- Corrige os dois endereços publicados inicialmente sem número, preservando os registros.
+UPDATE LocalEsp SET endereco_local='Rua Milton Patrício de Oliveira, 195 - Serraria, Diadema - SP'
+WHERE nome_local='Campo Serraria' AND endereco_local='Travessa Monteiro da Cruz, s/n - Serraria, Diadema - SP';
+UPDATE LocalEsp SET endereco_local='Rua Barão de Uruguaiana, 139 - Jardim Ruyce, Diadema - SP'
+WHERE nome_local='Campo Jardim Ruyce' AND endereco_local='Rua Barão de Uruguaiana, s/n - Jardim Ruyce, Diadema - SP';
+INSERT INTO LocalEsp(nome_local,endereco_local,tipo_local,status_local,id_criador) VALUES
+('Campo da Associação dos Funcionários Públicos', 'Rua São Marcos, 183 - Diadema - SP', 'campo', 'aprovado', NULL),
+('Campo Serraria', 'Rua Milton Patrício de Oliveira, 195 - Serraria, Diadema - SP', 'campo', 'aprovado', NULL),
+('Campo Eldorado', 'Avenida Nossa Senhora dos Navegantes, 145 - Eldorado, Diadema - SP', 'campo', 'aprovado', NULL),
+('Campo Jardim ABC', 'Rua Cerejeiras, 240 - Taboão, Diadema - SP', 'campo', 'aprovado', NULL),
+('Campo Jardim Ruyce', 'Rua Barão de Uruguaiana, 139 - Jardim Ruyce, Diadema - SP', 'campo', 'aprovado', NULL),
+('Campo Taperinha', 'Avenida Dona Ruyce Ferraz Alvim, 83 - Vila Nogueira, Diadema - SP', 'campo', 'aprovado', NULL),
+('Campo Albatroz', 'Rua Albatroz, 100 - Campanário, Diadema - SP', 'campo', 'aprovado', NULL),
+('Campo Paineiras (Ouro Verde)', 'Rua Purus, 532 - Paineiras, Diadema - SP', 'campo', 'aprovado', NULL),
+('Quadra do Centro Público Eldorado', 'Rua Bituva, 40 - Eldorado, Diadema - SP', 'quadra', 'aprovado', NULL),
+('Quadra Amarela do Sapopema', 'Rua das Palmeiras, s/n - Sapopema, Diadema - SP', 'quadra', 'aprovado', NULL),
+('Quadra da Rua Três (Inamar)', 'Rua das Margaridas, s/n - Inamar, Diadema - SP', 'quadra', 'aprovado', NULL),
+('Quadra do Jardim Sapopema', 'Rua das Seringueiras, 382 - Jardim Sapopema, Diadema - SP', 'quadra', 'aprovado', NULL),
+('Praça CEU das Artes', 'Avenida Afonso Monteiro da Cruz, 254 - Jardim União, Diadema - SP', 'quadra', 'aprovado', NULL),
+('Quadra da Rua São Vicente', 'Rua São Vicente, s/n - Centro, Diadema - SP', 'quadra', 'aprovado', NULL),
+('Quadra da Rua Inglaterra', 'Rua Inglaterra, s/n - Taboão, Diadema - SP', 'quadra', 'aprovado', NULL),
+('Complexo de Esportes e Lazer Vereador Silvio Ferreira Leite', 'Avenida Vereador Juarez Rios de Vasconcelos, 280-488 - Centro, Diadema - SP', 'quadra', 'aprovado', NULL),
+('Quadras do Conjunto Habitacional Júpiter', 'Rua Netuno, blocos 5 e 7 - Serraria, Diadema - SP', 'quadra', 'aprovado', NULL),
+('Parque do Paço', 'Avenida Antônio Piranga, 1380 - Centro, Diadema - SP', 'parque', 'aprovado', NULL),
+('Parque Takebe', 'Rua Yokohama, s/n - Jardim Takebe, Diadema - SP', 'parque', 'aprovado', NULL),
+('Parque Ecológico do Eldorado', 'Avenida Nossa Senhora dos Navegantes, 145 - Eldorado, Diadema - SP', 'parque', 'aprovado', NULL),
+('Parque Saned', 'Rua Santa Cruz, s/n - Jardim Canhema, Diadema - SP', 'parque', 'aprovado', NULL),
+('Parque Regional Oeste', 'Rua Érico Veríssimo, 311 - Parque Real, Diadema - SP', 'parque', 'aprovado', NULL)
+ON DUPLICATE KEY UPDATE id_local=id_local;
+
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+SELECT l.id_local,e.id_esporte,
+       'https://www.abcdoabc.com.br/inscricoes-para-escolinhas-gratuitas-de-futebol-em-diadema-comecam-dia-14-1/'
+FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Futebol'
+WHERE l.nome_local IN ('Campo da Associação dos Funcionários Públicos','Campo Serraria','Campo Eldorado',
+    'Campo Jardim ABC','Campo Jardim Ruyce','Campo Taperinha','Campo Albatroz','Campo Paineiras (Ouro Verde)')
+ON DUPLICATE KEY UPDATE id_local=Local_Esporte_Permitido.id_local;
+
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+SELECT l.id_local,e.id_esporte,
+       'https://abcdjornal.com.br/diadema/noticia/2026/10/11/saiba-como-sera-o-funcionamento-de-servicos-em-diadema-no-feriado/amp/'
+FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Corrida'
+WHERE l.nome_local IN ('Parque do Paço','Parque Takebe','Parque Ecológico do Eldorado',
+    'Parque Saned','Parque Regional Oeste')
+ON DUPLICATE KEY UPDATE id_local=Local_Esporte_Permitido.id_local;
+
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+SELECT l.id_local,e.id_esporte,
+       'https://abcreporter.com.br/2025/12/09/diadema-entrega-quadras-de-basquete-3x3-em-area-que-era-utilizada-para-pancadao/'
+FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Basquete'
+WHERE l.nome_local='Quadras do Conjunto Habitacional Júpiter'
+ON DUPLICATE KEY UPDATE id_local=Local_Esporte_Permitido.id_local;
+
+INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)
+SELECT l.id_local,e.id_esporte,
+       'https://portalabc.com.br/cidades/diadema-entrega-entrega-reforma-do-complexo-esportivo-silvio-ferreira-leite/'
+FROM LocalEsp l JOIN Esporte e ON e.nome_esporte='Basquete'
+WHERE l.nome_local='Complexo de Esportes e Lazer Vereador Silvio Ferreira Leite'
+ON DUPLICATE KEY UPDATE id_local=Local_Esporte_Permitido.id_local;
 
 -- Modalidades divulgadas na Virada Esportiva de Diadema em junho de 2026.
 INSERT INTO Local_Esporte_Permitido(id_local,id_esporte,fonte)

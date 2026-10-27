@@ -15,7 +15,7 @@ $paginaAdmin='locais'; $tituloAdmin='Gerenciar locais'; require __DIR__.'/includ
 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
 <label>Nome <input name="nome_local" maxlength="60" required></label>
 <label>Endereço completo <input name="endereco_local" maxlength="120" required></label>
-<label>Tipo <select name="tipo_local"><option value="quadra">Quadra</option><option value="poliesportivo">Poliesportivo</option><option value="clube">Clube</option><option value="ginásio">Ginásio</option><option value="campo">Campo</option></select></label>
+<label>Tipo <select name="tipo_local"><option value="quadra">Quadra</option><option value="poliesportivo">Poliesportivo</option><option value="clube">Clube</option><option value="ginásio">Ginásio</option><option value="campo">Campo</option><option value="parque">Parque</option></select></label>
 <label>Foto (opcional, até 4 MB) <input type="file" name="foto_local" accept="image/png,image/jpeg,image/webp"></label>
 <button type="submit" class="admin-campo-inteiro admin-form-salvar">Cadastrar local</button>
 </form>

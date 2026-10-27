@@ -9,7 +9,7 @@ SET @zubbo_sql = IF(NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE t
 PREPARE zubbo_stmt FROM @zubbo_sql;
 EXECUTE zubbo_stmt;
 DEALLOCATE PREPARE zubbo_stmt;
-SET @zubbo_sql = IF(NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='LocalEsp' AND column_name='tipo_local' AND column_type LIKE '%campo%'), 'ALTER TABLE LocalEsp MODIFY COLUMN tipo_local ENUM(''quadra'',''poliesportivo'',''clube'',''ginásio'',''campo'') NOT NULL DEFAULT ''poliesportivo''', 'SELECT 1');
+SET @zubbo_sql = IF(NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='LocalEsp' AND column_name='tipo_local' AND column_type LIKE '%''parque''%'), 'ALTER TABLE LocalEsp MODIFY COLUMN tipo_local ENUM(''quadra'',''poliesportivo'',''clube'',''ginásio'',''campo'',''parque'') NOT NULL DEFAULT ''poliesportivo''', 'SELECT 1');
 PREPARE zubbo_stmt FROM @zubbo_sql;
 EXECUTE zubbo_stmt;
 DEALLOCATE PREPARE zubbo_stmt;
@@ -34,7 +34,7 @@ SET @zubbo_sql = IF(NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE t
 PREPARE zubbo_stmt FROM @zubbo_sql;
 EXECUTE zubbo_stmt;
 DEALLOCATE PREPARE zubbo_stmt;
-SET @zubbo_sql = IF(NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='LocalEsp' AND column_name='tipo_local' AND REGEXP_REPLACE(LOWER(column_type),'(tinyint|smallint|mediumint|int|bigint)\\([0-9]+\\)','$1')='enum(''quadra'',''poliesportivo'',''clube'',''ginásio'',''campo'')' AND is_nullable='NO' AND REPLACE(column_default,'()','')='poliesportivo' AND (extra LIKE '%auto_increment%')=0 AND (LOWER(extra) LIKE '%on update current_timestamp%')=0 AND collation_name='utf8mb4_unicode_ci' AND COALESCE(generation_expression,'')=''), 'SELECT * FROM `ERRO_def_LocalEsp_tipo_local`', 'SELECT 1');
+SET @zubbo_sql = IF(NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='LocalEsp' AND column_name='tipo_local' AND REGEXP_REPLACE(LOWER(column_type),'(tinyint|smallint|mediumint|int|bigint)\\([0-9]+\\)','$1')='enum(''quadra'',''poliesportivo'',''clube'',''ginásio'',''campo'',''parque'')' AND is_nullable='NO' AND REPLACE(column_default,'()','')='poliesportivo' AND (extra LIKE '%auto_increment%')=0 AND (LOWER(extra) LIKE '%on update current_timestamp%')=0 AND collation_name='utf8mb4_unicode_ci' AND COALESCE(generation_expression,'')=''), 'SELECT * FROM `ERRO_def_LocalEsp_tipo_local`', 'SELECT 1');
 PREPARE zubbo_stmt FROM @zubbo_sql;
 EXECUTE zubbo_stmt;
 DEALLOCATE PREPARE zubbo_stmt;

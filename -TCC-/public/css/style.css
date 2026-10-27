@@ -5639,6 +5639,10 @@ html.tema-escuro .editar-esportes-topo p {
     gap: 7px;
 }
 
+.evento-criar-container form > div[hidden] {
+    display: none;
+}
+
 /* LABELS */
 .evento-criar-container label {
     padding-left: 4px;
@@ -5656,6 +5660,27 @@ html.tema-escuro .editar-esportes-topo p {
     font-size: 12px;
     font-weight: 400;
     line-height: 1.4;
+}
+
+.evento-criar-container .evento-ver-local-mapa {
+    align-self: flex-start;
+    padding: 7px 12px;
+    border: 1px solid #ef4b25;
+    border-radius: 8px;
+    color: #b93616;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.evento-criar-container .evento-ver-local-mapa[hidden] {
+    display: none;
+}
+
+.evento-criar-container .evento-ver-local-mapa:hover,
+.evento-criar-container .evento-ver-local-mapa:focus-visible {
+    background: #ef4b25;
+    color: #ffffff;
 }
 
 .evento-criar-container input,
@@ -5801,6 +5826,15 @@ html.tema-escuro .evento-criar-container > h1 {
 
 html.tema-escuro .evento-criar-container label {
     color: #eeeeee;
+}
+
+html.tema-escuro .evento-criar-container .evento-ver-local-mapa {
+    color: #ff916f;
+}
+
+html.tema-escuro .evento-criar-container .evento-ver-local-mapa:hover,
+html.tema-escuro .evento-criar-container .evento-ver-local-mapa:focus-visible {
+    color: #ffffff;
 }
 
 html.tema-escuro .evento-criar-container input,

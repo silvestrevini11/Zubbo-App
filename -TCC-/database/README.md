@@ -10,7 +10,9 @@ No banco vazio, execute somente `scripts/criacaotables.sql` e depois `scripts/in
 
 ## Atualização de bancos existentes
 
-Execute as cinco migrations em ordem, interrompendo no primeiro erro (sem `--force`). Cada alteração consulta `information_schema`; pode ser repetida em banco atualizado ou parcialmente migrado. Depois execute os inserts se desejar completar os dados iniciais e associações. Migrations modificam estrutura e transformam solicitações e notificações legadas; não inserem locais ou modalidades de catálogo.
+Execute as migrations de estrutura `001` a `006` em ordem, interrompendo no primeiro erro (sem `--force`). Cada alteração consulta `information_schema`; pode ser repetida em banco atualizado ou parcialmente migrado. Depois execute os inserts se desejar completar os dados iniciais e associações. Essas migrations modificam estrutura e transformam solicitações e notificações legadas; não inserem locais ou modalidades de catálogo.
+
+Após as migrations de estrutura, execute `migrations/007_nomes_locais_sem_hifen.sql` para substituir hífens nos nomes de todos os locais já cadastrados por espaços. Espaços consecutivos são reduzidos a um. O script não altera endereços nem vínculos e pode ser executado novamente. Se a alteração produzir um nome e endereço que já existem, a restrição de unicidade interrompe o `UPDATE`; resolva o conflito antes de repetir.
 
 Os inserts associam Futsal, Vôlei, Basquete e Handebol a todos os ginásios, e Handebol, Futsal e Vôlei a todas as quadras. As associações e fontes já cadastradas são preservadas.
 

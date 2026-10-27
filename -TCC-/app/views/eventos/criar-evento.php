@@ -39,12 +39,35 @@ try {
     $esportes = $stmtEsportes->fetchAll(PDO::FETCH_ASSOC);
 
     $stmtLocais = $conn->query("
-        SELECT id_local, nome_local, endereco_local
+        SELECT id_local, nome_local, endereco_local, tipo_local
         FROM LocalEsp
         WHERE status_local = 'aprovado'
         ORDER BY nome_local
     ");
     $locais = $stmtLocais->fetchAll(PDO::FETCH_ASSOC);
+    $nomesTiposLocais = [
+        'campo' => 'Campos',
+        'quadra' => 'Quadras',
+        'ginásio' => 'Ginásios',
+        'clube' => 'Clubes',
+        'parque' => 'Parques',
+    ];
+    $locaisPorTipo = array_fill_keys(array_keys($nomesTiposLocais), []);
+    foreach ($locais as $localOpcao) {
+        $tipoLocal = (string) $localOpcao['tipo_local'];
+        if (!isset($locaisPorTipo[$tipoLocal])) {
+            $nomesTiposLocais[$tipoLocal] = 'Outros locais';
+            $locaisPorTipo[$tipoLocal] = [];
+        }
+        $locaisPorTipo[$tipoLocal][] = $localOpcao;
+    }
+    $tipoLocalSelecionado = '';
+    foreach ($locais as $localOpcao) {
+        if ((string) $localOpcao['id_local'] === (string) ($_POST['id_local'] ?? '')) {
+            $tipoLocalSelecionado = (string) $localOpcao['tipo_local'];
+            break;
+        }
+    }
     $modalidadesPermitidas=$conn->query("SELECT le.id_local,le.id_esporte
       FROM Local_Esporte_Permitido le JOIN LocalEsp l ON l.id_local=le.id_local
       WHERE l.status_local='aprovado'")->fetchAll(PDO::FETCH_ASSOC);
@@ -251,18 +274,32 @@ function escaparCriarEvento($valor): string
         </div>
 
         <div>
-            <label for="id_local">Local</label>
-            <select name="id_local" id="id_local" required>
-                <option value="">Selecione um local</option>
-                <?php foreach ($locais as $local): ?>
-                    <option
-                        value="<?= (int) $local['id_local'] ?>"
-                        <?= (string) ($_POST['id_local'] ?? '') === (string) $local['id_local'] ? 'selected' : '' ?>
-                    >
-                        <?= escaparCriarEvento($local['nome_local']) ?>
-                    </option>
+            <label for="tipo_local_evento">Tipo de local</label>
+            <select id="tipo_local_evento" required>
+                <option value="">Selecione um tipo de local</option>
+                <?php foreach ($nomesTiposLocais as $tipo => $nomeTipo): ?>
+                    <option value="<?= escaparCriarEvento($tipo) ?>" <?= $tipoLocalSelecionado === $tipo ? 'selected' : '' ?>><?= escaparCriarEvento($nomeTipo) ?></option>
                 <?php endforeach; ?>
             </select>
+        </div>
+
+        <div id="campo-local-evento">
+            <label for="id_local">Local</label>
+            <select name="id_local" id="id_local" required>
+                <option value="">Escolha primeiro o tipo de local</option>
+                <?php foreach ($locaisPorTipo as $tipo => $locaisDoTipo): ?>
+                    <optgroup label="<?= escaparCriarEvento($nomesTiposLocais[$tipo]) ?>">
+                        <?php foreach ($locaisDoTipo as $local): ?>
+                            <option
+                                value="<?= (int) $local['id_local'] ?>"
+                                data-tipo="<?= escaparCriarEvento($tipo) ?>"
+                                <?= (string) ($_POST['id_local'] ?? '') === (string) $local['id_local'] ? 'selected' : '' ?>
+                            ><?= escaparCriarEvento($local['nome_local']) ?></option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                <?php endforeach; ?>
+            </select>
+            <a id="ver-local-mapa" class="evento-ver-local-mapa" href="#" target="_blank" rel="noopener noreferrer" hidden>Ver local no mapa ↗</a>
             <p class="evento-ajuda">Confirme a reserva do espaço com o responsável.</p>
         </div>
 
@@ -323,7 +360,11 @@ function escaparCriarEvento($valor): string
 <script>
 (() => {
  const esportesPorLocal=<?= json_encode($permitidosPorLocal,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;
+ const tipoLocal=document.getElementById('tipo_local_evento');
  const local=document.getElementById('id_local');
+ const campoLocal=document.getElementById('campo-local-evento');
+ const verLocalMapa=document.getElementById('ver-local-mapa');
+ const urlMapa=<?= json_encode(zubbo_url('/app/views/painel/Painel-inicial.php'), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;
  const esporte=document.getElementById('id_esporte');
  const aviso=document.getElementById('aviso-modalidade');
  const data=document.getElementById('data_evento');
@@ -334,7 +375,28 @@ function escaparCriarEvento($valor): string
  const horarioInicial=<?= json_encode((string)($_POST['horario_evento'] ?? ''), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;
  const urlHorarios=<?= json_encode(zubbo_url('/app/views/eventos/horarios-disponiveis.php'), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) ?>;
  let requisicao;
- if(!local||!esporte) return;
+ if(!tipoLocal||!local||!campoLocal||!verLocalMapa||!esporte) return;
+ function atualizarLinkMapa() {
+   verLocalMapa.hidden=!local.value;
+   verLocalMapa.href=local.value ? urlMapa+'?id_local='+encodeURIComponent(local.value) : '#';
+ }
+ const opcoesLocais=Array.from(local.querySelectorAll('option[data-tipo]'));
+ function mostrarLocaisDoTipo(preservarSelecao=false) {
+   const selecionado=preservarSelecao ? local.value : '';
+   const opcoes=[new Option(tipoLocal.value ? 'Selecione um local' : 'Escolha primeiro o tipo de local', '')];
+   for(const opcao of opcoesLocais) {
+     if(opcao.dataset.tipo===tipoLocal.value) {
+       const copia=opcao.cloneNode(true);
+       copia.removeAttribute('selected');
+       opcoes.push(copia);
+     }
+   }
+   local.replaceChildren(...opcoes);
+   if(selecionado) local.value=selecionado;
+   if(!local.value) local.selectedIndex=0;
+   campoLocal.hidden=!tipoLocal.value;
+   atualizarLinkMapa();
+ }
  function atualizarLimiteData() {
    // Usa o mesmo fuso do servidor, mesmo se o visitante estiver em outra região.
    const partes=new Intl.DateTimeFormat('en-US', {
@@ -401,12 +463,18 @@ function escaparCriarEvento($valor): string
        : 'Sem esportes confirmados. Consulte o administrador.')
      : 'Escolha o local para ver os esportes.';
  }
- local.addEventListener('change',()=>{atualizar();atualizarHorarios();});
+ local.addEventListener('change',()=>{atualizarLinkMapa();atualizar();atualizarHorarios();});
+ tipoLocal.addEventListener('change',()=>{
+   mostrarLocaisDoTipo();
+   atualizar();
+   atualizarHorarios();
+ });
  data.addEventListener('change',atualizarHorarios);
  duracao.addEventListener('change',atualizarHorarios);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden) atualizarLimiteData();});
  window.addEventListener('focus',atualizarLimiteData);
  setInterval(atualizarLimiteData,60*1000);
+ mostrarLocaisDoTipo(true);
  atualizar();
  if(!atualizarLimiteData()) atualizarHorarios();
 })();

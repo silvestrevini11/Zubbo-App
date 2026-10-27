@@ -2954,9 +2954,13 @@ html.tema-escuro .esporte-card:has(input:checked) {
 }
 
 
-/* BOTÃO DE FILTRO */
+/* BOTÃO DE PESQUISA */
 
 .pesquisa-filtro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     flex-shrink: 0;
 
     width: 48px;
@@ -2968,6 +2972,10 @@ html.tema-escuro .esporte-card:has(input:checked) {
     background: #ffffff;
 
     cursor: pointer;
+}
+
+.pesquisa-filtro svg {
+    display: block;
 }
 
 

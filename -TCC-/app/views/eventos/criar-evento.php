@@ -259,7 +259,7 @@ function escaparCriarEvento($valor): string
                         value="<?= (int) $local['id_local'] ?>"
                         <?= (string) ($_POST['id_local'] ?? '') === (string) $local['id_local'] ? 'selected' : '' ?>
                     >
-                        <?= escaparCriarEvento($local['nome_local']) ?> — <?= escaparCriarEvento($local['endereco_local']) ?>
+                        <?= escaparCriarEvento($local['nome_local']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>

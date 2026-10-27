@@ -12,6 +12,7 @@ if (PHP_SAPI !== 'cli' || getenv('ZUBBO_TEST_ALLOW_SCHEMA') !== '1'
     exit(1);
 }
 require __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../app/services/EventoAgendaService.php';
 $run = bin2hex(random_bytes(5));
 $password = 'TesteLocal123!';
 $failures = 0;
@@ -122,7 +123,7 @@ try {
     $day = (new DateTimeImmutable('today'))->modify('+1 day')->format('Y-m-d');
     $event = ['nome_evento'=>"Evento $run", 'data_evento'=>$day, 'horario_evento'=>'15:00', 'duracao_minutos'=>60,
         'id_grupo'=>$group, 'id_local'=>$pair['id_local'], 'id_esporte'=>$pair['id_esporte'], 'csrf'=>token($page, 'csrf')];
-    foreach ([['data_evento', (new DateTimeImmutable('today'))->modify('+31 days')->format('Y-m-d')],
+    foreach ([['data_evento', zubbo_evento_data_limite(new DateTimeImmutable('now'))->modify('+1 day')->format('Y-m-d')],
         ['data_evento', '2028-02-12'], ['horario_evento', '05:00'], ['horario_evento', '23:00'],
         ['horario_evento', '12:15']] as [$campo, $valor]) {
         $invalido = $event;

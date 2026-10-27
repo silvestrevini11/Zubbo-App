@@ -19,6 +19,16 @@ function escaparDetalhe($valor): string
     return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 }
 
+function fotoPerfilDetalhe(?string $foto): string
+{
+    return zubbo_url($foto ? '/' . ltrim($foto, '/') : '/public/imagem/blank.png');
+}
+
+function linkPerfilDetalhe(int $idPerfil, int $idUsuario): string
+{
+    return '../perfil/' . ($idPerfil === $idUsuario ? 'perfil.php' : 'perfil-ver.php?id=' . $idPerfil);
+}
+
 try {
     $evento = evento_buscar($conn, $idEvento);
 
@@ -87,7 +97,7 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
     </script>
 
     <link rel="stylesheet" href="../../../public/css/style.css">
-    <link rel="stylesheet" href="../../../public/css/eventos.css">
+    <link rel="stylesheet" href="../../../public/css/eventos.css?v=<?= filemtime(__DIR__ . '/../../../public/css/eventos.css') ?>">
 </head>
 <body>
 <main class="eventos-container evento-detalhes-shell">
@@ -321,14 +331,13 @@ unset($_SESSION['flash_vaga_evento'][$idEvento]);
                                 </span>
 
                                 <?php if ($ocupante): ?>
-                                    <span class="evento-slot-avatar">
-                                        <?= escaparDetalhe(evento_iniciais($ocupante['nome_user'])) ?>
-                                    </span>
-
-                                    <span class="evento-slot-jogador">
+                                    <a class="evento-slot-foto" href="<?= escaparDetalhe(linkPerfilDetalhe((int) $ocupante['id_user'], $idUsuario)) ?>" aria-label="Ver perfil de <?= escaparDetalhe($ocupante['nome_user']) ?>">
+                                        <img class="evento-slot-avatar" src="<?= escaparDetalhe(fotoPerfilDetalhe($ocupante['foto_user'])) ?>" alt="" loading="lazy">
+                                    </a>
+                                    <a class="evento-slot-jogador evento-slot-nome" href="<?= escaparDetalhe(linkPerfilDetalhe((int) $ocupante['id_user'], $idUsuario)) ?>">
                                         <strong><?= escaparDetalhe($ocupante['nome_user']) ?></strong>
                                         <small>CONFIRMADO</small>
-                                    </span>
+                                    </a>
                                 <?php else: ?>
                                     <span class="evento-slot-avatar evento-slot-vazio">+</span>
 

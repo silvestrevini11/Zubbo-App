@@ -610,6 +610,27 @@ html.tema-escuro .evento-score-status {
     font-weight: 900;
 }
 
+.evento-slot-foto {
+    display: block;
+    width: 29px;
+    height: 29px;
+}
+
+.evento-slot-foto img.evento-slot-avatar {
+    display: block;
+    object-fit: cover;
+}
+
+.evento-slot-nome {
+    color: inherit;
+    text-decoration: none;
+}
+
+.evento-slot-nome:hover strong,
+.evento-slot-nome:focus-visible strong {
+    text-decoration: underline;
+}
+
 .evento-time-1 .evento-slot-avatar:not(.evento-slot-vazio) {
     background: #2f8f87;
 }

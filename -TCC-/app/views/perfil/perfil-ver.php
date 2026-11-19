@@ -29,7 +29,7 @@ if ($id_user === $id_logado) {
 $stmtUsuario = $conn->prepare("
     SELECT nome_user, email_user, foto_user, sobre_mim
     FROM Usuario
-    WHERE id_user = ?
+    WHERE id_user = ? AND status_user = 'ativo'
 ");
 $stmtUsuario->execute([$id_user]);
 $usuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
@@ -61,7 +61,19 @@ $stmtAmizade = $conn->prepare("
 
 $stmtAmizade->execute([$id1, $id2]);
 
-$saoAmigos = $stmtAmizade->fetch();
+$saoAmigos = (bool)$stmtAmizade->fetchColumn();
+
+$stmtBloqueio = $conn->prepare("SELECT id_bloqueador FROM Bloqueio_Usuario
+    WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?)");
+$stmtBloqueio->execute([$id_logado,$id_user,$id_user,$id_logado]);
+$bloqueios = $stmtBloqueio->fetchAll(PDO::FETCH_COLUMN);
+$euBloqueei = in_array($id_logado, array_map('intval',$bloqueios), true);
+$meBloqueou = in_array($id_user, array_map('intval',$bloqueios), true);
+if ($meBloqueou) {
+    header('Location: ../pesquisa/pesquisar.php');
+    exit;
+}
+
 
 $stmt = $conn->prepare("
     SELECT e.nome_esporte
@@ -127,7 +139,7 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
 
     <div class="perfil-acoes">
 
-        <?php if (!$saoAmigos): ?>
+        <?php if (!$euBloqueei && !$saoAmigos): ?>
 
             <form action="adicionar-amigo.php" method="POST">
                 <?= zubbo_csrf_input() ?>
@@ -138,14 +150,31 @@ $quantidadeEventos = (int) $stmtEventos->fetchColumn();
                 </button>
             </form>
 
+        <?php elseif (!$euBloqueei): ?>
+            <form action="desfazer-amizade.php" method="POST"
+                  onsubmit="return confirm('Deseja desfazer esta amizade?');">
+                <?= zubbo_csrf_input() ?>
+                <input type="hidden" name="id_amigo" value="<?= (int)$id_user ?>">
+                <button type="submit" class="btn-desfazer-amizade">Desfazer amizade</button>
+            </form>
         <?php endif; ?>
 
-        <button type="button" class="btn-conversar"
-            onclick="window.location.href='../chats/chats-conversas.php?id=<?= $id_user ?>'">
-            Conversar
-        </button>
+        <form action="bloquear-usuario.php" method="POST"
+              onsubmit="return confirm('Confirma a alteração do bloqueio deste usuário?');">
+            <?= zubbo_csrf_input() ?>
+            <input type="hidden" name="id_user" value="<?= (int)$id_user ?>">
+            <input type="hidden" name="acao" value="<?= $euBloqueei ? 'desbloquear' : 'bloquear' ?>">
+            <button type="submit" class="btn-bloquear-usuario"><?= $euBloqueei ? 'Desbloquear usuário' : 'Bloquear usuário' ?></button>
+        </form>
+        <?php if ($saoAmigos && !$euBloqueei): ?>
+            <a class="btn-conversar" href="../chats/chats-conversas.php?id=<?= (int)$id_user ?>">Conversar</a>
+        <?php endif; ?>
 
     </div>
+
+    <?php if (!$saoAmigos && !$euBloqueei): ?>
+        <p class="perfil-chat-aviso" role="status">A conversa privada ficará disponível quando a solicitação de amizade for aceita.</p>
+    <?php endif; ?>
 
     <div class="perfil-sobre">
         <h2 class="perfil-sobremim">Sobre Mim</h2>

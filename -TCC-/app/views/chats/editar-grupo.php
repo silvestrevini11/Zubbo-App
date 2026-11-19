@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
-include __DIR__ . '/../includes/head.php';
+require_once __DIR__ . '/../../services/GrupoService.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 $id_grupo = (int) ($_GET['id_grupo'] ?? 0);
@@ -11,24 +11,25 @@ unset($_SESSION['editar_grupo_erro'], $_SESSION['editar_grupo_sucesso']);
 $stmt = $conn->prepare("
     SELECT id_grupo, id_conversa, id_criador, nome_grupo, descricao_grupo, foto_grupo
     FROM Grupo
-    WHERE id_grupo = ? AND id_criador = ?
+    WHERE id_grupo = ?
 ");
-$stmt->execute([$id_grupo, $id_usuario]);
+$stmt->execute([$id_grupo]);
 $grupo = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$grupo) {
+if (!$grupo || !zubbo_grupo_moderador($conn, $grupo, $id_usuario)) {
     header('Location: chats-grupos.php');
     exit;
 }
 
 $stmt = $conn->prepare("
-    SELECT u.id_user, u.nome_user, u.foto_user
+    SELECT u.id_user, u.nome_user, u.foto_user,
+           (u.id_user = ? OR EXISTS (SELECT 1 FROM Grupo_Moderador gm WHERE gm.id_grupo = ? AND gm.id_user = u.id_user)) AS moderador
     FROM Participantes_Conversa pc
     INNER JOIN Usuario u ON u.id_user = pc.id_user
     WHERE pc.id_conversa = ?
     ORDER BY (u.id_user = ?) DESC, u.nome_user
 ");
-$stmt->execute([$grupo['id_conversa'], $id_usuario]);
+$stmt->execute([$grupo['id_criador'], $id_grupo, $grupo['id_conversa'], $id_usuario]);
 $participantes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $stmt = $conn->prepare("
@@ -55,6 +56,7 @@ $amigosDisponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $fotoGrupo = $grupo['foto_grupo']
     ? zubbo_url('/' . ltrim((string) $grupo['foto_grupo'], '/'))
     : zubbo_url('/public/imagem/blank.png');
+include __DIR__ . '/../includes/head.php';
 ?>
 
 <section class="grupo-criar-container">
@@ -104,7 +106,7 @@ $fotoGrupo = $grupo['foto_grupo']
         <div class="grupo-amigos-cabecalho">
             <div>
                 <h2>Participantes</h2>
-                <p>Marque quem deseja remover do grupo.</p>
+                <p>Marque quem deseja remover. Moderadores não podem ser removidos por esta tela.</p>
             </div>
         </div>
 
@@ -112,21 +114,21 @@ $fotoGrupo = $grupo['foto_grupo']
             <?php foreach ($participantes as $p): ?>
                 <?php
                     $foto = $p['foto_user'] ? zubbo_url('/' . ltrim((string) $p['foto_user'], '/')) : zubbo_url('/public/imagem/blank.png');
-                    $criador = (int)$p['id_user'] === $id_usuario;
+                    $protegido = (bool)$p['moderador'];
                 ?>
-                <label class="grupo-amigo-item <?= $criador ? 'grupo-criador-item' : '' ?>">
-                    <?php if (!$criador): ?>
+                <label class="grupo-amigo-item <?= $protegido ? 'grupo-criador-item' : '' ?>">
+                    <?php if (!$protegido): ?>
                         <input type="checkbox" name="remover[]" value="<?= (int)$p['id_user'] ?>">
                     <?php endif; ?>
                     <img src="<?= htmlspecialchars($foto) ?>" alt="" class="grupo-amigo-foto">
                     <span class="grupo-amigo-nome">
                         <?= htmlspecialchars($p['nome_user']) ?>
-                        <?php if ($criador): ?><small> • Criador</small><?php endif; ?>
+                        <?php if ($protegido): ?><small> • Moderador</small><?php endif; ?>
                     </span>
-                    <?php if (!$criador): ?>
+                    <?php if (!$protegido): ?>
                         <span class="grupo-remover-check">Remover</span>
                     <?php else: ?>
-                        <span class="grupo-criador-badge">Admin</span>
+                        <span class="grupo-criador-badge">Moderador</span>
                     <?php endif; ?>
                 </label>
             <?php endforeach; ?>

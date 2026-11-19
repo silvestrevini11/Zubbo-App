@@ -45,6 +45,7 @@ try {
         INSERT INTO Notificacao (id_destinatario, id_remetente, id_conversa, id_mensagem, tipo)
         SELECT pc.id_user, ?, ?, ?, 'mensagem'
         FROM Participantes_Conversa pc
+        INNER JOIN Usuario u ON u.id_user=pc.id_user AND u.status_user='ativo'
         WHERE pc.id_conversa = ? AND pc.id_user <> ?
     ");
     $stmtNotificacao->execute([$idUsuario, $idConversa, $idMensagem, $idConversa, $idUsuario]);
@@ -57,6 +58,19 @@ try {
     http_response_code(500);
     exit('Não foi possível enviar a mensagem.');
 }
+
+require_once __DIR__ . '/../../services/PushService.php';
+try {
+    $dest = $conn->prepare("SELECT pc.id_user FROM Participantes_Conversa pc
+        INNER JOIN Usuario u ON u.id_user=pc.id_user AND u.status_user='ativo'
+        WHERE pc.id_conversa=? AND pc.id_user<>? LIMIT 100");
+    $dest->execute([$idConversa,$idUsuario]);
+    foreach ($dest->fetchAll(PDO::FETCH_COLUMN) as $id) {
+        PushService::sendToUser($conn, (int)$id, 'Zubbo · Grupo',
+            'Você recebeu uma mensagem em grupo.',
+            '/app/views/chats/chat-grupo.php?id_conversa='.$idConversa);
+    }
+} catch (Throwable $e) { error_log('Web Push grupo: '.get_class($e)); }
 
 header('Location: chat-grupo.php?id_conversa=' . $idConversa, true, 303);
 exit;

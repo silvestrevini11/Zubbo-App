@@ -4,189 +4,139 @@
 
 # Zubbo
 
-### Encontre. Pratique. Conecte-se.
+**Encontre. Pratique. Conecte-se.**
 
-**Tecnologia, esporte e comunidade como instrumentos de inclusão e convivência social.**
-
-**Trabalho de Conclusão de Curso (TCC)** · **Técnico em Desenvolvimento de Sistemas** · **2026**
+Plataforma para encontrar locais esportivos, organizar partidas e conhecer pessoas para praticar esportes em Diadema (SP).
 
 </div>
-
----
 
 ## Sobre o projeto
 
-O **Zubbo** é um projeto acadêmico de plataforma para aproximar pessoas interessadas em **praticar esportes de forma amadora, acessível e comunitária**. A aplicação ajuda a descobrir locais esportivos, encontrar eventos, formar equipes e estabelecer conexões com outras pessoas por meio de atividades físicas.
+Desenvolvido como TCC de Desenvolvimento de Sistemas da ETEC Juscelino Kubitchek, em Diadema, em 2026, por Vitor Santos, Ycaro Jesus, Kaue Mota, Pedro Nathan, Vinicius Silvestre e Mayara Santos. O projeto está em demonstração web, com interface adaptada para celulares e um APK Android gerado a partir da versão web.
 
-Mais do que organizar partidas, a proposta é facilitar a participação de quem encontra dificuldades para começar a praticar uma modalidade, conhecer grupos locais ou ingressar em ambientes esportivos acolhedores.
+## Funcionalidades
 
-O projeto une desenvolvimento de sistemas, convivência comunitária e incentivo ao bem-estar. Não se apresenta como serviço de saúde nem substitui acompanhamento profissional.
+* Pesquisa de locais e eventos esportivos, com visualização no mapa.
+* Criação de encontros, solicitação de vagas e organização de equipes.
+* Perfil, modalidades favoritas, amizades e conversas privadas ou em grupos.
+* Notificações, avisos push opcionais e denúncias para moderação.
 
-## Instituição de ensino
+## Documentação técnica
 
-- **Instituição:** **ETEC Juscelino Kubitchek, de Diadema (SP)**, integrante da rede de Escolas Técnicas Estaduais do **Centro Paula Souza (CPS)**.
-- **Localização:** Diadema, São Paulo.
-- **Curso:** Técnico em Desenvolvimento de Sistemas.
-- **Natureza do trabalho:** Trabalho de Conclusão de Curso (TCC).
-- **Ano:** 2026.
-- **Projeto:** Zubbo, plataforma de encontros esportivos comunitários.
+### Tecnologias utilizadas
 
-O desenvolvimento do Zubbo coloca em prática conhecimentos adquiridos no curso, como programação web, banco de dados, modelagem, redes de computadores, segurança da informação, testes, documentação e organização de projetos de software.
+| Camada | Tecnologias | Função no Zubbo |
+| --- | --- | --- |
+| Interface web | HTML, CSS e JavaScript | Telas adaptadas para celular, formulários, buscas e interações. |
+| Servidor | PHP 8.4 | Autenticação, regras de negócio, páginas e respostas às requisições. |
+| Banco de dados | MySQL 8.4, com PDO no PHP | Armazenamento de usuários, locais, eventos, mensagens e notificações. MariaDB também pode ser usado no desenvolvimento local. |
+| Dependências PHP | Composer, PHPMailer, Minishlink Web Push e Guzzle | Instalação das bibliotecas, envio de e-mails, Web Push e requisições HTTP. |
+| Mapas | Mapbox GL JS e API de geocodificação do Mapbox | Mapa dos locais, localização e busca de endereços. |
+| E-mail | Resend por API HTTPS ou SMTP com PHPMailer | Confirmação de conta e demais mensagens por e-mail. |
+| PWA e notificações | Web App Manifest, Service Worker e Web Push com chaves VAPID | Instalação a partir do navegador, avisos opcionais e página pública de aviso offline. |
+| APK Android | Trusted Web Activity (TWA), Bubblewrap 1.27.0, Android Browser Helper e Gradle 8.11.1 | Geração do projeto Android que abre a aplicação web hospedada. |
+| Desenvolvimento e hospedagem | XAMPP/Apache no ambiente local; Railway na configuração da demonstração | Execução do servidor PHP e acesso ao site por HTTPS para o APK atual. |
 
-## Equipe de desenvolvimento
+O APK não contém o servidor PHP nem o banco de dados: ao abrir, ele carrega a aplicação web hospedada. O Bubblewrap gerou o projeto Android a partir da configuração da PWA; o Gradle compila o projeto e um script local assina o APK. O site e o aplicativo são associados por `/.well-known/assetlinks.json`. Consulte o [guia do APK Android](./-TCC-/mobile/twa/README.md) para a configuração, compilação e requisitos de distribuição. O modo offline exibe apenas uma página de aviso; as funcionalidades dependem do servidor.
 
-O Zubbo é um trabalho colaborativo. A distribuição de responsabilidades abaixo foi baseada no **Relatório de Progresso do Projeto Zubbo**, com os nomes informados pela equipe.
+O código fica em `-TCC-`: `app/` reúne páginas, serviços e autenticação; `config/` contém as configurações; `database/` guarda scripts e migrations; `public/` contém recursos visuais e uploads; `tests/` reúne verificações automatizadas.
 
-| Integrante | Principais responsabilidades |
-|---|---|
-| **Vitor Santos** | Estruturação e organização do **banco de dados**, organização do projeto e levantamento de informações por meio da pesquisa nos poliesportivos. |
-| **Ycaro Jesus** | Desenvolvimento do **back-end**, correção de problemas técnicos e integração das funcionalidades da aplicação. |
-| **Kaue Mota** | **Design e estilização da interface**, ajustes visuais e participação na pesquisa de campo dos poliesportivos. |
-| **Pedro Nathan** | Apoio no **banco de dados**, estruturação de funcionalidades **JavaScript** e configuração do **Android Studio** para a futura versão mobile. |
-| **Vinicius Silvestre** | **Documentação do TCC**, organização das informações e desenvolvimento da **revista e dos materiais de apresentação** do projeto. |
-| **Mayara Santos** | **Documentação do TCC** e **estruturação da revista**, contribuindo para a organização e apresentação das informações do trabalho. |
+### Requisitos e instalação local
 
-Além das atividades individuais, a equipe participa da revisão das funcionalidades, dos testes finais e da preparação da apresentação do TCC.
+Use PHP 8.4, Composer, Git, MySQL 8.4 e as extensões `pdo_mysql`, `curl`, `mbstring`, `openssl` e `fileinfo`, além das exigidas pelo Composer. MariaDB pode servir ao desenvolvimento local, mas não substitui a validação no MySQL 8.4 da hospedagem.
 
-## Professores envolvidos
+1. Faça um fork e clone o repositório no XAMPP, substituindo `SEU_USUARIO`:
 
-| Professor | Disciplina e contribuição acadêmica |
-|---|---|
-| **Helton** | **Orientador do TCC** e professor de **Redes de Computadores**. |
-| **João Bahia** | Professor de **Banco de Dados** e **Segurança da Informação**. |
-| **Paulo** | Professor da área de **Desenvolvimento Web**. |
-| **Sandra** | Professora de **Linguagem Técnica e Formal**, contribuindo para a comunicação e a elaboração dos textos acadêmicos. |
-| **João Paulo** | Professor de **Desenvolvimento de Aplicativos Mobile**, área relacionada à adaptação futura do Zubbo para Android. |
-| **Rogério Coelho** | Professor de **Desenvolvimento e Testes de Programação**, com foco em boas práticas de programação, lógica e pseudocódigos. |
+   ```bat
+   cd C:\xampp\htdocs
+   git clone https://github.com/SEU_USUARIO/Zubbo-App.git
+   cd Zubbo-App\-TCC-
+   composer install
+   composer validate --no-check-publish
+   composer check-platform-reqs
+   ```
 
-As responsabilidades da equipe foram registradas de acordo com o relatório de progresso, enquanto as disciplinas dos professores foram informadas pelos integrantes.
+2. Inicie o MySQL. No phpMyAdmin, crie e selecione um banco vazio chamado `app_zubbo`, com charset `utf8mb4`.
+3. Importe primeiro [criacaotables.sql](./-TCC-/database/scripts/criacaotables.sql) e depois [insertstables.sql](./-TCC-/database/scripts/insertstables.sql). Eles não criam nem selecionam o banco automaticamente.
+4. Configure o ambiente do Apache, inicie o serviço e abra [Zubbo local](http://localhost/Zubbo-App/-TCC-/).
 
-## Tema
+Para desenvolver com o servidor embutido, execute na pasta `-TCC-`, no Prompt de Comando:
 
-**O uso da tecnologia para promover a inclusão social e facilitar encontros esportivos comunitários.**
+```bat
+set ZUBBO_BASE_PATH=/
+set ZUBBO_BASE_URL=http://127.0.0.1:8080
+php -S 127.0.0.1:8080 router.php
+```
 
-O Zubbo considera o esporte amador uma oportunidade de convivência, construção de vínculos e incentivo a hábitos saudáveis, especialmente quando pessoas encontram barreiras de acesso a espaços, informações ou grupos de prática.
+### Configuração do ambiente
 
-## Problema e justificativa
+As configurações são lidas com `getenv()`. Criar um arquivo `.env` sozinho não carrega suas variáveis. No XAMPP, configure o Apache com `SetEnv` e reinicie o serviço; no servidor embutido, defina as variáveis no terminal que inicia o PHP.
 
-Embora haja interesse em atividades esportivas, nem sempre é simples encontrar **onde praticar, com quem participar ou como ingressar em um grupo**.
+* Banco: `ZUBBO_DB_HOST`, `ZUBBO_DB_PORT`, `ZUBBO_DB_NAME`, `ZUBBO_DB_USER` e `ZUBBO_DB_PASSWORD`. Os padrões locais são `localhost`, `3306`, `app_zubbo`, `root` e senha vazia; ajuste conforme sua instalação.
+* Endereço no XAMPP: `ZUBBO_BASE_URL=http://localhost/Zubbo-App/-TCC-` e `ZUBBO_BASE_PATH=/Zubbo-App/-TCC-`.
+* Mapa: `ZUBBO_MAPBOX_PUBLIC_TOKEN`, com um token público iniciado por `pk.`. Os estilos opcionais são `ZUBBO_MAPBOX_STYLE_LIGHT` e `ZUBBO_MAPBOX_STYLE_DARK`. Sem token aceito, o painel exibe “Mapa temporariamente indisponível”.
+* Correio eletrônico: `ZUBBO_MAIL_PROVIDER=resend`, `ZUBBO_RESEND_API_KEY` e `ZUBBO_MAIL_FROM`. Para SMTP, use `ZUBBO_MAIL_PROVIDER=smtp` com `ZUBBO_SMTP_HOST`, `ZUBBO_SMTP_PORT`, `ZUBBO_SMTP_USER`, `ZUBBO_SMTP_PASSWORD` e `ZUBBO_SMTP_ENCRYPTION`.
+* Demonstração: `ZUBBO_ENV=demo` junto com `ZUBBO_DEMO_MODE=true` permite mostrar o código de confirmação na tela. Em produção, mantenha o modo de demonstração desativado.
 
-Entre as dificuldades que motivam este TCC estão:
+### Banco e administrador
 
-- **Falta de divulgação e visibilidade de atividades, projetos e iniciativas esportivas na cidade de Diadema**, dificultando que moradores descubram oportunidades de participação;
-- **Informação dispersa** sobre locais e encontros esportivos na região;
-- **Dificuldade de encontrar participantes** com interesse na mesma modalidade;
-- **Custos ou barreiras de acesso** a determinadas opções de prática;
-- **Ambientes excessivamente competitivos**, que podem afastar iniciantes;
-- **Menos oportunidades de convivência presencial** e integração comunitária.
+Instalações novas usam somente os dois scripts indicados acima. Para atualizar uma base existente, faça backup e siga as cinco migrations consolidadas do [guia do banco](./-TCC-/database/README.md). Os scripts em `database/archive/` são históricos.
 
-Por isso, o trabalho investiga como uma aplicação digital pode ajudar a **divulgar as oportunidades esportivas existentes em Diadema**, dar visibilidade às atividades comunitárias e tornar **encontros esportivos amadores mais acessíveis, organizados e acolhedores**.
+Para promover uma conta ativa a administrador, execute na pasta `-TCC-` e informe o endereço da conta:
 
-## Proposta de solução
+```sh
+php database/tools/create-admin.php
+```
 
-Desenvolver uma plataforma em que usuários possam **conhecer e divulgar oportunidades de prática esportiva em Diadema, descobrir locais, organizar encontros e participar de eventos esportivos**, com ferramentas de comunicação e mecanismos de moderação.
+### Métodos de segurança utilizados
 
-O sistema foi pensado para conectar três elementos:
+* Hash de senhas com `password_hash()` e validação com `password_verify()`.
+* Sessões com renovação do identificador após login, cookies `HttpOnly`, `SameSite=Lax` e `Secure` quando HTTPS está ativo.
+* Invalidação de sessões para contas indisponíveis ou com credenciais alteradas, com autorização própria para funções administrativas.
+* Tokens CSRF e validação de origem em requisições sensíveis.
+* Limitação de tentativas persistida no servidor para reduzir abusos.
+* Consultas parametrizadas com PDO e preparação nativa.
+* Escape de conteúdo HTML e cabeçalhos como Content Security Policy, proteção contra enquadramento e detecção indevida de tipos de arquivo.
+* Validação de tipo e tamanho de uploads, com bloqueio de execução de PHP nessa pasta.
+* Recuperação de senha com token de uso único e validade limitada.
+* Configuração de credenciais pelo ambiente, bloqueio de arquivos internos pelo roteador e pelo Apache e logs estruturados com seleção de campos permitidos.
+* Inscrições push autenticadas, proteção CSRF e validação dos destinos de envio para reduzir o risco de SSRF.
 
-~~~text
-PESSOAS  +  LOCAIS ESPORTIVOS  +  EVENTOS
-                    |
-              COMUNIDADE ZUBBO
-~~~
+### Notificações push
 
-Como recorte inicial do protótipo, a aplicação utiliza locais esportivos da região de **Diadema (SP)**, com a possibilidade de expansão para outras localidades.
+Os avisos são opcionais e abrangem mensagens, amizades e aprovação em eventos. Após instalar as dependências, execute `php jobs/gerar-vapid.php` uma vez por ambiente e configure `ZUBBO_VAPID_PUBLIC_KEY`, `ZUBBO_VAPID_PRIVATE_KEY` e `ZUBBO_VAPID_SUBJECT`. Mantenha as chaves estáveis: sua troca exige nova inscrição dos dispositivos.
 
-## Objetivos do projeto
+O recurso usa `sw.js`, a tabela `PushSubscription` e HTTPS ou localhost. O usuário ativa os avisos em Perfil → Configurações → Alertas de mensagens. A estrutura de uma instalação nova já inclui a tabela; para bases antigas, siga o guia do banco. O envio ocorre após a gravação do evento, sem fila persistente de reenvio.
 
-### Objetivo geral
+### Verificação e logs
 
-**Desenvolver uma solução tecnológica que facilite a organização e a participação em encontros esportivos amadores, incentivando a integração social e ampliando o acesso à prática esportiva comunitária.**
+Execute os comandos na pasta `-TCC-`:
 
-### Objetivos específicos
+```sh
+php tests/security-smoke.php
+php tests/map-config-smoke.php
+php tests/audit-migrations.php
+php tests/audit-migrations.php --strict
+```
 
-1. **Reunir e divulgar informações** sobre locais, projetos, atividades e iniciativas esportivas disponíveis na cidade de Diadema e, futuramente, em outras regiões.
-2. **Permitir a criação e a descoberta de eventos** por modalidade, local, data e horário.
-3. **Facilitar a participação em equipes**, com solicitações de vagas e organização de times.
-4. **Estimular conexões entre usuários** por meio de perfis, amizades, conversas e grupos.
-5. **Promover um ambiente organizado e responsável**, com denúncias e recursos de administração.
-6. **Desenvolver uma interface acessível e responsiva**, utilizável também em dispositivos móveis.
-7. **Aplicar práticas de engenharia de software**, incluindo modelagem relacional, autenticação, controle de acesso, testes e documentação.
-8. **Preparar a evolução do projeto** para um aplicativo Android, inicialmente aproveitando a versão web.
+A auditoria de migrations consulta o esquema sem modificar dados e usa a configuração do terminal. Os cinco domínios consolidados indicam compatibilidade observada, sem comprovar quais SQL foram executados. Com `--strict`, divergências retornam código `1`; falhas de execução retornam código diferente de zero. Sem a opção, o resultado permanece diagnóstico.
 
-## Público-alvo
+`tests/db-smoke.php` valida instalação nova e exige banco descartável vazio, nome `zubbo_ci` ou `zubbo_test_*` e `ZUBBO_TEST_ALLOW_SCHEMA=1`. A suíte separada `tests/db-upgrade.php` cobre bases legadas, parcialmente atualizadas, atuais e conflitos; consulte os requisitos e comandos no [guia do banco](./-TCC-/database/README.md). Fixtures nunca devem ser executadas no banco publicado. Complete a validação de catálogo de uma atualização com migrations seguidas de inserts; as modalidades por tipo de ginásio e quadra são aplicadas pelos inserts.
 
-Pessoas interessadas em praticar esportes amadores, conhecer outros participantes, encontrar atividades e organizar encontros em sua comunidade; incluindo iniciantes e quem deseja uma alternativa mais social e menos voltada à competição.
+Os eventos estruturados são enviados por `config/logger.php` ao registro de erros do PHP. No XAMPP, consulte `C:/xampp/apache/logs/error.log`; na hospedagem, consulte os logs do serviço. `/health.php` confirma apenas a inicialização do PHP, sem testar o banco. Valide também autenticação, mapa, cadastro e notificações com contas de teste.
 
-## Recursos da aplicação
+Novos logs locais devem ficar em `.local/logs/`. Dependências em `vendor/`, backups, segredos e dados locais não devem entrar no Git; use `composer install` a partir do lock para reconstruir as dependências.
 
-| Área | O que o Zubbo oferece |
-|---|---|
-| **Perfis** | Cadastro, preferências esportivas e informações pessoais controladas |
-| **Locais** | Pesquisa e visualização de espaços esportivos no mapa |
-| **Eventos** | Criação e divulgação de encontros por esporte, local e horário |
-| **Equipes** | Solicitação e aprovação de vagas, com divisão em times |
-| **Comunicação** | Amizades, mensagens privadas, grupos e notificações |
-| **Comunidade segura** | Denúncias, moderação e painel administrativo |
-| **Qualidade** | Testes automatizados, validações de segurança e logs técnicos |
+### Hospedagem
 
-## Tecnologias utilizadas
+No Railway, use PHP 8.4, `/-TCC-` como diretório raiz, `php -S 0.0.0.0:$PORT router.php` como comando de demonstração e `/health.php` como verificação de saúde. Configure `ZUBBO_BASE_PATH=/`, `ZUBBO_BASE_URL` com a origem HTTPS confirmada e as extensões exigidas pela aplicação e pelo Composer, incluindo `pdo_mysql` e `fileinfo`. Confira no runtime com `composer check-platform-reqs` e o verificador de ambiente.
 
-| Camada | Tecnologia |
-|---|---|
-| Interface | HTML, CSS e JavaScript |
-| Design e prototipação de telas | Figma |
-| Modelagem conceitual e lógica | Miro |
-| Aplicação | PHP |
-| Persistência | MySQL e PDO |
-| Modelagem e administração do banco de dados | DBeaver |
-| Servidor local de desenvolvimento | XAMPP, com Apache e MySQL/MariaDB |
-| Mapa | Mapbox |
-| E-mail | Resend / PHPMailer |
-| Hospedagem de demonstração | Railway |
-| Versionamento de código | Git e GitHub |
-| Integração e testes automatizados | GitHub Actions |
-| Próxima etapa mobile | Android Studio e Kotlin, com WebView experimental |
-| Domínio próprio (planejado) | Registro.br, para consulta de disponibilidade e futura contratação de domínio; ainda não adquirido |
+O arquivo `Dockerfile.demo02` é uma opção de build que deve ser selecionada explicitamente apenas no novo serviço `demo.02`, com raiz `/-TCC-`. Ele define PHP 8.4, extensões e instalação pelo Composer; o nome específico evita ativação automática nos serviços existentes. A construção da imagem ainda depende de validação em ambiente com Docker.
 
-## Estado do desenvolvimento
+Vincule as variáveis `ZUBBO_DB_HOST`, `ZUBBO_DB_PORT`, `ZUBBO_DB_NAME`, `ZUBBO_DB_USER` e `ZUBBO_DB_PASSWORD` às variáveis correspondentes do serviço MySQL. Configure também mapa, correio eletrônico e VAPID. Para disponibilização definitiva, use servidor web apropriado e armazenamento persistente para uploads e sessões.
 
-O projeto possui uma **versão web funcional de demonstração**, com os principais módulos de cadastro, pesquisa, mapa, eventos, conversas e administração.
+A publicação de `demo.02` usa a branch `teste-alteracoes`, MySQL 8.4 e volume próprios, conforme o [plano](./-TCC-/docs/PLANO_DEMO_02.md) e a [matriz de ambiente](./-TCC-/docs/AMBIENTE_DEMO_02.md). Confira autodeploys existentes antes do push e exija workflows aprovados para o mesmo SHA implantado. O [relatório de validação e publicação](./-TCC-/docs/RELATORIO_TESTES_2026-10-25.md) distingue resultados históricos, alterações locais e pendências. Uploads continuam sujeitos ao armazenamento efêmero até receberem persistência própria.
 
-A equipe registrou **39 verificações funcionais concluídas** no ambiente de demonstração, incluindo fluxos de login, perfil, mensagens, eventos, denúncias e uso pelo navegador do celular.
+## Dúvidas e soluções
 
-Isso representa uma homologação **funcional do protótipo**, não uma certificação de segurança nem uma autorização automática para distribuição pública. Melhorias de privacidade, monitoramento, desempenho, armazenamento e revisão independente continuam previstas.
-
-A branch de desenvolvimento e validação é **teste-railway**. A **main** permanece separada até a decisão de integração.
-
-## Próximos passos
-
-- Aperfeiçoar a estabilidade, o desempenho e a proteção de dados.
-- Evoluir monitoramento, armazenamento persistente e testes de carga.
-- Criar um **APK experimental para Android**, usando a interface web hospedada.
-- Validar a experiência em aparelhos reais.
-- Avaliar a expansão de locais, modalidades e comunidades atendidas.
-- Pesquisar a disponibilidade de um domínio no **Registro.br** e planejar sua aquisição futura para disponibilizar o Zubbo em endereço próprio.
-
-## Documentação e funcionamento do aplicativo
-
-**Para saber como o código funciona, instalar o projeto, criar o banco, configurar o Railway, consultar logs e executar testes, acesse a documentação técnica:**
-
-### [📘 Documentação técnica e funcionamento do Zubbo →](./-TCC-/README.md)
-
-Documentos complementares:
-
-- [Segurança da aplicação](./-TCC-/SECURITY.md)
-- [Railway e ambiente de demonstração](./-TCC-/RAILWAY_TEST.md)
-- [Observabilidade, logs e automação de testes](./-TCC-/docs/OBSERVABILIDADE_E_TESTES.md)
-- [Estrutura do banco de dados](./-TCC-/database/scripts/criacaotables.sql)
-- [Verificações automatizadas no GitHub Actions](https://github.com/silvestrevini11/Zubbo-App/actions)
-
----
-
-<div align="center">
-
-**Zubbo: Encontre. Pratique. Conecte-se.**
-
-*Um TCC de Desenvolvimento de Sistemas dedicado a aproximar pessoas por meio do esporte.*
-
-</div>
+Consulte [Dúvidas e soluções](./README_DUVIDAS_E_SOLUCOES.md) para Forbidden, falha de conexão com o banco e diagnóstico da instalação.

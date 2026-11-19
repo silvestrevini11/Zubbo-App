@@ -1,18 +1,29 @@
 <?php
-
-require_once __DIR__ . '/../../../config/security.php';
-zubbo_start_session();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
-
-include __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../middleware/auth.php';
 
 $id_usuario_logado = (int) $_SESSION['usuario']['id'];
 
 $id_outro_usuario = (int) ($_GET['id'] ?? 0);
+
+require_once __DIR__ . '/../../services/AmizadeService.php';
+
+if (!zubbo_amizade_aceita($conn, $id_usuario_logado, $id_outro_usuario)) {
+    // Acesso por URL direta também precisa respeitar a amizade aceita.
+    if ($id_outro_usuario > 0 && $id_outro_usuario !== $id_usuario_logado) {
+        header('Location: ../perfil/perfil-ver.php?id=' . $id_outro_usuario . '&chat=amizade', true, 303);
+    } else {
+        header('Location: chats.php', true, 303);
+    }
+    exit;
+}
+
+$stmtBloqueio = $conn->prepare("SELECT 1 FROM Bloqueio_Usuario
+ WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?) LIMIT 1");
+$stmtBloqueio->execute([$id_usuario_logado,$id_outro_usuario,$id_outro_usuario,$id_usuario_logado]);
+if ($stmtBloqueio->fetchColumn()) {
+    http_response_code(403); exit('Conversa indisponível devido ao bloqueio.');
+}
+
 
 if ($id_outro_usuario <= 0 || $id_outro_usuario == $id_usuario_logado) {
     header('Location: chats.php');
@@ -37,7 +48,7 @@ if ($id_outro_usuario <= 0 || $id_outro_usuario == $id_usuario_logado) {
 $stmtUsuario = $conn->prepare("
     SELECT nome_user, foto_user
     FROM Usuario
-    WHERE id_user = ?
+    WHERE id_user = ? AND status_user = 'ativo'
 ");
 
 $stmtUsuario->execute([$id_outro_usuario]);
@@ -77,46 +88,46 @@ $stmtConversa->execute([
 $conversa = $stmtConversa->fetch(PDO::FETCH_ASSOC);
 
 
-/* Se ainda não existe, cria */
-
+/* Criação de conversa privada protegida por locks para não duplicar com dois cliques. */
 if (!$conversa) {
+    try {
+        $conn->beginTransaction();
 
-    $stmtCriar = $conn->prepare("
-        INSERT INTO Conversa (tipo_conversa)
-        VALUES ('privado')
-    ");
+        // Bloqueios consistentes na mesma ordem evitam deadlock para o mesmo par.
+        $ids = [$id_usuario_logado, $id_outro_usuario];
+        sort($ids, SORT_NUMERIC);
+        $lock = $conn->prepare("SELECT id_user, status_user FROM Usuario
+            WHERE id_user IN (?, ?) ORDER BY id_user FOR UPDATE");
+        $lock->execute($ids);
+        $usuariosAtivos = $lock->fetchAll(PDO::FETCH_ASSOC);
+        if (count($usuariosAtivos) !== 2 ||
+            $usuariosAtivos[0]['status_user'] !== 'ativo' ||
+            $usuariosAtivos[1]['status_user'] !== 'ativo') {
+            throw new RuntimeException('Usuário indisponível.');
+        }
 
-    $stmtCriar->execute();
-
-    $id_conversa = $conn->lastInsertId();
-
-
-    /* Adiciona o usuário logado */
-
-    $stmtParticipante = $conn->prepare("
-        INSERT INTO Participantes_Conversa
-        (id_user, id_conversa)
-        VALUES (?, ?)
-    ");
-
-    $stmtParticipante->execute([
-        $id_usuario_logado,
-        $id_conversa
-    ]);
-
-
-    /* Adiciona o outro usuário */
-
-    $stmtParticipante->execute([
-        $id_outro_usuario,
-        $id_conversa
-    ]);
-
+        // Reconsultar depois do lock: outra requisição pode ter criado a conversa.
+        $stmtConversa->execute([$id_usuario_logado, $id_outro_usuario]);
+        $conversa = $stmtConversa->fetch(PDO::FETCH_ASSOC);
+        if (!$conversa) {
+            $conn->prepare("INSERT INTO Conversa (tipo_conversa) VALUES ('privado')")->execute();
+            $id_conversa = (int)$conn->lastInsertId();
+            $inserir = $conn->prepare("INSERT INTO Participantes_Conversa (id_user,id_conversa) VALUES (?,?)");
+            $inserir->execute([$id_usuario_logado,$id_conversa]);
+            $inserir->execute([$id_outro_usuario,$id_conversa]);
+        } else {
+            $id_conversa = (int)$conversa['id_conversa'];
+        }
+        $conn->commit();
+    } catch (Throwable $e) {
+        if ($conn->inTransaction()) $conn->rollBack();
+        error_log('Falha ao abrir conversa privada: '.get_class($e));
+        http_response_code(503);
+        exit('Não foi possível abrir a conversa agora.');
+    }
 } else {
-
-    $id_conversa = $conversa['id_conversa'];
+    $id_conversa = (int)$conversa['id_conversa'];
 }
-
 
 /* ==========================================
    PEGAR MENSAGENS
@@ -136,7 +147,7 @@ $stmtMensagens->execute([$id_conversa]);
 
 $mensagens = $stmtMensagens->fetchAll(PDO::FETCH_ASSOC);
 
-$conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
+$conn->prepare("UPDATE Notificacao SET lida = TRUE, data_leitura = COALESCE(data_leitura, NOW()) WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
     ->execute([$id_usuario_logado, $id_conversa]);
 
 

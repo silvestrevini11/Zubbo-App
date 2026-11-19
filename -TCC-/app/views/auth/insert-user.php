@@ -18,7 +18,12 @@ $email = strtolower(trim((string) ($_POST['email-txt'] ?? '')));
 $telefone = preg_replace('/\D/', '', (string) ($_POST['telefone-tel'] ?? ''));
 $senha = (string) ($_POST['Senha-pass'] ?? '');
 $confirmarSenha = (string) ($_POST['confirmar-senha'] ?? '');
-$dataNascimento = (string) ($_POST['data-nasc'] ?? '');
+$dataNascimento = is_string($_POST['data-nasc'] ?? null) ? $_POST['data-nasc'] : '';
+$nascimento = preg_match('/^[1-9][0-9]{3}-[0-9]{2}-[0-9]{2}$/D', $dataNascimento)
+    ? DateTimeImmutable::createFromFormat('!Y-m-d', $dataNascimento) : false;
+$dataNascimentoValida = $nascimento !== false
+    && $nascimento->format('Y-m-d') === $dataNascimento
+    && $nascimento <= new DateTimeImmutable('today');
 
 if (zubbo_rate_limit_exceeded('cadastro', 5, 3600, $email)) {
     header('Location: cadastro.php?erro=limite');
@@ -27,13 +32,14 @@ if (zubbo_rate_limit_exceeded('cadastro', 5, 3600, $email)) {
 
 if (
     $nome === ''
-    || mb_strlen($nome) > 100
+    || mb_strlen($nome) > 50
+    || strlen($email) > 70
     || !filter_var($email, FILTER_VALIDATE_EMAIL)
     || strlen($telefone) !== 11
     || strlen($senha) < 8
     || strlen($senha) > 255
     || $senha !== $confirmarSenha
-    || $dataNascimento === ''
+    || !$dataNascimentoValida
 ) {
     zubbo_rate_limit_hit('cadastro', 3600, $email);
     header('Location: cadastro.php?erro=dados');
@@ -49,6 +55,8 @@ if ($stmt->fetch()) {
     exit;
 }
 
+// Nunca reaproveitar validação de um cadastro anterior nesta sessão.
+unset($_SESSION['email_verificado'], $_SESSION['codigo_demo'], $_SESSION['erro_verificacao']);
 $codigo = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
 $_SESSION['cadastro_pendente'] = [
@@ -60,9 +68,10 @@ $_SESSION['cadastro_pendente'] = [
     'codigo' => $codigo,
     'expiracao' => time() + 600,
     'tentativas_codigo' => 0,
+    'ultimo_envio' => time(),
 ];
 
-$demoMode = filter_var((string) getenv('ZUBBO_DEMO_MODE'), FILTER_VALIDATE_BOOLEAN);
+$demoMode = zubbo_demo_mode();
 
 if ($demoMode) {
     $_SESSION['codigo_demo'] = $codigo;

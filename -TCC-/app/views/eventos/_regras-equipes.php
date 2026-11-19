@@ -14,10 +14,20 @@ function evento_normalizar_esporte(string $nome): string
     ]);
 }
 
-function evento_vagas_por_time(string $esporte): ?int
+function evento_vagas_por_time(string $esporte, ?PDO $conn = null): ?int
 {
+    if ($conn !== null) {
+        $stmt = $conn->prepare('SELECT jogadores_por_time FROM Esporte WHERE LOWER(nome_esporte)=LOWER(?) LIMIT 1');
+        $stmt->execute([$esporte]);
+        $jogadores = $stmt->fetchColumn();
+        if ($jogadores !== false && $jogadores !== null && (int)$jogadores > 0) {
+            return (int)$jogadores;
+        }
+    }
+
     $regras = [
         'futebol' => 11,
+        'futebol society' => 7,
         'futsal' => 5,
         'volei' => 6,
         'basquete' => 5,
@@ -25,6 +35,14 @@ function evento_vagas_por_time(string $esporte): ?int
     ];
 
     return $regras[evento_normalizar_esporte($esporte)] ?? null;
+}
+
+function evento_quantidade_times(string $esporte, PDO $conn): int
+{
+    $stmt=$conn->prepare('SELECT quantidade_times FROM Esporte WHERE LOWER(nome_esporte)=LOWER(?) LIMIT 1');
+    $stmt->execute([$esporte]);
+    $n=(int)$stmt->fetchColumn();
+    return in_array($n, [1,2], true) ? $n : 2;
 }
 
 function evento_iniciais(string $nome): string

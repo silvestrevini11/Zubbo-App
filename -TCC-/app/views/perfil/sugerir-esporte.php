@@ -1,12 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../middleware/auth.php';
 
-if (!isset($_SESSION['usuario']['id'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
 
-require_once __DIR__ . '/../../../config/database.php';
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $erro = '';

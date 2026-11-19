@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
+require_once __DIR__ . '/../../services/NotificacaoService.php';
+require_once __DIR__ . '/../../services/GrupoService.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: chats-grupos.php');
@@ -12,14 +14,23 @@ $id_usuario = (int)$_SESSION['usuario']['id'];
 $id_grupo = (int)($_POST['id_grupo'] ?? 0);
 $nome = trim($_POST['nome_grupo'] ?? '');
 $descricao = trim($_POST['descricao_grupo'] ?? '');
-$remover = array_values(array_unique(array_filter(array_map('intval', $_POST['remover'] ?? []))));
-$adicionar = array_values(array_unique(array_filter(array_map('intval', $_POST['adicionar'] ?? []))));
+$remover = $_POST['remover'] ?? [];
+$adicionar = $_POST['adicionar'] ?? [];
+if (!is_array($remover) || !is_array($adicionar)
+    || array_filter($remover, fn($id) => !is_scalar($id))
+    || array_filter($adicionar, fn($id) => !is_scalar($id))) {
+    $_SESSION['editar_grupo_erro'] = 'Selecione participantes válidos.';
+    header('Location: editar-grupo.php?id_grupo='.$id_grupo);
+    exit;
+}
+$remover = array_values(array_unique(array_filter(array_map('intval', $remover))));
+$adicionar = array_values(array_unique(array_filter(array_map('intval', $adicionar))));
 
-$stmt = $conn->prepare("SELECT * FROM Grupo WHERE id_grupo = ? AND id_criador = ?");
-$stmt->execute([$id_grupo, $id_usuario]);
+$stmt = $conn->prepare("SELECT * FROM Grupo WHERE id_grupo = ?");
+$stmt->execute([$id_grupo]);
 $grupo = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$grupo) {
+if (!$grupo || !zubbo_grupo_moderador($conn, $grupo, $id_usuario)) {
     header('Location: chats-grupos.php');
     exit;
 }
@@ -83,21 +94,25 @@ if (isset($_FILES['foto_grupo']) && $_FILES['foto_grupo']['error'] !== UPLOAD_ER
 
 try {
     $conn->beginTransaction();
+    $grupo = zubbo_grupo_bloquear($conn, 'id_grupo', $id_grupo);
+    if (!zubbo_grupo_moderador($conn, $grupo, $id_usuario)) {
+        throw new DomainException('Você não pode editar este grupo.');
+    }
 
     if ($novaFoto) {
         $stmt = $conn->prepare("
             UPDATE Grupo
             SET nome_grupo = ?, descricao_grupo = ?, foto_grupo = ?
-            WHERE id_grupo = ? AND id_criador = ?
+            WHERE id_grupo = ?
         ");
-        $stmt->execute([$nome, $descricao ?: null, $novaFoto, $id_grupo, $id_usuario]);
+        $stmt->execute([$nome, $descricao ?: null, $novaFoto, $id_grupo]);
     } else {
         $stmt = $conn->prepare("
             UPDATE Grupo
             SET nome_grupo = ?, descricao_grupo = ?
-            WHERE id_grupo = ? AND id_criador = ?
+            WHERE id_grupo = ?
         ");
-        $stmt->execute([$nome, $descricao ?: null, $id_grupo, $id_usuario]);
+        $stmt->execute([$nome, $descricao ?: null, $id_grupo]);
     }
 
     if ($remover) {
@@ -105,21 +120,41 @@ try {
         $stmt = $conn->prepare("
             DELETE FROM Participantes_Conversa
             WHERE id_conversa = ?
-              AND id_user <> ?
+              AND id_user <> COALESCE(?,0)
+              AND NOT EXISTS (SELECT 1 FROM Grupo_Moderador gm WHERE gm.id_grupo = ? AND gm.id_user = Participantes_Conversa.id_user)
               AND id_user IN ($ph)
         ");
-        $stmt->execute([$grupo['id_conversa'], $id_usuario, ...$remover]);
+        $stmt->execute([$grupo['id_conversa'], $grupo['id_criador'], $id_grupo, ...$remover]);
     }
 
     $stmtAdd = $conn->prepare("
         INSERT IGNORE INTO Participantes_Conversa (id_user, id_conversa)
         VALUES (?, ?)
     ");
+    $novosMembros = [];
     foreach ($permitidosAdicionar as $id_amigo) {
         $stmtAdd->execute([$id_amigo, $grupo['id_conversa']]);
+        // INSERT IGNORE retorna zero para membros já existentes.
+        if ($stmtAdd->rowCount() === 1 &&
+            zubbo_notificar($conn, $id_amigo, $id_usuario,
+                'grupo_adicionado', null, (int)$grupo['id_conversa'])) {
+            $novosMembros[] = $id_amigo;
+        }
     }
 
     $conn->commit();
+    if ($novosMembros) {
+        require_once __DIR__ . '/../../services/PushService.php';
+        foreach ($novosMembros as $novoMembro) {
+            try {
+                PushService::sendToUser($conn, $novoMembro, 'Zubbo · Novo grupo',
+                    'Você foi adicionado a um grupo.',
+                    '/app/views/chats/chat-grupo.php?id_conversa='.(int)$grupo['id_conversa']);
+            } catch (Throwable $e) {
+                error_log('Web Push grupo: '.get_class($e));
+            }
+        }
+    }
 
     if ($novaFoto && !empty($grupo['foto_grupo'])) {
         $antiga = __DIR__.'/../../../'.$grupo['foto_grupo'];

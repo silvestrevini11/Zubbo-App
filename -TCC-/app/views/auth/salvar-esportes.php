@@ -27,6 +27,15 @@ require_once __DIR__ . '/../../../config/database.php';
 */
 
 $cadastro = $_SESSION['cadastro_pendente'];
+if ((int)($cadastro['expiracao'] ?? 0) < time()) {
+    unset($_SESSION['cadastro_pendente'], $_SESSION['email_verificado'], $_SESSION['codigo_demo']);
+    header('Location: cadastro.php?erro=codigo_expirado', true, 303);
+    exit;
+}
+if (mb_strlen((string)($cadastro['nome'] ?? '')) > 50 || strlen((string)($cadastro['email'] ?? '')) > 70) {
+    header('Location: cadastro.php?erro=dados', true, 303);
+    exit;
+}
 
 
 /*
@@ -44,7 +53,7 @@ $esportes = $_POST['esportes'] ?? [];
 |--------------------------------------------------------------------------
 */
 
-if (empty($esportes)) {
+if (!is_array($esportes) || empty($esportes)) {
     header('Location: escolher-esportes.php?erro=nenhum');
     exit;
 }
@@ -56,6 +65,12 @@ if (empty($esportes)) {
 |--------------------------------------------------------------------------
 */
 
+foreach ($esportes as $idEsporte) {
+    if (!is_scalar($idEsporte) || filter_var($idEsporte, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+        header('Location: escolher-esportes.php?erro=nenhum');
+        exit;
+    }
+}
 $esportes = array_map('intval', $esportes);
 
 $esportes = array_unique($esportes);

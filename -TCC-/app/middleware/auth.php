@@ -10,4 +10,6 @@ if (empty($_SESSION['usuario']['id'])) {
 }
 
 require_once __DIR__ . '/../../config/database.php';
+
+// O banco valida status e fingerprint de credenciais em todas as requisições.
 zubbo_csrf_token();

@@ -31,7 +31,7 @@ $stmt = $conn->prepare("
 $stmt->execute([$id_conversa]);
 $mensagens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$conn->prepare("UPDATE Notificacao SET lida = TRUE WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
+$conn->prepare("UPDATE Notificacao SET lida = TRUE, data_leitura = COALESCE(data_leitura, NOW()) WHERE id_destinatario = ? AND id_conversa = ? AND tipo = 'mensagem' AND lida = FALSE")
     ->execute([$id_usuario, $id_conversa]);
 
 include __DIR__ . '/../includes/head.php';
@@ -49,15 +49,13 @@ $foto = $grupo['foto_grupo']
             <span><?= (int)$grupo['total_participantes'] ?> participantes</span>
         </div>
 
-        <?php if ((int)$grupo['id_criador'] === $id_usuario): ?>
-            <button
-                type="button"
-                class="grupo-btn-editar"
-                onclick="location.href='editar-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>'"
-                aria-label="Editar grupo"
-                title="Editar grupo"
-            >⚙</button>
-        <?php endif; ?>
+        <a class="grupo-btn-editar" href="configuracoes-grupo.php?id_grupo=<?= (int)$grupo['id_grupo'] ?>"
+           aria-label="Configurações do grupo" title="Configurações do grupo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="m9.5 3-.5 2-2 .9-1.8-.6-2.5 4.4 1.4 1.4v1.8l-1.4 1.4 2.5 4.4 1.8-.6 2 .9.5 2h5l.5-2 2-.9 1.8.6 2.5-4.4-1.4-1.4v-1.8l1.4-1.4-2.5-4.4-1.8.6-2-.9-.5-2z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        </a>
     </header>
 
     <div class="chat-mensagens" id="chat-mensagens"  data-conversa="<?= $id_conversa ?>">

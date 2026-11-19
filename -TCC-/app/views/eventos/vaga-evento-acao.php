@@ -6,6 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit('Método não permitido.');
 }
 require_once __DIR__ . '/_regras-equipes.php';
+require_once __DIR__ . '/_fila-espera.php';
+require_once __DIR__ . '/../../services/NotificacaoService.php';
 
 $idUsuario = (int) $_SESSION['usuario']['id'];
 $idEvento = filter_var($_POST['id_evento'] ?? null, FILTER_VALIDATE_INT);
@@ -49,6 +51,7 @@ if (!in_array($acao, $acoesPermitidas, true)) {
     vaga_redirecionar($idEvento, $origem);
 }
 
+$avisosPush = [];
 try {
     $conn->beginTransaction();
 
@@ -68,7 +71,8 @@ try {
         throw new RuntimeException('Evento não encontrado.');
     }
 
-    $limite = evento_vagas_por_time((string) $evento['nome_esporte']);
+    $limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
+    $quantidadeTimes = evento_quantidade_times((string)$evento['nome_esporte'],$conn);
     $organizador = (int) $evento['id_criador'] === $idUsuario;
     $inscricoesAbertas = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
 
@@ -111,11 +115,34 @@ try {
         $stmt->execute([$idEvento, $idUsuario]);
         $participacaoAntiga = (bool) $stmt->fetchColumn();
 
+        if ($limite !== null && !$participacaoAntiga) {
+            // Inclui participantes de cadastros antigos, ainda sem time/vaga.
+            $totalSt = $conn->prepare("SELECT
+                (SELECT COUNT(*) FROM Solicitacao_Vaga_Evento sv
+                   WHERE sv.id_evento = ? AND sv.status_solicitacao='aprovada'
+                     AND sv.time_num IN (1,2))
+              + (SELECT COUNT(*) FROM Lista_Evento le
+                   WHERE le.id_evento = ?
+                     AND NOT EXISTS (SELECT 1 FROM Solicitacao_Vaga_Evento sv
+                       WHERE sv.id_evento=le.id_evento AND sv.id_user=le.id_user
+                         AND sv.status_solicitacao='aprovada'))");
+            $totalSt->execute([$idEvento,$idEvento]);
+            if ((int)$totalSt->fetchColumn() >= $limite * $quantidadeTimes) {
+                throw new RuntimeException('Evento lotado. Entre na fila de espera.');
+            }
+            // Evita ultrapassar a vez dos usuários que já aguardam.
+            $filaSt = $conn->prepare("SELECT 1 FROM Fila_Espera_Evento WHERE id_evento=? LIMIT 1");
+            $filaSt->execute([$idEvento]);
+            if ($filaSt->fetchColumn()) {
+                throw new RuntimeException('Há uma fila de espera ativa. Aguarde a liberação de vagas.');
+            }
+        }
+
         if ($limite !== null) {
             $time = filter_var($_POST['time_num'] ?? null, FILTER_VALIDATE_INT);
             $vaga = filter_var($_POST['numero_vaga'] ?? null, FILTER_VALIDATE_INT);
 
-            if (!in_array($time, [1, 2], true) || !$vaga || $vaga < 1 || $vaga > $limite) {
+            if (!in_array($time, range(1, $quantidadeTimes), true) || !$vaga || $vaga < 1 || $vaga > $limite) {
                 throw new RuntimeException('A vaga escolhida é inválida.');
             }
 
@@ -188,6 +215,18 @@ try {
             $stmt->execute([$idEvento, $time, $vaga, $idUsuario]);
         }
 
+        // Somente pedidos novos geram aviso ao organizador.
+        // A notificação é gravada antes do COMMIT junto com a solicitação.
+        $idOrganizador = (int)$evento['id_criador'];
+        if (!$participacaoAntiga && $idOrganizador > 0
+            && zubbo_notificar($conn, $idOrganizador, $idUsuario, 'vaga_solicitada', $idEvento)) {
+            $avisosPush[] = [
+                $idOrganizador, 'Zubbo · Nova solicitação',
+                'Alguém solicitou participação no seu evento.',
+                '/app/views/eventos/detalhes-evento.php?id_evento='.$idEvento
+            ];
+        }
+
         vaga_flash(
             $idEvento,
             'sucesso',
@@ -234,6 +273,14 @@ try {
                 WHERE id_solicitacao = ?
             ");
             $stmt->execute([(int) $solicitacao['id_solicitacao']]);
+            if ($solicitacao['status_solicitacao'] === 'aprovada') {
+                $vagaLiberada = $conn->prepare('SELECT time_num, numero_vaga FROM Solicitacao_Vaga_Evento WHERE id_solicitacao=?');
+                $vagaLiberada->execute([(int)$solicitacao['id_solicitacao']]);
+                $pos = $vagaLiberada->fetch(PDO::FETCH_ASSOC);
+                if ($pos && $pos['time_num'] !== null && $pos['numero_vaga'] !== null) {
+                    evento_promover_fila($conn,$idEvento,(int)$pos['time_num'],(int)$pos['numero_vaga']);
+                }
+            }
 
             $stmt = $conn->prepare('DELETE FROM Lista_Evento WHERE id_evento = ? AND id_user = ?');
             $stmt->execute([$idEvento, $idUsuario]);
@@ -299,7 +346,7 @@ try {
 
             if ($limite !== null) {
                 if (
-                    !in_array($timeSolicitado, [1, 2], true)
+                    !in_array($timeSolicitado, range(1, $quantidadeTimes), true)
                     || $vagaSolicitada === null
                     || $vagaSolicitada < 1
                     || $vagaSolicitada > $limite
@@ -362,6 +409,15 @@ try {
                 $idEvento,
             ]);
 
+            $idParticipanteAprovado = (int)$solicitacao['id_user'];
+            if (zubbo_notificar($conn, $idParticipanteAprovado,
+                $idUsuario, 'vaga_aprovada', $idEvento)) {
+                $avisosPush[] = [
+                    $idParticipanteAprovado, 'Zubbo · Participação aprovada',
+                    'Sua participação em um evento foi aprovada!',
+                    '/app/views/eventos/detalhes-evento.php?id_evento='.$idEvento
+                ];
+            }
             vaga_flash($idEvento, 'sucesso', 'Solicitação aprovada e participante confirmado.');
         }
 
@@ -397,11 +453,27 @@ try {
             $stmt = $conn->prepare('DELETE FROM Lista_Evento WHERE id_evento = ? AND id_user = ?');
             $stmt->execute([$idEvento, (int) $solicitacao['id_user']]);
 
+            if ($solicitacao['time_num'] !== null && $solicitacao['numero_vaga'] !== null) {
+                evento_promover_fila($conn, $idEvento, (int)$solicitacao['time_num'], (int)$solicitacao['numero_vaga']);
+            }
             vaga_flash($idEvento, 'sucesso', 'Participante removido do evento.');
         }
     }
 
     $conn->commit();
+    // Push é complementar à notificação no banco; nunca deixa falha de push
+    // desfazer a aprovação ou solicitação já confirmada no banco.
+    if ($avisosPush) {
+        require_once __DIR__ . '/../../services/PushService.php';
+        foreach ($avisosPush as [$destinatario,$titulo,$texto,$url]) {
+            try {
+                PushService::sendToUser($conn,$destinatario,$titulo,$texto,$url);
+            } catch (Throwable $pushError) {
+                error_log('Web Push evento: '.get_class($pushError));
+            }
+        }
+    }
+
     $_SESSION['csrf_eventos'] = bin2hex(random_bytes(32));
 } catch (PDOException $e) {
     if ($conn->inTransaction()) {

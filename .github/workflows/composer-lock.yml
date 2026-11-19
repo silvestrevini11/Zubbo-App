@@ -1,0 +1,37 @@
+name: Revisar Composer Lock (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do SHA solicitado
+        uses: actions/checkout@v4
+
+      - name: Instalar PHP 8.4 e Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, curl, mbstring, openssl, fileinfo
+          tools: composer:v2
+
+      - name: Atualizar composer.lock
+        working-directory: ./-TCC-
+        run: |
+          composer update --with-all-dependencies --no-interaction --no-progress --prefer-dist
+          composer validate --no-check-publish
+          composer check-platform-reqs
+          git diff -- composer.lock > "$RUNNER_TEMP/composer-lock.patch"
+
+      - name: Disponibilizar proposta para revisão manual
+        uses: actions/upload-artifact@v4
+        with:
+          name: composer-lock-${{ github.sha }}
+          path: |
+            -TCC-/composer.lock
+            ${{ runner.temp }}/composer-lock.patch

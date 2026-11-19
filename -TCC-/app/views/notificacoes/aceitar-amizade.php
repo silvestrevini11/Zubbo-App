@@ -81,6 +81,14 @@ if ($id_usuario === $id_remetente) {
    ORGANIZAR IDS DA AMIZADE
 ========================================== */
 
+$stmtBloqueio = $conn->prepare("SELECT 1 FROM Bloqueio_Usuario
+ WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?) LIMIT 1");
+$stmtBloqueio->execute([$id_usuario,$id_remetente,$id_remetente,$id_usuario]);
+if ($stmtBloqueio->fetchColumn()) {
+    http_response_code(403);
+    exit('Solicitação indisponível.');
+}
+
 $id1 = min($id_usuario, $id_remetente);
 $id2 = max($id_usuario, $id_remetente);
 
@@ -133,7 +141,7 @@ try {
 
         $stmt = $conn->prepare("
             UPDATE Notificacao
-            SET lida = TRUE
+            SET lida = TRUE, data_leitura = COALESCE(data_leitura, NOW())
             WHERE id_notificacao = ?
               AND id_destinatario = ?
               AND id_remetente = ?
@@ -175,6 +183,14 @@ try {
     ========================================== */
 
     $conn->commit();
+
+    require_once __DIR__ . '/../../services/PushService.php';
+    try {
+        PushService::sendToUser($conn, $id_remetente, 'Zubbo · Amizade aceita',
+            'Sua solicitação de amizade foi aceita.',
+            '/app/views/perfil/perfil-ver.php?id='.$id_usuario);
+    } catch (Throwable $e) { error_log('Web Push aceite: '.get_class($e)); }
+
 
 
     /*

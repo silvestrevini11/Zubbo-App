@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "zubbo-twa",
+  "version": "1.0.0",
+  "description": "Projeto Android TWA do Zubbo",
+  "devDependencies": {
+    "@bubblewrap/cli": "1.27.0"
+  }
+}

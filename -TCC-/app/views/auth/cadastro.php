@@ -7,6 +7,7 @@ $mensagens = [
     'dados' => 'Confira os dados informados. A senha deve ter pelo menos 8 caracteres.',
     'email' => 'Este e-mail já está cadastrado.',
     'email_envio' => 'Não foi possível enviar o código de verificação. Confira a configuração de e-mail e tente novamente.',
+    'codigo_expirado' => 'O código expirou. Inicie o cadastro novamente.',
     'limite' => 'Muitas tentativas de cadastro. Aguarde antes de tentar novamente.',
 ];
 $erro = $mensagens[$erroCodigo] ?? '';
@@ -29,7 +30,7 @@ include __DIR__ . '/../includes/head.php';
     <form class="Cadastro-tabela" action="insert-user.php" method="post">
         <?= zubbo_csrf_input() ?>
         <div class="field-cad">
-            <input type="text" placeholder="Nome Completo" name="name-txt" maxlength="100" required>
+            <input type="text" placeholder="Nome Completo" name="name-txt" maxlength="50" required>
         </div>
 
         <div class="field-cad">

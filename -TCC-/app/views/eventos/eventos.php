@@ -4,11 +4,14 @@ require_once __DIR__ . '/_regras-equipes.php';
 
 $eventos = [];
 $erro = false;
+$idLocalFiltro = filter_var($_GET['id_local'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+$locaisFiltro = [];
+
 
 try {
-    $stmt = $conn->query("
+    $stmt = $conn->prepare("
         SELECT ev.id_evento, ev.nome_evento, ev.data_evento, ev.horario_evento,
-               ev.status_evento, e.nome_esporte, l.nome_local, l.endereco_local,
+               ev.status_evento, ev.nome_time_1, ev.nome_time_2, e.quantidade_times, e.nome_esporte, l.nome_local, l.endereco_local,
                u.nome_user AS criador,
                (SELECT COUNT(*) FROM Lista_Evento le WHERE le.id_evento = ev.id_evento) AS confirmados,
                (SELECT COUNT(*) FROM Solicitacao_Vaga_Evento s
@@ -22,6 +25,7 @@ try {
         INNER JOIN LocalEsp l ON l.id_local = ev.id_local
         LEFT JOIN Usuario u ON u.id_user = ev.id_criador
         WHERE ev.status_evento <> 'removido'
+          AND (? = 0 OR ev.id_local = ?)
         ORDER BY
             (ev.status_evento = 'ativo' AND TIMESTAMP(ev.data_evento, ev.horario_evento) >= NOW()) DESC,
             CASE
@@ -32,7 +36,9 @@ try {
             ev.horario_evento DESC,
             ev.id_evento DESC
     ");
+    $stmt->execute([$idLocalFiltro, $idLocalFiltro]);
     $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $locaisFiltro = $conn->query("SELECT id_local, nome_local FROM LocalEsp WHERE status_local = 'aprovado' ORDER BY nome_local")->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     error_log('Erro ao listar eventos: ' . $e->getMessage());
     $erro = true;
@@ -68,6 +74,19 @@ function escaparEvento($valor): string
         <a class="eventos-criar" href="criar-evento.php">+ Criar evento</a>
     </header>
 
+    <form class="eventos-filtro-local" action="eventos.php" method="get">
+        <label for="filtro-local">Filtrar eventos por local</label>
+        <select id="filtro-local" name="id_local">
+            <option value="0">Todos os locais</option>
+            <?php foreach ($locaisFiltro as $localFiltro): ?>
+                <option value="<?= (int)$localFiltro['id_local'] ?>" <?= $idLocalFiltro === (int)$localFiltro['id_local'] ? 'selected' : '' ?>>
+                    <?= escaparEvento($localFiltro['nome_local']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit">Filtrar</button>
+        <?php if ($idLocalFiltro): ?><a href="eventos.php">Limpar</a><?php endif; ?>
+    </form>
     <?php if ($erro): ?>
         <section class="eventos-vazio" role="alert">
             <h2>Não foi possível carregar os eventos</h2>
@@ -76,7 +95,6 @@ function escaparEvento($valor): string
         </section>
     <?php elseif (!$eventos): ?>
         <section class="eventos-vazio">
-            <span class="eventos-vazio-icone" aria-hidden="true">🏆</span>
             <h2>O próximo encontro começa com você</h2>
             <p>Ainda não há eventos cadastrados. Crie o primeiro para reunir a galera!</p>
             <a class="eventos-criar" href="criar-evento.php">Criar meu primeiro evento</a>
@@ -87,7 +105,8 @@ function escaparEvento($valor): string
         <section class="eventos-grid" aria-label="Eventos cadastrados">
             <?php foreach ($eventos as $evento): ?>
                 <?php
-                    $limite = evento_vagas_por_time((string) $evento['nome_esporte']);
+                    $limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
+                    $quantidadeTimes = evento_quantidade_times((string)$evento['nome_esporte'],$conn);
                     $dataHoraEvento = strtotime($evento['data_evento'] . ' ' . $evento['horario_evento']);
                     $aberto = $evento['status_evento'] === 'ativo' && $dataHoraEvento >= time();
 
@@ -134,13 +153,15 @@ function escaparEvento($valor): string
                     <?php if ($limite !== null): ?>
                         <div class="eventos-times-resumo">
                             <div class="time-1">
-                                <span>TIME 1</span>
+                                <span><?= escaparEvento($evento['nome_time_1']) ?></span>
                                 <strong><?= (int) $evento['time_1'] ?> / <?= $limite ?></strong>
                             </div>
+                            <?php if ($quantidadeTimes === 2): ?>
                             <div class="time-2">
-                                <span>TIME 2</span>
+                                <span><?= escaparEvento($evento['nome_time_2']) ?></span>
                                 <strong><?= (int) $evento['time_2'] ?> / <?= $limite ?></strong>
                             </div>
+                            <?php endif; ?>
                         </div>
                     <?php else: ?>
                         <div class="eventos-individual-resumo">

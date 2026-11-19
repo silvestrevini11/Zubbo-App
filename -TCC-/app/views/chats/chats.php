@@ -1,14 +1,6 @@
 <?php
-
-session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
-
+require_once __DIR__ . '/../../middleware/auth.php';
 include __DIR__ . '/../includes/head.php';
-include __DIR__ . '/../../../config/database.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 
@@ -50,6 +42,15 @@ $stmt = $conn->prepare("
         )
 
     WHERE c.tipo_conversa = 'privado'
+      AND u.status_user = 'ativo'
+      AND EXISTS (
+          SELECT 1 FROM Amizade a
+          WHERE a.id_user_1 = LEAST(pc.id_user, pc_outro.id_user)
+            AND a.id_user_2 = GREATEST(pc.id_user, pc_outro.id_user)
+      )
+      AND NOT EXISTS (SELECT 1 FROM Bloqueio_Usuario b
+        WHERE (b.id_bloqueador = :id_bloq_1 AND b.id_bloqueado = pc_outro.id_user)
+           OR (b.id_bloqueado = :id_bloq_2 AND b.id_bloqueador = pc_outro.id_user))
 
     ORDER BY
         COALESCE(m.data_envio, c.data_criacao) DESC
@@ -57,13 +58,13 @@ $stmt = $conn->prepare("
 
 $stmt->execute([
     ':id_usuario' => $id_usuario,
-    ':id_usuario_outro' => $id_usuario
+    ':id_usuario_outro' => $id_usuario,
+    ':id_bloq_1' => $id_usuario,
+    ':id_bloq_2' => $id_usuario
 ]);
 
 $conversas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$stmtNaoLidas = $conn->prepare("SELECT id_conversa, COUNT(*) AS total FROM Notificacao WHERE id_destinatario = ? AND tipo = 'mensagem' AND lida = FALSE AND id_conversa IS NOT NULL GROUP BY id_conversa");
-$stmtNaoLidas->execute([$id_usuario]);
-$naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
+require __DIR__ . '/contadores-nao-lidas.php';
 
 
 ?>
@@ -84,17 +85,25 @@ $naoLidas = $stmtNaoLidas->fetchAll(PDO::FETCH_KEY_PAIR);
     <button
         class="opcao ativa"
         data-tipo="privados"
+        aria-label="Privados<?= $tiposComNaoLidas['privado'] ? ', com mensagens não lidas' : '' ?>"
         onclick="window.location.href='chats.php'"
     >
         Privados
+        <?php if ($tiposComNaoLidas['privado']): ?>
+            <span class="seletor-nao-lidas" aria-hidden="true"></span>
+        <?php endif; ?>
     </button>
 
     <button
         class="opcao"
         data-tipo="grupos"
+        aria-label="Grupos<?= $tiposComNaoLidas['grupo'] ? ', com mensagens não lidas' : '' ?>"
         onclick="window.location.href='chats-grupos.php'"
     >
         Grupos
+        <?php if ($tiposComNaoLidas['grupo']): ?>
+            <span class="seletor-nao-lidas" aria-hidden="true"></span>
+        <?php endif; ?>
     </button>
 
 </div>

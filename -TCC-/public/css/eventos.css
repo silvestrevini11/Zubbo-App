@@ -610,6 +610,27 @@ html.tema-escuro .evento-score-status {
     font-weight: 900;
 }
 
+.evento-slot-foto {
+    display: block;
+    width: 29px;
+    height: 29px;
+}
+
+.evento-slot-foto img.evento-slot-avatar {
+    display: block;
+    object-fit: cover;
+}
+
+.evento-slot-nome {
+    color: inherit;
+    text-decoration: none;
+}
+
+.evento-slot-nome:hover strong,
+.evento-slot-nome:focus-visible strong {
+    text-decoration: underline;
+}
+
 .evento-time-1 .evento-slot-avatar:not(.evento-slot-vazio) {
     background: #2f8f87;
 }
@@ -1330,4 +1351,86 @@ html.tema-escuro .evento-minha-vaga.confirmada strong {
 
 html.tema-escuro .evento-minha-vaga.confirmada small {
     color: #a9a9ae;
+}
+/* Filtro de poliesportivos e quadras */
+.eventos-filtro-local { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin: 10px 0 26px; }
+.eventos-filtro-local label { font-weight:700; color:inherit; }
+.eventos-filtro-local select { min-width:200px; max-width:100%; padding:10px; border-radius:10px; border:1px solid #b8bac1; background:#fff; color:#252529; }
+.eventos-filtro-local button { background:#ef4b25; color:#fff; border:0; padding:11px 18px; border-radius:10px; cursor:pointer; }
+html.tema-escuro .eventos-filtro-local select { color:#f5f5f5; background:#20252b; border-color:#56606b; }
+html.tema-escuro .eventos-filtro-local a { color:#ff9b77; }
+
+.evento-fila-espera { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin:20px 0; padding:18px 20px; border:1px solid #e7bb71; border-radius:14px; background:#fff7e8; color:#3c3222; }
+.evento-fila-espera p { margin:5px 0; }
+.evento-fila-espera button { padding:10px 16px; border:0; border-radius:10px; background:#db592c; color:#fff; font-weight:700; cursor:pointer; }
+html.tema-escuro .evento-fila-espera { background:#2b271e; color:#f1e9d7; border-color:#74633f; }
+
+.evento-editar-times { margin:18px 0; padding:18px; border:1px solid #c8c8cc; border-radius:12px; background:#fff; color:#24242b; }
+.evento-editar-times summary { cursor:pointer; font-weight:700; }
+.evento-editar-times form { display:grid; gap:12px; margin-top:14px; }
+.evento-editar-times label { display:grid; gap:5px; }
+.evento-editar-times input,.evento-editar-times textarea { font:inherit; padding:10px; border-radius:8px; border:1px solid #bcbcbc; }
+.evento-editar-times button { background:#ef4b25;color:#fff;border:0;border-radius:9px;padding:10px 15px;cursor:pointer }
+html.tema-escuro .evento-editar-times { background:#20252b; color:#fff; border-color:#555d65; }
+html.tema-escuro .evento-editar-times input,html.tema-escuro .evento-editar-times textarea { background:#15191d;color:#fff;border-color:#676c73; }
+
+.agenda-local { padding-bottom:110px; }
+.agenda-aviso { margin:18px 0; padding:15px; border-left:4px solid #ef4b25; background:#fff6ed; color:#573f30; }
+.agenda-lista { list-style:none; padding:0; display:grid; gap:12px; }
+.agenda-lista li { padding:16px; background:#fff; border:1px solid #ddd; border-radius:12px; display:grid; gap:6px; }
+html.tema-escuro .agenda-aviso { background:#29231d;color:#f6ddc8; }
+html.tema-escuro .agenda-lista li { background:#20252a;color:#f3f3f3;border-color:#475058; }
+/* Contraste do tema escuro em telas de eventos */
+html.tema-escuro .eventos-card, html.tema-escuro .eventos-vazio { background:#20252a; color:#f7f8fa; border-color:#3d464f; }
+html.tema-escuro .eventos-card h2,html.tema-escuro .eventos-dados dd { color:#f7f8fa; }
+html.tema-escuro .eventos-dados dt, html.tema-escuro .eventos-endereco,
+html.tema-escuro .eventos-card-rodape>span { color:#c2cbd4; }
+html.tema-escuro .eventos-card .eventos-times-resumo { background:#242d35; }
+html.tema-escuro .evento-slot-vazio { background:#293038; color:#dae0e5; }
+
+/* Correcoes focadas no contraste de eventos e na faixa diagonal no modo escuro.
+ * Sobrescrevem estilos legados para evitar texto claro sobre card branco.
+ */
+html.tema-escuro .eventos-container,
+html.tema-escuro .evento-detalhes-shell,
+html.tema-escuro .presenca-container {
+    background: #171b20;
+    color: #f1f3f5;
+}
+html.tema-escuro .evento-score-faixa,
+html.tema-escuro .presenca-score-topo {
+    background: #1e252d !important;
+    background-image: none !important;
+    color: #f2f4f7;
+}
+html.tema-escuro .evento-score-hero,
+html.tema-escuro .evento-score-resumo,
+html.tema-escuro .evento-times-preview,
+html.tema-escuro .presenca-times,
+html.tema-escuro .presenca-individual,
+html.tema-escuro .presenca-legado,
+html.tema-escuro .presenca-fila,
+html.tema-escuro .presenca-slot,
+html.tema-escuro .evento-solicitacoes-lista article {
+    background: #212932;
+    color: #f1f3f5;
+    border-color: #414c56;
+}
+html.tema-escuro .evento-score-hero strong,
+html.tema-escuro .presenca-slot-nome strong,
+html.tema-escuro .presenca-fila-pessoa strong,
+html.tema-escuro .eventos-container h1,
+html.tema-escuro .eventos-container h2,
+html.tema-escuro .eventos-container h3 { color: #f3f5f7; }
+html.tema-escuro .presenca-slot-nome small,
+html.tema-escuro .presenca-fila-pessoa span,
+html.tema-escuro .eventos-container small { color: #b8c1cd; }
+html.tema-escuro .presenca-slot-avatar:not(.vazio) { color:#fefefe; }
+html:not(.tema-escuro) .presenca-slot-avatar:not(.vazio) { color:#2e3034; }
+html.tema-escuro .evento-solicitacoes-lista article button,
+html.tema-escuro .presenca-fila button { color:inherit; }
+@media (max-width: 640px) {
+  .evento-editar-times input, .evento-editar-times textarea,
+  .eventos-filtro-local select { width:100%; min-width:0; box-sizing:border-box; }
+  .evento-fila-espera { align-items:stretch; }
 }

@@ -1,0 +1,50 @@
+{
+  "packageId": "br.com.zubbo.app",
+  "host": "zubbo-app-demo.up.railway.app",
+  "name": "Zubbo",
+  "launcherName": "Zubbo",
+  "display": "standalone",
+  "themeColor": "#EF4B25",
+  "themeColorDark": "#000000",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#171717",
+  "enableNotifications": true,
+  "startUrl": "/public/index.php",
+  "iconUrl": "https://zubbo-app-demo.up.railway.app/public/imagem/zubbo-icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "..\\.local\\zubbo-release.keystore",
+    "alias": "zubbo"
+  },
+  "appVersionName": "1",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://zubbo-app-demo.up.railway.app/public/manifest.php",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://zubbo-app-demo.up.railway.app/",
+  "minSdkVersion": 24,
+  "orientation": "default",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "",
+  "displayOverride": [],
+  "appVersion": "1"
+}

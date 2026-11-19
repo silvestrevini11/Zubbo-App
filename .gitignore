@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 .local/
+vendor/
 *.log
 *.bundle
 *.dump
@@ -13,3 +14,13 @@
 *.key
 *.p12
 *.pfx
+*.jks
+*.keystore
+*.apk
+*.aab
+*.idsig
+node_modules/
+**/.gradle/
+**/build/
+**/.idea/
+*.iml

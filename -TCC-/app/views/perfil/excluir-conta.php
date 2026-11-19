@@ -49,6 +49,7 @@ try {
             email_verificado=FALSE, status_user='banido'
         WHERE id_user=?
     ")->execute([$nomeAnonimo, $emailAnonimo, $hashInvalido, $idUsuario]);
+    $conn->prepare('DELETE FROM PushSubscription WHERE id_user = ?')->execute([$idUsuario]);
     $conn->prepare('DELETE FROM Usuario_Esporte WHERE id_user = ?')->execute([$idUsuario]);
     $conn->prepare('DELETE FROM Amizade WHERE id_user_1 = ? OR id_user_2 = ?')
         ->execute([$idUsuario, $idUsuario]);

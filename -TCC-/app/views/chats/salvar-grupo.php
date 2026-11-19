@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../middleware/auth.php';
+require_once __DIR__ . '/../../services/NotificacaoService.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: criar-grupos.php');
@@ -11,7 +12,13 @@ zubbo_require_csrf();
 $id_usuario = (int) $_SESSION['usuario']['id'];
 $nome = trim($_POST['nome_grupo'] ?? '');
 $descricao = trim($_POST['descricao_grupo'] ?? '');
-$participantes = array_values(array_unique(array_filter(array_map('intval', $_POST['participantes'] ?? []))));
+$participantes = $_POST['participantes'] ?? [];
+if (!is_array($participantes) || array_filter($participantes, fn($id) => !is_scalar($id))) {
+    $_SESSION['grupo_erro'] = 'Selecione participantes válidos.';
+    header('Location: criar-grupos.php');
+    exit;
+}
+$participantes = array_values(array_unique(array_filter(array_map('intval', $participantes))));
 
 if ($nome === '' || mb_strlen($nome) > 80) {
     $_SESSION['grupo_erro'] = 'Informe um nome válido para o grupo.';
@@ -88,11 +95,28 @@ try {
     ");
     $stmtPart->execute([$id_usuario, $id_conversa]);
 
+    $novosMembros = [];
     foreach ($permitidos as $id_amigo) {
         $stmtPart->execute([$id_amigo, $id_conversa]);
+        if (zubbo_notificar($conn, $id_amigo, $id_usuario,
+            'grupo_adicionado', null, $id_conversa)) {
+            $novosMembros[] = $id_amigo;
+        }
     }
 
     $conn->commit();
+    if ($novosMembros) {
+        require_once __DIR__ . '/../../services/PushService.php';
+        foreach ($novosMembros as $novoMembro) {
+            try {
+                PushService::sendToUser($conn, $novoMembro, 'Zubbo · Novo grupo',
+                    'Você foi adicionado a um grupo.',
+                    '/app/views/chats/chat-grupo.php?id_conversa='.$id_conversa);
+            } catch (Throwable $e) {
+                error_log('Web Push grupo novo: '.get_class($e));
+            }
+        }
+    }
     header('Location: chats-grupos.php?criado=1');
     exit;
 } catch (Throwable $e) {

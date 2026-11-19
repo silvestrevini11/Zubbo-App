@@ -1,26 +1,27 @@
 <?php
-
-session_start();
-
-include __DIR__.'/../../../config/database.php';
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
+require_once __DIR__ . '/../../../config/map.php';
+$mapConfig = zubbo_map_config();
 
 $nomeUsuario = $_SESSION['usuario']['nome'];
 $locaisMapa = [];
 $erroLocaisMapa = false;
 try {
     $stmtLocaisMapa = $conn->query("
-        SELECT id_local, nome_local, endereco_local, tipo_local
+        SELECT id_local, nome_local, endereco_local, tipo_local, foto_local
         FROM LocalEsp
         WHERE status_local = 'aprovado'
           AND endereco_local LIKE '%Diadema%'
         ORDER BY nome_local
     ");
     $locaisMapa = $stmtLocaisMapa->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($locaisMapa as &$localMapa) {
+        $localMapa['foto_url'] = $localMapa['foto_local']
+            ? zubbo_url('/' . ltrim((string)$localMapa['foto_local'], '/'))
+            : null;
+        unset($localMapa['foto_local']);
+    }
+    unset($localMapa);
 } catch (PDOException $erro) {
     error_log('Erro ao carregar locais do mapa: ' . $erro->getMessage());
     $erroLocaisMapa = true;
@@ -124,6 +125,17 @@ include __DIR__ . '/../includes/head.php';
 />
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.29.0/mapbox-gl.js"></script>
+<style>
+/* O pin nativo Mapbox posiciona a ponta na coordenada geográfica.
+   Não aplicar transform aos elementos .mapboxgl-marker, pois o próprio Mapbox
+   controla esse transform ao movimentar/rotacionar/zoom do mapa. */
+.zubbo-legenda-marcadores {
+ position:absolute;z-index:2;bottom:12px;left:12px;max-width:calc(100% - 24px);
+ border-radius:10px;padding:6px 10px;font-size:11px;line-height:1.5;
+ background:#ffffffeb;color:#222;box-shadow:0 2px 12px #0002;pointer-events:none;
+}
+html.tema-escuro .zubbo-legenda-marcadores {background:#1d2630ec;color:#fff}
+</style>
 
 <script>
   (() => {
@@ -163,8 +175,17 @@ include __DIR__ . '/../includes/head.php';
     new mapboxgl.NavigationControl(),
     'top-right'
   );
+  // A localização é solicitada somente quando o usuário clicar no controle.
+  if ('geolocation' in navigator) {
+    map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: false },
+      trackUserLocation: false,
+      showUserHeading: false
+    }), 'top-right');
+  }
 
-  function criarPopupLocal(nome, endereco) {
+
+  function criarPopupLocal(nome, endereco, fotoUrl = null, idLocal = null, posicaoAproximada = false) {
     const conteudo = document.createElement('div');
     conteudo.style.color = '#222';
     const titulo = document.createElement('strong');
@@ -172,6 +193,33 @@ include __DIR__ . '/../includes/head.php';
     const descricao = document.createElement('p');
     descricao.textContent = endereco;
     conteudo.append(titulo, descricao);
+    if (posicaoAproximada) {
+      const aviso = document.createElement('small');
+      aviso.textContent = 'Posição aproximada na rua; confirme a entrada antes de ir.';
+      conteudo.appendChild(aviso);
+    }
+    if (fotoUrl) {
+      const foto = document.createElement('img');
+      foto.src = fotoUrl;
+      foto.alt = 'Foto do local ' + nome;
+      foto.loading = 'lazy';
+      foto.style.cssText = 'display:block;width:220px;max-height:130px;object-fit:cover;border-radius:8px;margin:8px 0';
+      conteudo.appendChild(foto);
+    }
+    if (idLocal) {
+      const eventos = document.createElement('a');
+      const base = <?= json_encode(zubbo_url('/app/views/eventos/eventos.php')) ?>;
+      eventos.href = base + '?id_local=' + encodeURIComponent(idLocal);
+      eventos.textContent = 'Ver eventos neste local →';
+      eventos.style.cssText = 'display:block;margin-top:8px;color:#b93817;font-weight:bold';
+      conteudo.appendChild(eventos);
+      const agenda = document.createElement('a');
+      const urlAgenda = <?= json_encode(zubbo_url('/app/views/eventos/agenda-local.php')) ?>;
+      agenda.href = urlAgenda + '?id_local=' + encodeURIComponent(idLocal);
+      agenda.textContent = 'Horários cadastrados no Zubbo →';
+      agenda.style.cssText = 'display:block;margin-top:6px;color:#b93817;font-weight:bold';
+      conteudo.appendChild(agenda);
+    }
     return new mapboxgl.Popup({ offset: 25 }).setDOMContent(conteudo);
   }
 
@@ -179,6 +227,12 @@ include __DIR__ . '/../includes/head.php';
     .setLngLat(centroDiadema)
     .setPopup(criarPopupLocal('Centro de Diadema', 'Diadema - SP'))
     .addTo(map);
+
+  const legendaMarcadores = document.createElement('div');
+  legendaMarcadores.className = 'zubbo-legenda-marcadores';
+  legendaMarcadores.textContent = '🟢 Campos · 🔵 Quadras · 🟣 Ginásios · 🟦 Clubes · 🟡 Parques';
+  const mapaContainer = map.getContainer();
+  mapaContainer.appendChild(legendaMarcadores);
 
   const locaisMapa = <?= json_encode($locaisMapa, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE) ?>;
   const erroLocaisMapa = <?= $erroLocaisMapa ? 'true' : 'false' ?>;
@@ -218,13 +272,14 @@ include __DIR__ . '/../includes/head.php';
       statusMapa.textContent = 'Não foi possível carregar os locais cadastrados.';
       return;
     }
-    if (!locaisMapa.length) {
-      statusMapa.textContent = 'Nenhum local aprovado de Diadema cadastrado.';
+    const locaisVisiveis = locaisMapa.filter(local => local.tipo_local !== 'poliesportivo');
+    if (!locaisVisiveis.length) {
+      statusMapa.textContent = 'Nenhum local disponível para exibir no mapa.';
       return;
     }
     let adicionados = 0;
     let falhas = 0;
-    for (const local of locaisMapa) {
+    for (const local of locaisVisiveis) {
       const controlador = new AbortController();
       const tempoLimite = setTimeout(() => controlador.abort(), 10000);
       try {
@@ -232,30 +287,75 @@ include __DIR__ . '/../includes/head.php';
           q: local.endereco_local,
           country: 'br',
           language: 'pt',
-          types: 'address',
           autocomplete: 'false',
           limit: '1',
           bbox: limitesDiadema.flat().join(','),
           proximity: centroDiadema.join(','),
           access_token: mapboxgl.accessToken
         });
+        // Parques com endereço s/n podem ser localizados pela rua quando não há número.
+        if (local.tipo_local !== 'parque') parametros.set('types', 'address');
         const resposta = await fetch(
           'https://api.mapbox.com/search/geocode/v6/forward?' + parametros,
           { signal: controlador.signal }
         );
         if (!resposta.ok) throw new Error('Falha ao localizar endereço');
         const dados = await resposta.json();
-        const resultado = dados.features && dados.features[0];
-        const coordenadas = resultado && resultado.geometry && resultado.geometry.coordinates;
-        if (!coordenadas || resultado.geometry.type !== 'Point' ||
-            !coordenadas.every(Number.isFinite) ||
-            coordenadas[0] < limitesDiadema[0][0] || coordenadas[0] > limitesDiadema[1][0] ||
-            coordenadas[1] < limitesDiadema[0][1] || coordenadas[1] > limitesDiadema[1][1]) {
+        const pontoValido = (feature) => {
+          const ponto = feature && feature.geometry && feature.geometry.coordinates;
+          return feature && feature.geometry.type === 'Point' && Array.isArray(ponto) &&
+            ponto.length === 2 && ponto.every(Number.isFinite) &&
+            ponto[0] >= limitesDiadema[0][0] && ponto[0] <= limitesDiadema[1][0] &&
+            ponto[1] >= limitesDiadema[0][1] && ponto[1] <= limitesDiadema[1][1];
+        };
+        let resultado = dados.features && dados.features[0];
+        let posicaoAproximada = false;
+        if (!pontoValido(resultado) && /(?:s\/n|blocos?)/i.test(local.endereco_local)) {
+          // Quando o equipamento não tem número, usa apenas a rua confirmada em Diadema.
+          const nomeRua = local.endereco_local.split(',')[0].trim();
+          const parametrosRua = new URLSearchParams(parametros);
+          parametrosRua.set('q', nomeRua + ', Diadema, SP');
+          parametrosRua.delete('types');
+          parametrosRua.set('limit', '3');
+          const respostaRua = await fetch(
+            'https://api.mapbox.com/search/geocode/v6/forward?' + parametrosRua,
+            { signal: controlador.signal }
+          );
+          if (!respostaRua.ok) throw new Error('Falha ao localizar rua');
+          const dadosRua = await respostaRua.json();
+          const normalizarRua = (valor) => String(valor || '').normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+          resultado = (dadosRua.features || []).find(feature =>
+            feature.properties?.feature_type === 'street' &&
+            normalizarRua(feature.properties.name) === normalizarRua(nomeRua) &&
+            pontoValido(feature)
+          );
+          posicaoAproximada = Boolean(resultado);
+        }
+        if (!pontoValido(resultado)) {
           throw new Error('Endereço não localizado em Diadema');
         }
-        const marcador = new mapboxgl.Marker({ color: '#ef4b25' })
+        const coordenadas = resultado.geometry.coordinates;
+        const classePorTipo = {
+          campo: ['#16895c', 'Campo de futebol'],
+          quadra: ['#2563eb', 'Quadra esportiva'],
+          'ginásio': ['#8b5cf6', 'Ginásio'],
+          clube: ['#0f8b91', 'Clube'],
+          parque: ['#eab308', 'Parque']
+        };
+        const [corMarcador, descricao] = classePorTipo[local.tipo_local] || classePorTipo.quadra;
+        // Mesmo pin padrão do Centro, apenas menor e colorido conforme o local.
+        // O Marker do Mapbox mantém o ponto geográfico fixo durante pan/zoom.
+        const marcador = new mapboxgl.Marker({
+          color: corMarcador,
+          scale: 0.65,
+          anchor: 'bottom'
+        });
+        marcador.getElement().title = local.nome_local + ' · ' + descricao;
+        marcador.getElement().setAttribute('aria-label', marcador.getElement().title);
+        marcador
           .setLngLat(coordenadas)
-          .setPopup(criarPopupLocal(local.nome_local, local.endereco_local))
+          .setPopup(criarPopupLocal(local.nome_local, local.endereco_local, local.foto_url, local.id_local, posicaoAproximada))
           .addTo(map);
 
         if (localSelecionadoId && String(local.id_local) === String(localSelecionadoId)) {
@@ -270,7 +370,7 @@ include __DIR__ . '/../includes/head.php';
         clearTimeout(tempoLimite);
       }
       if (!focoLocalAplicado) {
-        statusMapa.textContent = adicionados + ' de ' + locaisMapa.length + ' locais no mapa.';
+        statusMapa.textContent = adicionados + ' de ' + locaisVisiveis.length + ' locais no mapa.';
       }
     }
     if (falhas && !focoLocalAplicado) {

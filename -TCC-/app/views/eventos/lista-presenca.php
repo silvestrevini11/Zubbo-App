@@ -42,7 +42,8 @@ $confirmadosIndividuais = $estado['confirmados_individuais'];
 $pendentes = $estado['pendentes'];
 $minhaSolicitacao = $estado['minha_solicitacao'];
 
-$limite = evento_vagas_por_time((string) $evento['nome_esporte']);
+$limite = evento_vagas_por_time((string) $evento['nome_esporte'], $conn);
+$quantidadeTimes = evento_quantidade_times((string)$evento['nome_esporte'],$conn);
 $organizador = (int) $evento['id_criador'] === $idUsuario;
 $aberto = $evento['status_evento'] === 'ativo' && (bool) $evento['aberto'];
 $totalConfirmados = count($confirmadosSemVaga);
@@ -61,10 +62,17 @@ foreach ($confirmadosSemVaga as $participanteSemVaga) {
     }
 }
 
+$stFila = $conn->prepare("SELECT id_user FROM Fila_Espera_Evento
+   WHERE id_evento = ? ORDER BY data_entrada, id_user");
+$stFila->execute([$idEvento]);
+$usuariosFila = array_map('intval', $stFila->fetchAll(PDO::FETCH_COLUMN));
+$indiceFila = array_search($idUsuario, $usuariosFila, true);
+$filaCheia = $limite !== null && $totalConfirmados >= $limite * $quantidadeTimes;
+
 $flash = $_SESSION['flash_vaga_evento'][$idEvento] ?? null;
 unset($_SESSION['flash_vaga_evento'][$idEvento]);
 
-$totalVagas = $limite !== null ? $limite * 2 : null;
+$totalVagas = $limite !== null ? $limite * $quantidadeTimes : null;
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -114,6 +122,27 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
         </p>
     <?php endif; ?>
 
+    <?php if ($limite !== null && ($filaCheia || $indiceFila !== false)): ?>
+        <section class="evento-fila-espera" aria-label="Fila de espera">
+            <div>
+                <strong>Fila de espera</strong>
+                <p><?= count($usuariosFila) ?> pessoa(s) aguardando uma vaga.</p>
+                <?php if ($indiceFila !== false): ?>
+                    <p>Você está na posição <?= (int)$indiceFila + 1 ?>.
+                    Se uma vaga abrir, sua solicitação será enviada ao organizador para aprovação.</p>
+                <?php endif; ?>
+            </div>
+            <?php if ($indiceFila !== false || ($filaCheia && $aberto && !$minhaSolicitacao && !$minhaParticipacaoSemVaga)): ?>
+                <form method="post" action="fila-espera-acao.php">
+                    <input type="hidden" name="csrf" value="<?= escaparEscalacao($_SESSION['csrf_eventos']) ?>">
+                    <input type="hidden" name="id_evento" value="<?= (int)$idEvento ?>">
+                    <input type="hidden" name="origem" value="lista">
+                    <input type="hidden" name="acao" value="<?= $indiceFila !== false ? 'sair' : 'entrar' ?>">
+                    <button type="submit"><?= $indiceFila !== false ? 'Sair da fila' : 'Entrar na fila' ?></button>
+                </form>
+            <?php endif; ?>
+        </section>
+    <?php endif; ?>
     <?php if ($confirmadosSemVaga): ?>
         <section class="presenca-legado">
             <strong><?= count($confirmadosSemVaga) ?> participação(ões) antigas ainda não foram posicionadas.</strong>
@@ -149,7 +178,7 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
                 <div>
                     <span><?= $minhaSolicitacao['status_solicitacao'] === 'aprovada' ? 'VOCÊ ESTÁ NO JOGO' : 'SUA SOLICITAÇÃO' ?></span>
                     <strong>
-                        Time <?= (int) $minhaSolicitacao['time_num'] ?> ·
+                        <?= escaparEscalacao($evento[(int)$minhaSolicitacao['time_num'] === 1 ? 'nome_time_1' : 'nome_time_2']) ?> ·
                         Vaga <?= (int) $minhaSolicitacao['numero_vaga'] ?>
                     </strong>
                     <small>
@@ -170,13 +199,13 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
             </section>
         <?php endif; ?>
 
-        <section class="presenca-times" aria-label="Escalação dos dois times">
-            <?php foreach ([1, 2] as $time): ?>
+        <section class="presenca-times" aria-label="Escalação das equipes">
+            <?php foreach (range(1, $quantidadeTimes) as $time): ?>
                 <article class="presenca-time presenca-time-<?= $time ?>">
                     <header>
                         <div class="presenca-time-identidade">
                             <span>TEAM <?= $time === 1 ? 'A' : 'B' ?></span>
-                            <h2>TIME <?= $time ?></h2>
+                            <h2><?= escaparEscalacao($evento[$time === 1 ? 'nome_time_1' : 'nome_time_2']) ?></h2>
                         </div>
                         <div class="presenca-time-contador">
                             <strong><?= count($confirmadosTimes[$time]) ?></strong>
@@ -247,7 +276,7 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
                                             <?php elseif ($quantidadePedidos > 0): ?>
                                                 <?= $quantidadePedidos ?> SOLICITAÇÃO(ÕES)
                                             <?php else: ?>
-                                                TIME <?= $time ?> · SLOT <?= $vaga ?>
+                                                <?= escaparEscalacao($evento[$time === 1 ? 'nome_time_1' : 'nome_time_2']) ?> · SLOT <?= $vaga ?>
                                             <?php endif; ?>
                                         </small>
                                     </span>
@@ -360,7 +389,7 @@ $totalVagas = $limite !== null ? $limite * 2 : null;
                                 <strong><?= escaparEscalacao($solicitacao['nome_user']) ?></strong>
                                 <span>
                                     <?php if ($solicitacao['time_num'] !== null): ?>
-                                        Time <?= (int) $solicitacao['time_num'] ?> · vaga <?= (int) $solicitacao['numero_vaga'] ?>
+                                        <?= escaparEscalacao($evento[(int)$solicitacao['time_num'] === 1 ? 'nome_time_1' : 'nome_time_2']) ?> · vaga <?= (int) $solicitacao['numero_vaga'] ?>
                                     <?php else: ?>
                                         Participação individual
                                     <?php endif; ?>

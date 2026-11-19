@@ -1,4 +1,5 @@
 const pesquisaInput = document.getElementById('pesquisaInput');
+document.querySelector('.pesquisa-filtro')?.addEventListener('click', () => pesquisaInput.focus());
 const resultadosPerfis = document.getElementById('resultadosPerfis');
 const resultadosPoles = document.getElementById('resultadosPoles');
 const resultadosEventos = document.getElementById('resultadosEventos');

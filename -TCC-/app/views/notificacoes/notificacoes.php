@@ -1,18 +1,23 @@
 <?php
-
-require_once __DIR__ . '/../../../config/security.php';
-zubbo_start_session();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
-
-include __DIR__ . '/../includes/head.php';
-include __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../middleware/auth.php';
 
 $id_usuario = (int) $_SESSION['usuario']['id'];
 
+// Limpa somente notificações antigas, já lidas há pelo menos cinco minutos.
+$conn->prepare("DELETE FROM Notificacao
+    WHERE id_destinatario=? AND lida=TRUE
+      AND data_leitura IS NOT NULL
+      AND data_leitura <= DATE_SUB(NOW(), INTERVAL 5 MINUTE)")
+    ->execute([$id_usuario]);
+
+// A visita à caixa marca TODAS as categorias como lidas, não só mensagens.
+// A data é gravada apenas na primeira leitura: o prazo não reinicia no refresh.
+$conn->prepare("UPDATE Notificacao
+    SET lida=TRUE, data_leitura=COALESCE(data_leitura, NOW())
+    WHERE id_destinatario=? AND (lida=FALSE OR data_leitura IS NULL)")
+    ->execute([$id_usuario]);
+
+include __DIR__ . '/../includes/head.php';
 
 /* ==========================================
    BUSCAR NOTIFICAÇÕES
@@ -22,6 +27,7 @@ $stmt = $conn->prepare("
     SELECT
         n.id_notificacao,
         n.id_conversa,
+        n.id_evento,
         n.id_mensagem,
         n.tipo,
         n.lida,
@@ -38,7 +44,7 @@ $stmt = $conn->prepare("
 
     FROM Notificacao n
 
-    INNER JOIN Usuario u
+    LEFT JOIN Usuario u
         ON u.id_user = n.id_remetente
 
     LEFT JOIN Mensagem m
@@ -59,6 +65,10 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
+<style>
+.btn-limpar-notificacoes {border:1px solid #e64e2c;border-radius:10px;background:transparent;color:#cf4521;padding:10px 14px;font-weight:700;cursor:pointer}
+html.tema-escuro .btn-limpar-notificacoes {color:#ffad8d;border-color:#e77759}
+</style>
 <section
     class="notificacoes-container"
     style="padding-bottom: 80px;"
@@ -79,6 +89,14 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </h1>
 
 
+    <form action="limpar-lidas.php" method="post" style="margin:10px 0 18px"
+          onsubmit="return confirm('Remover as notificações já lidas?');">
+        <?= zubbo_csrf_input() ?>
+        <button type="submit" class="btn-limpar-notificacoes">Limpar notificações lidas</button>
+    </form>
+    <?php if (isset($_GET['limpo'])): ?>
+        <p role="status">As notificações já lidas foram removidas.</p>
+    <?php endif; ?>
     <div class="notificacoes-lista">
 
         <?php if (empty($notificacoes)): ?>
@@ -116,7 +134,7 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                  */
                 ?>
 
-                <?php if ($notificacao['tipo'] === 'mensagem'): ?>
+                <?php if (in_array($notificacao['tipo'], ['mensagem','convite_evento','amizade_aceita','vaga_solicitada','vaga_aprovada','grupo_adicionado'], true)): ?>
 
                     <a
                         href="abrir-notificacao.php?id=<?= (int) $notificacao['id_notificacao'] ?>"
@@ -136,14 +154,13 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="notificacao-info">
 
                         <strong class="notificacao-nome-user">
-                            <?= htmlspecialchars($notificacao['nome_user']) ?>
+                            <?= htmlspecialchars($notificacao['nome_user'] ?? 'Usuário indisponível', ENT_QUOTES, 'UTF-8') ?>
                         </strong>
 
 
                         <span class="notificacao-env-men">
 
                             <?php if ($notificacao['tipo'] === 'mensagem'): ?>
-
                                 enviou uma mensagem
 
                             <?php elseif ($notificacao['tipo'] === 'amizade'): ?>
@@ -153,6 +170,14 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php elseif ($notificacao['tipo'] === 'amizade_aceita'): ?>
 
                                 aceitou sua solicitação de amizade
+                            <?php elseif ($notificacao['tipo'] === 'convite_evento'): ?>
+                                convidou você para um evento do grupo
+                            <?php elseif ($notificacao['tipo'] === 'vaga_solicitada'): ?>
+                                solicitou uma vaga no seu evento
+                            <?php elseif ($notificacao['tipo'] === 'vaga_aprovada'): ?>
+                                aprovou sua participação em um evento
+                            <?php elseif ($notificacao['tipo'] === 'grupo_adicionado'): ?>
+                                adicionou você a um grupo
 
                             <?php endif; ?>
 
@@ -170,7 +195,7 @@ $notificacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
 
-                <?php if ($notificacao['tipo'] === 'mensagem'): ?>
+                <?php if (in_array($notificacao['tipo'], ['mensagem','convite_evento','amizade_aceita','vaga_solicitada','vaga_aprovada','grupo_adicionado'], true)): ?>
 
                     </a>
 

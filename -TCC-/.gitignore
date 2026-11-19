@@ -12,6 +12,10 @@ public/uploads/perfis/*
 public/uploads/grupos/*
 !public/uploads/.htaccess
 
+# Novas fotos geradas por moderacao de locais/esportes
+public/uploads/locais/*
+public/uploads/esportes/*
+
 .local/
 *.sql.gz
 *.sql.zip

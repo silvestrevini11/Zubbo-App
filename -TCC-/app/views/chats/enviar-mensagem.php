@@ -48,6 +48,8 @@ $stmt = $conn->prepare("
     INNER JOIN Participantes_Conversa pc_outro
         ON pc_outro.id_conversa = c.id_conversa
         AND pc_outro.id_user <> ?
+    INNER JOIN Usuario u_destino ON u_destino.id_user = pc_outro.id_user
+        AND u_destino.status_user = 'ativo'
 
     WHERE c.id_conversa = ?
       AND c.tipo_conversa = 'privado'
@@ -67,6 +69,20 @@ if (!$conversa) {
 }
 
 $id_destinatario = (int) $conversa['id_destinatario'];
+
+require_once __DIR__ . '/../../services/AmizadeService.php';
+if (!zubbo_amizade_aceita($conn, $id_usuario, $id_destinatario)) {
+    http_response_code(403);
+    exit('É necessário ter uma amizade aceita para enviar mensagens privadas.');
+}
+
+$stmtBloqueio = $conn->prepare("SELECT 1 FROM Bloqueio_Usuario
+ WHERE (id_bloqueador=? AND id_bloqueado=?) OR (id_bloqueador=? AND id_bloqueado=?) LIMIT 1");
+$stmtBloqueio->execute([$id_usuario,$id_destinatario,$id_destinatario,$id_usuario]);
+if ($stmtBloqueio->fetchColumn()) {
+    http_response_code(403); exit('Não é possível enviar mensagens para este contato.');
+}
+
 
 
 /* ==========================================
@@ -122,6 +138,15 @@ $stmt->execute([
 /* ==========================================
    VOLTAR PARA A CONVERSA
 ========================================== */
+
+require_once __DIR__ . '/../../services/PushService.php';
+try {
+    PushService::sendToUser($conn, $id_destinatario, 'Zubbo · Mensagem privada',
+        'Você recebeu uma mensagem privada.',
+        '/app/views/chats/chats-conversas.php?id=' . $id_usuario);
+} catch (Throwable $e) {
+    error_log('Web Push privado: ' . get_class($e));
+}
 
 header(
     'Location: chats-conversas.php?id=' . $id_destinatario

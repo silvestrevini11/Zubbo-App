@@ -1,11 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../config/security.php';
-zubbo_start_session();
-
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../auth/login.php');
-    exit;
-}
+require_once __DIR__ . '/../../middleware/auth.php';
 
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -42,6 +36,26 @@ include __DIR__ . '/../includes/head.php';
                 <span></span>
             </label>
         </div>
+    </section>
+
+    <section class="configuracoes-grupo" aria-labelledby="alertas-titulo">
+        <h2 id="alertas-titulo">Alertas de mensagens</h2>
+        <div class="configuracoes-item">
+            <span class="configuracoes-icone" aria-hidden="true">◉</span>
+            <span class="configuracoes-item-texto">
+                <strong>Notificações do navegador</strong>
+                <span>Receba avisos de mensagens, grupos, amizades e eventos, mesmo fora desta aba.</span>
+            </span>
+            <button type="button" id="notificacoes-optin" class="btn-alertas"
+                data-vapid-key="<?= htmlspecialchars((string)getenv('ZUBBO_VAPID_PUBLIC_KEY'), ENT_QUOTES, 'UTF-8') ?>"
+                data-worker-url="<?= htmlspecialchars(zubbo_url('/sw.js'), ENT_QUOTES, 'UTF-8') ?>"
+                data-scope="<?= htmlspecialchars(zubbo_url('/'), ENT_QUOTES, 'UTF-8') ?>"
+                data-api-url="<?= htmlspecialchars(zubbo_url('/app/views/notificacoes/push-inscricao.php'), ENT_QUOTES, 'UTF-8') ?>"
+                data-teste-url="<?= htmlspecialchars(zubbo_url('/app/views/notificacoes/push-teste.php'), ENT_QUOTES, 'UTF-8') ?>"
+                data-csrf="<?= htmlspecialchars(zubbo_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">Ativar</button>
+        </div>
+        <p id="alertas-estado" role="status"></p>
+        <button type="button" id="notificacoes-teste" class="btn-alertas" hidden>Enviar notificação de teste</button>
     </section>
 
     <section class="configuracoes-grupo" aria-labelledby="suporte-titulo">
@@ -114,6 +128,7 @@ include __DIR__ . '/../includes/head.php';
     document.querySelector('[data-abrir-exclusao]').addEventListener('click', () => modalExclusao.showModal());
     document.querySelector('[data-fechar-exclusao]').addEventListener('click', () => modalExclusao.close());
 </script>
+<script defer src="<?= htmlspecialchars(zubbo_url('/public/js/push.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 <?php
 include __DIR__ . '/../../views/includes/under-bar.php';
 include __DIR__ . '/../../views/includes/footer.php';

@@ -26,6 +26,9 @@ try {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]
     );
+    // MySQL/MariaDB usa o mesmo fuso do PHP para NOW() e CURRENT_TIMESTAMP.
+    // Usa offset calculado pelo PHP, sem depender de tabelas de timezone do MySQL.
+    $conn->prepare('SET time_zone = ?')->execute([date('P')]);
 } catch (PDOException $e) {
     zubbo_log('critical', 'db.connection_failed', ['reason_code' => 'pdo_unavailable']);
     http_response_code(500);
@@ -52,6 +55,15 @@ if (PHP_SAPI !== 'cli' && !empty($_SESSION['usuario']['id'])) {
         ]);
         $_SESSION = [];
         session_regenerate_id(true);
+        if (str_contains((string)($_SERVER['SCRIPT_NAME'] ?? ''), '/buscar-')
+            || str_contains((string)($_SERVER['SCRIPT_NAME'] ?? ''), '/pesquisar-')
+            || str_contains((string)($_SERVER['SCRIPT_NAME'] ?? ''), '/sugestoes-busca.php')) {
+            http_response_code(401);
+            header('Content-Type: application/json; charset=utf-8');
+            header('Cache-Control: no-store');
+            echo json_encode(['erro' => 'sessao_expirada']);
+            exit;
+        }
         header('Location: ' . zubbo_url('/app/views/auth/login.php?conta=inativa'));
         exit;
     }

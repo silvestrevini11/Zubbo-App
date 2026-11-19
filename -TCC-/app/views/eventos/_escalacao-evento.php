@@ -28,7 +28,7 @@ function evento_buscar_solicitacoes(PDO $conn, int $idEvento): array
     $stmt = $conn->prepare("
         SELECT s.id_solicitacao, s.id_user, s.time_num, s.numero_vaga,
                s.status_solicitacao, s.data_solicitacao, s.data_resposta,
-               u.nome_user
+               u.nome_user, u.foto_user
         FROM Solicitacao_Vaga_Evento s
         INNER JOIN Usuario u ON u.id_user = s.id_user
         WHERE s.id_evento = ?

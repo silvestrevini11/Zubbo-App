@@ -2,6 +2,7 @@
 <nav class="bottom-nav">
     <a href="<?= htmlspecialchars(zubbo_url('/app/views/painel/Painel-inicial.php'), ENT_QUOTES, 'UTF-8') ?>" class="nav-item">
         <img class="nav-icon" src="<?= htmlspecialchars(zubbo_url('/public/imagem/inicio.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Início">
+        <span class="nav-unread-dot" id="nav-inicio-notificacoes" hidden aria-label="Notificações não lidas"></span>
         <span>Início</span>
     </a>
 
@@ -29,6 +30,7 @@
 <script>
 (() => {
     const badge = document.getElementById('nav-conversas-nao-lidas');
+    const inicio = document.getElementById('nav-inicio-notificacoes');
     if (!badge) return;
     const url = <?= json_encode(zubbo_url('/app/views/notificacoes/buscar-notificacoes.php')) ?>;
     async function carregarNaoLidas() {
@@ -39,6 +41,7 @@
             const quantidade = Math.max(0, Number(dados.conversas_nao_lidas) || 0);
             badge.hidden = quantidade === 0;
             badge.textContent = quantidade > 99 ? '99+' : String(quantidade);
+            if (inicio) inicio.hidden = (Number(dados.quantidade) || 0) <= 0;
         } catch (erro) {
             console.warn('Não foi possível atualizar mensagens não lidas.');
         }

@@ -356,7 +356,7 @@ Substitua os exemplos pelas credenciais reais. Valide a configuração e reinici
 
 1. Confira `SELECT DATABASE()` na conexão usada para investigar.
 2. Use `SHOW TABLES` e o nome exato indicado no erro.
-3. Execute `php tests/audit-migrations.php` a partir de `-TCC-`, com as variáveis do terminal apontando para o destino correto.
+
 4. Em instalação nova, os scripts ativos são `database/scripts/criacaotables.sql` e `database/scripts/insertstables.sql`, nessa ordem.
 5. Em base existente, siga as cinco migrations consolidadas descritas no guia do banco. Não reaplique a criação integral sobre dados existentes.
 6. Na migração entre Windows e Linux, confira os nomes das tabelas e a configuração de capitalização do servidor antes de renomear qualquer estrutura.
@@ -804,11 +804,7 @@ O comando é para o ambiente de hospedagem que fornece `PORT`; não copie a sint
 
 ### 13.1 Auditoria informa incompatibilidade de esquema
 
-**Resolução:** execute `php tests/audit-migrations.php` no terminal com as variáveis corretas. Relacione cada item recusado à migration consolidada correspondente no guia do banco. A ferramenta consulta o estado atual; ela não comprova o histórico de importações. Preserve a base existente antes de aplicar alterações.
-
 ### 13.2 Teste de banco recusa executar ou informa banco não vazio
-
-**Explicação:** `tests/db-smoke.php` exige CLI, `ZUBBO_TEST_ALLOW_SCHEMA=1`, nome `zubbo_ci` ou `zubbo_test_*` e banco vazio. O teste cria estrutura e dados.
 
 **Resolução:** use uma base descartável separada e autorizada. Não aponte para `app_zubbo` nem remova a proteção do teste. Não esvazie o banco real para atender ao requisito. Para verificar a base existente, use a auditoria de leitura.
 
@@ -819,10 +815,6 @@ O comando é para o ambiente de hospedagem que fornece `PORT`; não copie a sint
 **Resolução se a falha reaparecer em outra cópia:** atualize o teste e os scripts SQL para a mesma versão. Não copie migrations antigas de volta nem as aplique sobre a estrutura final apenas para satisfazer uma lista desatualizada. Valide em base descartável.
 
 ### 13.4 Comando documentado não encontra o script
-
-**Exemplo identificado em documentação anterior:** `tests/db-upgrade-smoke.php` era citado, mas não existe na versão examinada. As instruções atuais de instalação e do banco não dependem desse arquivo.
-
-**Resolução:** confira a versão do repositório e a existência do script. Atualize referências antigas e não interprete a ausência de uma ferramenta como falha do banco da aplicação. Para consultar o estado do esquema existente, use `tests/audit-migrations.php`.
 
 ### 13.5 environment-readiness falha no XAMPP
 

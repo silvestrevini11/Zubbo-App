@@ -54,7 +54,7 @@ Use o código de resposta para orientar a investigação:
 6. Faça login com uma conta de teste e repita apenas a ação com falha.
 7. Confira integrações externas, como mapas, correio eletrônico e push.
 
-A página inicial, a tela de login e `health.php` podem responder normalmente sem comprovar que o banco funciona. `health.php` apenas retorna `{"status":"ok"}`.
+A página inicial e a tela de login podem responder normalmente sem comprovar que o banco funciona.
 
 ### 1.3 Locais para consultar
 
@@ -211,7 +211,7 @@ SetEnv ZUBBO_BASE_URL "http://localhost/Zubbo-App/-TCC-"
 SetEnv ZUBBO_BASE_PATH "/Zubbo-App/-TCC-"
 ```
 
-No servidor embutido iniciado em `-TCC-`, use `ZUBBO_BASE_PATH=/` e `ZUBBO_BASE_URL=http://127.0.0.1:8080`. Reinicie o processo afetado e compare o destino do redirecionamento em Rede. Evite prefixo duplicado e lembre da porta quando ela não for 80.
+No Apache, prefira a detecção automática do caminho quando possível. Evite prefixo duplicado e lembre da porta quando ela não for 80.
 
 ### 3.2 Arquivos internos retornam 404
 
@@ -356,7 +356,7 @@ Substitua os exemplos pelas credenciais reais. Valide a configuração e reinici
 
 1. Confira `SELECT DATABASE()` na conexão usada para investigar.
 2. Use `SHOW TABLES` e o nome exato indicado no erro.
-3. Execute `php tests/audit-migrations.php` a partir de `-TCC-`, com as variáveis do terminal apontando para o destino correto.
+
 4. Em instalação nova, os scripts ativos são `database/scripts/criacaotables.sql` e `database/scripts/insertstables.sql`, nessa ordem.
 5. Em base existente, siga as cinco migrations consolidadas descritas no guia do banco. Não reaplique a criação integral sobre dados existentes.
 6. Na migração entre Windows e Linux, confira os nomes das tabelas e a configuração de capitalização do servidor antes de renomear qualquer estrutura.
@@ -766,25 +766,9 @@ Não há fila persistente de reenvio nesta implementação. O evento principal p
 
 ## 12. Hospedagem e deploy
 
-### 12.1 Build não encontra composer.json, router.php ou arquivos da aplicação
+### 12.1 Configuração do servidor Apache
 
-**Resolução:** confirme a versão publicada e configure `/-TCC-` como diretório raiz do serviço quando usar a organização atual. Confira o log de build e a pasta em que o comando executa. O README na raiz externa não significa que essa raiz contém o código executável.
-
-### 12.2 Aplicação não escuta a porta atribuída ou serviço retorna 502/503
-
-**Resolução:** para a demonstração documentada, confira o comando:
-
-```sh
-php -S 0.0.0.0:$PORT router.php
-```
-
-O comando é para o ambiente de hospedagem que fornece `PORT`; não copie a sintaxe de variável diretamente para qualquer terminal Windows. Confira se o processo iniciou e permaneceu ativo. Se houver falha fatal antes de abrir a porta, resolva a mensagem correspondente no log. O servidor embutido é usado para demonstração; uma publicação definitiva exige servidor apropriado ao ambiente.
-
-### 12.3 Healthcheck passa, mas login falha
-
-**Explicação:** `/health.php` não testa banco, correio eletrônico ou conta de usuário.
-
-**Resolução:** confira separadamente as variáveis do banco e a existência do esquema, depois faça o fluxo de login com conta de teste. Em hospedagem, `localhost` aponta para o próprio ambiente PHP, não automaticamente para um serviço MySQL separado. Use o host e a porta fornecidos para a conexão entre serviços.
+Confira a raiz da aplicação, os módulos necessários e as permissões de `.htaccess`. Valide a conexão com o banco separadamente da página inicial.
 
 ### 12.4 Redirecionamento incorreto, sessão perdida ou erro de origem em HTTPS
 
@@ -802,39 +786,9 @@ O comando é para o ambiente de hospedagem que fornece `PORT`; não copie a sint
 
 ## 13. Testes e divergências entre versões
 
-### 13.1 Auditoria informa incompatibilidade de esquema
+### 13.1 Validação local
 
-**Resolução:** execute `php tests/audit-migrations.php` no terminal com as variáveis corretas. Relacione cada item recusado à migration consolidada correspondente no guia do banco. A ferramenta consulta o estado atual; ela não comprova o histórico de importações. Preserve a base existente antes de aplicar alterações.
-
-### 13.2 Teste de banco recusa executar ou informa banco não vazio
-
-**Explicação:** `tests/db-smoke.php` exige CLI, `ZUBBO_TEST_ALLOW_SCHEMA=1`, nome `zubbo_ci` ou `zubbo_test_*` e banco vazio. O teste cria estrutura e dados.
-
-**Resolução:** use uma base descartável separada e autorizada. Não aponte para `app_zubbo` nem remova a proteção do teste. Não esvazie o banco real para atender ao requisito. Para verificar a base existente, use a auditoria de leitura.
-
-### 13.3 Teste procura migrations antigas que não existem
-
-**Falha corrigida nesta revisão:** o teste anterior ainda listava nomes como `005_notificacao_leitura.sql` e `013_web_push.sql`, substituídos por cinco migrations consolidadas. O teste atual instala a estrutura final sem reaplicar esses arquivos históricos.
-
-**Resolução se a falha reaparecer em outra cópia:** atualize o teste e os scripts SQL para a mesma versão. Não copie migrations antigas de volta nem as aplique sobre a estrutura final apenas para satisfazer uma lista desatualizada. Valide em base descartável.
-
-### 13.4 Comando documentado não encontra o script
-
-**Exemplo identificado em documentação anterior:** `tests/db-upgrade-smoke.php` era citado, mas não existe na versão examinada. As instruções atuais de instalação e do banco não dependem desse arquivo.
-
-**Resolução:** confira a versão do repositório e a existência do script. Atualize referências antigas e não interprete a ausência de uma ferramenta como falha do banco da aplicação. Para consultar o estado do esquema existente, use `tests/audit-migrations.php`.
-
-### 13.5 environment-readiness falha no XAMPP
-
-**Explicação:** o script examinado exige requisitos da demonstração remota, como PHP 8.4, endereço HTTPS na raiz e banco remoto com variáveis preenchidas. Esses critérios diferem dos padrões de desenvolvimento local.
-
-**Resolução:** leia cada requisito antes de alterar a instalação. Não mude uma base local funcional para um host remoto só para fazer o teste passar. Use esse diagnóstico no ambiente para o qual foi escrito e escolha verificações locais compatíveis.
-
-### 13.6 Teste de configuração do mapa passa, mas mapa não abre
-
-**Explicação:** o teste de configuração verifica o tratamento de valores pelo código. Um token fictício de teste, como `pk.test.signature`, pode servir a esse teste e não autentica chamadas reais ao Mapbox.
-
-**Resolução:** confira separadamente token real no Apache, recursos do navegador e respostas da API. Um teste unitário de configuração não comprova conexão com o provedor.
+Use uma base descartável para conferir a instalação e os fluxos de cadastro, login, eventos e notificações. Confira o token real do mapa no navegador. Não altere ou esvazie o banco real para testar.
 
 <a id="evidencias"></a>
 
@@ -874,4 +828,4 @@ Esses resultados são registros pontuais. Não equivalem a uma reinstalação co
 
 ### 14.4 Arquivos usados como base desta documentação
 
-As regras específicas foram conferidas em `config/database.php`, `config/security.php`, `config/map.php`, `config/mail.php`, `router.php`, `app/middleware/auth.php`, páginas de autenticação, painel, eventos, conversas, upload de perfil, endpoints push, `app/services/PushService.php`, `public/js/push.js` e ferramentas de teste. As referências externas estão junto aos assuntos correspondentes.
+As regras específicas foram conferidas em `config/database.php`, `config/security.php`, `config/map.php`, `config/mail.php`, `app/middleware/auth.php`, páginas de autenticação, painel, eventos, conversas, upload de perfil, endpoints push, `app/services/PushService.php`, `public/js/push.js`. As referências externas estão junto aos assuntos correspondentes.

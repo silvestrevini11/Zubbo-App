@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 // Maintainer tool: emits deterministic postconditions from the final CREATE script.
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
-require_once __DIR__ . '/../../tests/support/schema-contract.php';
+require_once __DIR__ . '/schema-contract.php';
 $write = in_array('--write', $argv, true);
 $contract = zubbo_schema_contract();
 $scopes = [

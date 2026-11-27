@@ -1,4 +1,4 @@
-/* Zubbo Web Push: escopo limitado à instalação atual (Railway ou XAMPP). */
+/* Zubbo Web Push: escopo limitado à instalação atual. */
 const offlineCache = 'zubbo-offline-v1';
 const offlineUrl = new URL('public/offline.html', self.registration.scope).href;
 

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Logs estruturados para stdout/stderr do Railway via error_log.
+ * Logs estruturados no registro de erros do PHP via error_log.
  * APENAS campos da lista abaixo são aceitos; nunca registrar mensagens,
  * tokens, credenciais, e-mail, telefone, conteúdo de denúncias ou cookies.
  */

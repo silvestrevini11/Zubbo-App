@@ -8,4 +8,4 @@ Ao sair um moderador, outro participante ativo que ainda não é moderador é es
 
 Promoções, edições e saídas bloqueiam a mesma linha de grupo durante a transação, revalidando a autorização após o bloqueio. As ações POST usam a proteção CSRF da aplicação.
 
-Validação sem banco real: `php tests/group-moderation-smoke.php` usa SQLite em memória e verifica permissões, sucessão, isolamento entre grupos e rollback. `php database/tools/migration-contract.php` verifica o contrato SQL. A suíte `tests/db-upgrade.php` inclui a sexta migration e continua exigindo banco MySQL descartável e a autorização descrita em `database/README.md`.
+Para validar as alterações, utilize um banco de desenvolvimento isolado, confira permissões, sucessão de responsáveis e rollback. O comando `php database/tools/migration-contract.php` verifica o contrato SQL.

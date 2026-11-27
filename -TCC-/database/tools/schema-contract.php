@@ -24,7 +24,7 @@ function zubbo_sql_parts(string $sql, string $separator): array
 
 function zubbo_schema_contract(): array
 {
-    $sql = file_get_contents(__DIR__ . '/../../database/scripts/criacaotables.sql');
+    $sql = file_get_contents(__DIR__ . '/../scripts/criacaotables.sql');
     $sql = preg_replace('/^\s*--[^\r\n]*/m', '', $sql);
     $tables = [];
     foreach (zubbo_sql_parts($sql, ';') as $statement) {

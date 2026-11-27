@@ -33,7 +33,6 @@ Desenvolvido como TCC de Desenvolvimento de Sistemas da ETEC Juscelino Kubitchek
 | Dependências PHP | Composer, PHPMailer, Minishlink Web Push e Guzzle | Instalação das bibliotecas, envio de e-mails, Web Push e requisições HTTP. |
 | Mapas | Mapbox GL JS e API de geocodificação do Mapbox | Mapa dos locais, localização e busca de endereços. |
 | E-mail | Resend por API HTTPS ou SMTP com PHPMailer | Confirmação de conta e demais mensagens por e-mail. |
-| PWA e notificações | Web App Manifest, Service Worker e Web Push com chaves VAPID | Instalação a partir do navegador, avisos opcionais e página pública de aviso offline. |
 | Desenvolvimento local | XAMPP/Apache ou servidor PHP embutido | Execução local da aplicação web. |
 
 

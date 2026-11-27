@@ -65,7 +65,7 @@ function zubbo_enviar_email(
     $provider = strtolower(trim((string) getenv('ZUBBO_MAIL_PROVIDER')));
     $resendKey = trim((string) getenv('ZUBBO_RESEND_API_KEY'));
 
-    // No Railway, priorize a API HTTPS do Resend sempre que a chave estiver configurada.
+    // Quando disponível, priorize a API HTTPS do Resend sempre que a chave estiver configurada.
     if ($resendKey !== '' && ($provider === '' || $provider === 'resend')) {
         zubbo_enviar_email_resend($destinatario, $assunto, $html, $texto);
         return;

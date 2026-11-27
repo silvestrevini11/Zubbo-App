@@ -33,7 +33,7 @@ Desenvolvido como TCC de Desenvolvimento de Sistemas da ETEC Juscelino Kubitchek
 | Dependências PHP | Composer, PHPMailer, Minishlink Web Push e Guzzle | Instalação das bibliotecas, envio de e-mails, Web Push e requisições HTTP. |
 | Mapas | Mapbox GL JS e API de geocodificação do Mapbox | Mapa dos locais, localização e busca de endereços. |
 | E-mail | Resend por API HTTPS ou SMTP com PHPMailer | Confirmação de conta e demais mensagens por e-mail. |
-| Desenvolvimento local | XAMPP/Apache ou servidor PHP embutido | Execução local da aplicação web. |
+| Desenvolvimento local | XAMPP/Apache | Execução local da aplicação web. |
 
 
 O código fica em `-TCC-`: `app/` reúne páginas, serviços e autenticação; `config/` contém as configurações; `database/` guarda scripts e migrations; `public/` contém recursos visuais e uploads.
@@ -53,31 +53,25 @@ Use PHP 8.4, Composer, Git, MySQL 8.4 e as extensões `pdo_mysql`, `curl`, `mbst
    composer check-platform-reqs
    ```
 
+Se o PHP não estiver no PATH, use `C:\xampp\php\php.exe` diretamente; com um `composer.phar` local, execute `C:\xampp\php\php.exe composer.phar install` na pasta da aplicação.
+
 2. Inicie o MySQL. No phpMyAdmin, crie e selecione um banco vazio chamado `app_zubbo`, com charset `utf8mb4`.
 3. Importe primeiro [criacaotables.sql](./-TCC-/database/scripts/criacaotables.sql) e depois [insertstables.sql](./-TCC-/database/scripts/insertstables.sql). Eles não criam nem selecionam o banco automaticamente.
 4. Configure o ambiente do Apache, inicie o serviço e abra [Zubbo local](http://localhost/Zubbo-App/-TCC-/).
 
-Para desenvolver com o servidor embutido, execute na pasta `-TCC-`, no Prompt de Comando:
-
-```bat
-set ZUBBO_BASE_PATH=/
-set ZUBBO_BASE_URL=http://127.0.0.1:8080
-php -S 127.0.0.1:8080 router.php
-```
-
 ### Configuração do ambiente
 
-As configurações são lidas com `getenv()`. Criar um arquivo `.env` sozinho não carrega suas variáveis. No XAMPP, configure o Apache com `SetEnv` e reinicie o serviço; no servidor embutido, defina as variáveis no terminal que inicia o PHP.
+As configurações são lidas com `getenv()`. No XAMPP, configure as variáveis necessárias com `SetEnv` no Apache; valores não sensíveis podem ser definidos no `.htaccess` quando permitido. Para ferramentas CLI, configure as variáveis no terminal.
 
 * Banco: `ZUBBO_DB_HOST`, `ZUBBO_DB_PORT`, `ZUBBO_DB_NAME`, `ZUBBO_DB_USER` e `ZUBBO_DB_PASSWORD`. Os padrões locais são `localhost`, `3306`, `app_zubbo`, `root` e senha vazia; ajuste conforme sua instalação.
-* Endereço no XAMPP: `ZUBBO_BASE_URL=http://localhost/Zubbo-App/-TCC-` e `ZUBBO_BASE_PATH=/Zubbo-App/-TCC-`.
+* Endereço no XAMPP (opcional, normalmente detectado automaticamente): `ZUBBO_BASE_URL=http://localhost/Zubbo-App/-TCC-` e `ZUBBO_BASE_PATH=/Zubbo-App/-TCC-`.
 * Mapa: `ZUBBO_MAPBOX_PUBLIC_TOKEN`, com um token público iniciado por `pk.`. Os estilos opcionais são `ZUBBO_MAPBOX_STYLE_LIGHT` e `ZUBBO_MAPBOX_STYLE_DARK`. Sem token aceito, o painel exibe “Mapa temporariamente indisponível”.
 * Correio eletrônico: `ZUBBO_MAIL_PROVIDER=resend`, `ZUBBO_RESEND_API_KEY` e `ZUBBO_MAIL_FROM`. Para SMTP, use `ZUBBO_MAIL_PROVIDER=smtp` com `ZUBBO_SMTP_HOST`, `ZUBBO_SMTP_PORT`, `ZUBBO_SMTP_USER`, `ZUBBO_SMTP_PASSWORD` e `ZUBBO_SMTP_ENCRYPTION`.
 * Demonstração: `ZUBBO_ENV=demo` junto com `ZUBBO_DEMO_MODE=true` permite mostrar o código de confirmação na tela. Em produção, mantenha o modo de demonstração desativado.
 
 ### Banco e administrador
 
-Instalações novas usam somente os dois scripts indicados acima. Para atualizar uma base existente, faça backup e siga as cinco migrations consolidadas do [guia do banco](./-TCC-/database/README.md). Os scripts em `database/archive/` são históricos.
+Instalações novas usam somente os dois scripts indicados acima. Para atualizar uma base existente, faça backup e siga as migrations consolidadas do [guia do banco](./-TCC-/database/README.md). Os scripts em `database/archive/` são históricos.
 
 Para promover uma conta ativa a administrador, execute na pasta `-TCC-` e informe o endereço da conta:
 
@@ -96,7 +90,7 @@ php database/tools/create-admin.php
 * Escape de conteúdo HTML e cabeçalhos como Content Security Policy, proteção contra enquadramento e detecção indevida de tipos de arquivo.
 * Validação de tipo e tamanho de uploads, com bloqueio de execução de PHP nessa pasta.
 * Recuperação de senha com token de uso único e validade limitada.
-* Configuração de credenciais pelo ambiente, bloqueio de arquivos internos pelo roteador e pelo Apache e logs estruturados com seleção de campos permitidos.
+* Configuração de credenciais pelo ambiente, bloqueio de arquivos internos pelo Apache e logs estruturados com seleção de campos permitidos.
 * Inscrições push autenticadas, proteção CSRF e validação dos destinos de envio para reduzir o risco de SSRF.
 
 ### Notificações push
@@ -107,7 +101,7 @@ O recurso usa `sw.js`, a tabela `PushSubscription` e HTTPS ou localhost. O usuá
 
 ### Verificação e logs
 
-Valide manualmente cadastro, login, autenticação, mapa, eventos, mensagens e notificações em ambiente isolado, com banco de teste e sem dados reais. Os eventos estruturados são enviados por `config/logger.php` ao registro de erros do PHP. No XAMPP, consulte `C:/xampp/apache/logs/error.log`; no servidor utilizado, consulte os logs correspondentes. `/health.php` confirma apenas que o PHP respondeu, não a conexão com o banco.
+Valide manualmente cadastro, login, autenticação, mapa, eventos, mensagens e notificações em ambiente isolado, com banco de teste e sem dados reais. Os eventos estruturados são enviados por `config/logger.php` ao registro de erros do PHP. No XAMPP, consulte `C:/xampp/apache/logs/error.log`; no servidor utilizado, consulte os logs correspondentes.
 
 Dependências em `vendor/`, backups, segredos e dados locais não devem entrar no Git; use `composer install` para reconstruir as dependências.
 
